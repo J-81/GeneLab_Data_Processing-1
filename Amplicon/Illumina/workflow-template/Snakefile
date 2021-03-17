@@ -255,15 +255,19 @@ rule filtered_multiqc:
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
         fastqc_out_dir = config["fastqc_out_dir"],
-        filtered_reads_dir = config["filtered_reads_dir"]
+        filtered_reads_dir = config["filtered_reads_dir"],
+        tmp_out = config["fastqc_out_dir"] + "filtered_multiqc.html"
     output:
-        config["fastqc_out_dir"] + "filtered_multiqc.html",
+        config["fastqc_out_dir"] + "filtered_multiqc.html.zip",
         config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n filtered_multiqc  {params.filtered_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files and temp locations
         rm -rf {params.filtered_reads_dir}*fastqc*
+
+        # zipping html output
+        zip -q {params.tmp_out}.zip {params.tmp_out} && rm {params.tmp_out}
         """
 
 
@@ -299,15 +303,19 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
         raw_reads_dir = config["raw_reads_dir"],
-        fastqc_out_dir = config["fastqc_out_dir"]
+        fastqc_out_dir = config["fastqc_out_dir"],
+        tmp_out = config["fastqc_out_dir"] + "raw_multiqc.html"
     output:
-        config["fastqc_out_dir"] + "raw_multiqc.html",
+        config["fastqc_out_dir"] + "raw_multiqc.html.zip",
         config["fastqc_out_dir"] + "raw_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n raw_multiqc {params.raw_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files
         rm -rf {params.raw_reads_dir}*fastqc*
+
+        # zipping html output
+        zip -q {params.tmp_out}.zip {params.tmp_out} && rm {params.tmp_out}
         """
 
 
