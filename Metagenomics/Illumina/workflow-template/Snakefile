@@ -985,21 +985,27 @@ rule filtered_multiqc:
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
+        out_filename_prefix = "filtered_multiqc",
         fastqc_out_dir = config["fastqc_out_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
         int_output = config["fastqc_out_dir"] + "filtered_multiqc.html",
-        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html"
+        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
+        base_out_name = "filtered_multiqc_report.html",
+        base_out_name_zip = "filtered_multiqc_report.html.zip"
     output:
         html = config["fastqc_out_dir"] + "filtered_multiqc_report.html.zip",
         data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n filtered_multiqc  {params.filtered_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix}  {params.filtered_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files and temp locations
         rm -rf {params.filtered_reads_dir}*fastqc*
         # renaming and zipping html file (since not allowed to have html format in system)
         mv {params.int_output} {params.int_output2}
-        zip {output.html} {params.int_output2} > /dev/null 2>&1 && rm {params.int_output2}
+          # zipping from a different directory causes strange things when unzipping, so moving here to zip, then sending back
+        mv {params.int_output2} .
+        zip {params.base_out_name_zip} {params.base_out_name} > /dev/null 2>&1 && rm {params.base_out_name}
+        mv {params.base_out_name_zip} {params.fastqc_out_dir}
         """
 
 
@@ -1056,21 +1062,27 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
+        out_filename_prefix = "raw_multiqc"
         raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
         int_output = config["fastqc_out_dir"] + "raw_multiqc.html",
-        int_output2 = config["fastqc_out_dir"] + "raw_multiqc_report.html"
+        int_output2 = config["fastqc_out_dir"] + "raw_multiqc_report.html",
+        base_out_name = "raw_multiqc_report.html",
+        base_out_name_zip = "raw_multiqc_report.html.zip"
     output:
         html = config["fastqc_out_dir"] + "raw_multiqc_report.html.zip",
         data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n raw_multiqc {params.raw_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files
         rm -rf {params.raw_reads_dir}*fastqc*
         # renaming and zipping html file (since not allowed to have html format in system)
         mv {params.int_output} {params.int_output2}
-        zip {output.html} {params.int_output2} > /dev/null 2>&1 && rm {params.int_output2}
+          # zipping from a different directory causes strange things when unzipping, so moving here to zip, then sending back
+        mv {params.int_output2} .
+        zip {params.base_out_name_zip} {params.base_out_name} > /dev/null 2>&1 && rm {params.base_out_name}
+        mv {params.base_out_name_zip} {params.fastqc_out_dir}
         """
 
 
