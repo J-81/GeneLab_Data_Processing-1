@@ -194,19 +194,22 @@ rule filtered_multiqc:
     params:
         fastqc_out_dir = config["fastqc_out_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
-        tmp_out = config["fastqc_out_dir"] + "filtered_multiqc.html"
+        int_output = config["fastqc_out_dir"] + "filtered_multiqc.html",
+        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html"
     output:
-        config["fastqc_out_dir"] + "filtered_multiqc.html.zip",
-        config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + "filtered_multiqc_report.html.zip",
+        data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n filtered_multiqc  {params.filtered_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files and temp locations
         rm -rf {params.filtered_reads_dir}*fastqc*
 
-        # zipping html output
-        zip -q {params.tmp_out}.zip {params.tmp_out} && rm {params.tmp_out}
+        # renaming and zipping html file (since not allowed to have html format in system)
+        mv {params.int_output} {params.int_output2}
+        zip {output.html} {params.int_output2} && rm {params.int_output2}
         """
+
 
 
 rule filtered_fastqc:
@@ -313,18 +316,20 @@ rule raw_multiqc:
     params:
         raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
-        tmp_out = config["fastqc_out_dir"] + "raw_multiqc.html"
+        int_output = config["fastqc_out_dir"] + "raw_multiqc.html",
+        int_output2 = config["fastqc_out_dir"] + "raw_multiqc_report.html",
     output:
-        config["fastqc_out_dir"] + "raw_multiqc.html.zip",
-        config["fastqc_out_dir"] + "raw_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + "raw_multiqc_report.html.zip",
+        data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n raw_multiqc {params.raw_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files
         rm -rf {params.raw_reads_dir}*fastqc*
 
-        # zipping html output
-        zip -q {params.tmp_out}.zip {params.tmp_out} && rm {params.tmp_out}
+        # renaming and zipping html file (since not allowed to have html format in system)
+        mv {params.int_output} {params.int_output2}
+        zip {output.html} {params.int_output2} && rm {params.int_output2}
         """
 
 
