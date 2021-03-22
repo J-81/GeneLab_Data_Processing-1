@@ -999,7 +999,7 @@ rule filtered_multiqc:
         rm -rf {params.filtered_reads_dir}*fastqc*
         # renaming and zipping html file (since not allowed to have html format in system)
         mv {params.int_output} {params.int_output2}
-        zip {output.html} {params.int_output2} && rm {params.int_output2}
+        zip {output.html} {params.int_output2} > /dev/null 2>&1 && rm {params.int_output2}
         """
 
 
@@ -1070,7 +1070,7 @@ rule raw_multiqc:
         rm -rf {params.raw_reads_dir}*fastqc*
         # renaming and zipping html file (since not allowed to have html format in system)
         mv {params.int_output} {params.int_output2}
-        zip {output.html} {params.int_output2} && rm {params.int_output2}
+        zip {output.html} {params.int_output2} > /dev/null 2>&1 && rm {params.int_output2}
         """
 
 
