@@ -3,7 +3,7 @@
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                              ##
 ##################################################################################
 
-# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <left_trunc> <right_trunc> <left_maxEE> <right_maxEE> <TRUE/FALSE - GL trimmed primers or not> <unique-sample-IDs-file> <starting_reads_dir_for_R> <filtered_reads_dir> <input_file_R1_suffix> <input_file_R2_suffix> <filtered_filename_R1_suffix> <filtered_filename_R2_suffix> <final_outputs_directory>
+# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <left_trunc> <right_trunc> <left_maxEE> <right_maxEE> <TRUE/FALSE - GL trimmed primers or not> <unique-sample-IDs-file> <starting_reads_dir_for_R> <filtered_reads_dir> <input_file_R1_suffix> <input_file_R2_suffix> <filtered_filename_R1_suffix> <filtered_filename_R2_suffix> <final_outputs_directory> <output_prefix>
     # where <left_trim> and <right_trim> are the values to be passed to the truncLen parameter of dada2's filterAndTrim()
     # and <left_maxEE> and <right_maxEE> are the values to be passed to the maxEE parameter of dada2's filterAndTrim()
 
@@ -27,6 +27,7 @@ if (length(args) < 13) {
     suppressWarnings(filtered_filename_R1_suffix <- args[11])
     suppressWarnings(filtered_filename_R2_suffix <- args[12])
     suppressWarnings(final_outputs_dir <- args[13])
+    suppressWarnings(output_prefix <- args[14])
 
 }
 
@@ -80,7 +81,7 @@ if ( GL_trimmed_primers ) {
 
 }
 
-write.table(filtered_count_summary_tab, paste0(filtered_reads_dir, "filtered-read-counts.tsv"), sep="\t", quote=F, row.names=F)
+write.table(filtered_count_summary_tab, paste0(filtered_reads_dir, output_prefix, "filtered-read-counts.tsv"), sep="\t", quote=F, row.names=F)
 
     # learning errors step
 forward_errors <- learnErrors(forward_filtered_reads, multithread=TRUE)
@@ -108,9 +109,9 @@ getN <- function(x) sum(getUniques(x))
 
 if ( GL_trimmed_primers ) {
     
-    raw_and_trimmed_read_counts <- read.table(paste0(input_reads_dir, "trimmed-read-counts.tsv"), header=T, sep="\t")
+    raw_and_trimmed_read_counts <- read.table(paste0(input_reads_dir, output_prefix, "trimmed-read-counts.tsv"), header=T, sep="\t")
     # reading in filtered read counts
-    filtered_read_counts <- read.table(paste0(filtered_reads_dir, "filtered-read-counts.tsv"), header=T, sep="\t")
+    filtered_read_counts <- read.table(paste0(filtered_reads_dir, output_prefix, "filtered-read-counts.tsv"), header=T, sep="\t")
 
     count_summary_tab <- data.frame(raw_and_trimmed_read_counts, dada2_filtered=filtered_read_counts[,3],
                                     dada2_denoised_F=sapply(forward_seqs, getN),
@@ -132,7 +133,7 @@ if ( GL_trimmed_primers ) {
 
 }
 
-write.table(count_summary_tab, paste0(final_outputs_dir, "read-count-tracking.tsv"), sep = "\t", quote=F, row.names=F)
+write.table(count_summary_tab, paste0(final_outputs_dir, output_prefix, "read-count-tracking.tsv"), sep = "\t", quote=F, row.names=F)
 
     ### assigning taxonomy ###
     # creating a DNAStringSet object from the ASVs
@@ -162,7 +163,7 @@ for (i in 1:dim(seqtab.nochim)[2]) {
 cat("\n\n  Making and writing outputs...\n\n")
     # making and writing out a fasta of our final ASV seqs:
 asv_fasta <- c(rbind(asv_headers, asv_seqs))
-write(asv_fasta, paste0(final_outputs_dir, "ASVs.fasta"))
+write(asv_fasta, paste0(final_outputs_dir, output_prefix, "ASVs.fasta"))
 
     # making and writing out a count table:
 asv_tab <- t(seqtab.nochim)
@@ -170,7 +171,7 @@ asv_ids <- sub(">", "", asv_headers)
 row.names(asv_tab) <- NULL
 asv_tab <- data.frame("ASV_ID"=asv_ids, asv_tab, check.names=FALSE)
 
-write.table(asv_tab, paste0(final_outputs_dir, "counts.tsv"), sep="\t", quote=F, row.names=FALSE)
+write.table(asv_tab, paste0(final_outputs_dir, output_prefix, "counts.tsv"), sep="\t", quote=F, row.names=FALSE)
 
     # making and writing out a taxonomy table:
     # creating vector of desired ranks
@@ -188,15 +189,15 @@ colnames(tax_tab) <- ranks
 row.names(tax_tab) <- NULL
 tax_tab <- data.frame("ASV_ID"=asv_ids, tax_tab, check.names=FALSE)
 
-write.table(tax_tab, paste0(final_outputs_dir, "taxonomy.tsv"), sep = "\t", quote=F, row.names=FALSE)
+write.table(tax_tab, paste0(final_outputs_dir, output_prefix, "taxonomy.tsv"), sep = "\t", quote=F, row.names=FALSE)
 
     ### generating and writing out biom file format ###
 biom_object <- make_biom(data=asv_tab, observation_metadata=tax_tab)
-write_biom(biom_object, paste0(final_outputs_dir, "taxonomy-and-counts.biom"))
+write_biom(biom_object, paste0(final_outputs_dir, output_prefix, "taxonomy-and-counts.biom"))
 
     # making a tsv of combined tax and counts
 tax_and_count_tab <- merge(tax_tab, asv_tab)
-write.table(tax_and_count_tab, paste0(final_outputs_dir, "taxonomy-and-counts.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
+write.table(tax_and_count_tab, paste0(final_outputs_dir, output_prefix, "taxonomy-and-counts.tsv"), sep="\t", quote=FALSE, row.names=FALSE)
 
 cat("\n\n  Session info:\n\n")
 sessionInfo()
