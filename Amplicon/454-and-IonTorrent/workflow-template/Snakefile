@@ -71,11 +71,6 @@ rule all:
         config["final_outputs_dir"] + "taxonomy-and-counts.tsv",
         config["fastqc_out_dir"] + "raw_multiqc_data.zip",
         config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
-    shell:
-        """
-        # copying log file to store with processing info
-        cp .snakemake/log/$(ls -t .snakemake/log/ | head -n 1) snakemake-run.log
-        """
 
 
 rule zip_biom:

@@ -70,12 +70,6 @@ rule all:
         config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
         config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
 
-    shell:
-        """
-        # copying log file to store with processing info
-        cp .snakemake/log/$(ls -t .snakemake/log/ | head -n 1) snakemake-run.log
-        """
-
 
 rule generate_MAGs_overview_table:
     input:
@@ -97,7 +91,7 @@ rule generate_MAGs_overview_table:
     shell:
         """
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
             # making sure none of the intermediate files exist already
             rm -rf {params.checkm_tmp} {params.gtdb_tmp} {params.checkm_w_header_tmp} {params.gtdb_w_header_tmp} {params.overview_tmp} {params.overview_header_tmp} {params.overview_sorted_tmp}
@@ -149,9 +143,9 @@ rule summarize_MAG_assemblies:
     shell:
         """
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
-            bit-summarize-assembly {params.MAGs_dir}*.fa -o {params.intermediate_file} -t
+            bit-summarize-assembly {params.MAGs_dir}*.fasta -o {params.intermediate_file} -t
 
             # slimming down the output
             cut -f 1,2,3,5,6,8,11,18,19,20 {params.intermediate_file} > {output}
@@ -196,9 +190,9 @@ rule run_gtdbtk_on_MAGs:
         fi
 
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
-            gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fa --out_dir {output} --cpus {params.gtdb_tk_num_cpus} > {log} 2>&1
+            gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} > {log} 2>&1
 
         else
 
@@ -230,7 +224,7 @@ rule filtering_checkm_results_and_copying_MAGs:
     shell:
         """        
         # only running if there were bins recovered
-        if [ $(find {params.bins_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
             cat <( printf "Bin Id\tMarker lineage\t# genomes\t# markers\t# marker sets\t0\t1\t2\t3\t4\t5+\tCompleteness\tContamination\tStrain heterogeneity\n" ) \
                 <( awk -F $'\\t' ' $12 >= {params.min_est_comp} && $13 <= {params.max_est_redund} && $14 <= {params.max_est_strain_het} ' {input} ) > {params.tmp_file}
@@ -240,7 +234,7 @@ rule filtering_checkm_results_and_copying_MAGs:
             for MAG in $(cut -f 1 {params.tmp_file} | tail -n +2)
             do
                 new_ID=$(echo $MAG | sed 's/-bin\./-MAG-/')
-                cp {params.bins_dir}${{MAG}}.fa {params.MAGs_dir}${{new_ID}}.fa
+                cp {params.bins_dir}${{MAG}}.fasta {params.MAGs_dir}${{new_ID}}.fasta
             done
 
             rm {params.tmp_file}
@@ -267,7 +261,7 @@ rule generate_bins_overview_table:
     shell:
         """
         # only running if there were bins recovered
-        if [ $(find {params.bins_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
             # making sure none of the intermediate files exist already
             rm -rf {params.checkm_tmp} {params.checkm_w_header_tmp}
@@ -316,11 +310,11 @@ rule run_checkm_on_bins:
     shell:
         """
         # only running if there were bins recovered
-        if [ $(find {input.bins_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {input.bins_dir} -name "*fasta" | wc -l) -gt 0 ]; then
 
             mkdir -p {params.tmp_working_dir}
 
-            checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fa {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+            checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
             rm -rf {params.tmp_output_dir} {params.tmp_working_dir}
 
         else
@@ -347,9 +341,9 @@ rule summarize_bin_assemblies:
     shell:
         """
         # only running if any bins were recovered
-        if [ $(find {params.bins_dir} -name "*.fa" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
-            bit-summarize-assembly {params.bins_dir}*.fa -o {params.intermediate_file} -t
+            bit-summarize-assembly {params.bins_dir}*.fasta -o {params.intermediate_file} -t
 
             # slimming down the output
             cut -f 1,2,3,5,6,8,11,18,19,20 {params.intermediate_file} > {output}
@@ -374,6 +368,7 @@ rule metabat_binning:
         assembly = config["assemblies_dir"] + "{ID}-assembly.fasta",
         bam = config["mapping_dir"] + "{ID}.bam"
     params:
+        bins_dir = config["bins_dir"]
         prefix = config["bins_dir"] + "{ID}-bin",
         num_threads = config["num_threads"]
     output:
@@ -393,6 +388,16 @@ rule metabat_binning:
             else
                 printf "\n\nThere was no coverage info generated in {output.depth_file}, so no binning with metabat was performed.\n\n" > {log}
             fi
+
+            # changing extensions from .fa to .fasta to match nt fasta extension elsewhere in GeneLab
+            find {params.bins_dir} -name {wildcards.ID}*.fa > bin-files.tmp
+            
+            if [ -s bin-files.tmp ];
+                paste -d " " <( sed 's/^/mv /' bin-files.tmp ) <( sed 's/.fa/.fasta/' bin-files.tmp) > do.tmp
+                bash do.tmp
+            fi
+
+            rm -rf bin-files.tmp do.tmp
 
         else
 
