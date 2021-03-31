@@ -191,7 +191,7 @@ rule filtered_multiqc:
         fastqc_out_dir = config["fastqc_out_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
         int_output = config["fastqc_out_dir"] + "filtered_multiqc.html",
-        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html"
+        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
         base_out_name = config["output_prefix"] + "filtered_multiqc_report.html",
         base_out_name_zip = config["output_prefix"] + "filtered_multiqc_report.html.zip"
     output:

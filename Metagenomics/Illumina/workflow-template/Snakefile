@@ -368,7 +368,7 @@ rule metabat_binning:
         assembly = config["assemblies_dir"] + "{ID}-assembly.fasta",
         bam = config["mapping_dir"] + "{ID}.bam"
     params:
-        bins_dir = config["bins_dir"]
+        bins_dir = config["bins_dir"],
         prefix = config["bins_dir"] + "{ID}-bin",
         num_threads = config["num_threads"]
     output:
@@ -1067,7 +1067,7 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
-        out_filename_prefix = "raw_multiqc"
+        out_filename_prefix = "raw_multiqc",
         raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
         int_output = config["fastqc_out_dir"] + "raw_multiqc.html",
