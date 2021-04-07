@@ -1047,7 +1047,7 @@ rule bbduk:
         out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
         out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
     log:
-        config["logs_dir"] + "bbduk-{ID}.log"
+        config["logs_dir"] + "{ID}-bbduk.log"
     shell:
         """
         bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
@@ -1132,7 +1132,7 @@ rule setup_CAT_db:
         """
         mkdir -p {params.REF_DB_ROOT_DIR}
 
-        curl -L -o {params.compressed_cat} {params.cat_dl_link} > {log} 2>&1
+        curl -L -C - -o {params.compressed_cat} {params.cat_dl_link} > {log} 2>&1
         tar -xvzf {params.compressed_cat} -C {params.REF_DB_ROOT_DIR} > {log} 2>&1
         rm {params.compressed_cat} {params.compressed_nr_faa}
 
@@ -1159,8 +1159,8 @@ rule setup_KoFamScan_db:
         """
         mkdir -p {params.ko_db_dir}
 
-        curl -L -o {params.compressed_ko_list} ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz > {log} 2>&1
-        curl -L -o {params.compressed_profiles} ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz > {log} 2>&1
+        curl -L -C - -o {params.compressed_ko_list} ftp://ftp.genome.jp/pub/db/kofam/ko_list.gz > {log} 2>&1
+        curl -L -C - -o {params.compressed_profiles} ftp://ftp.genome.jp/pub/db/kofam/profiles.tar.gz > {log} 2>&1
         tar -xzf {params.compressed_profiles} -C {params.ko_db_dir} > {log} 2>&1
         gunzip {params.compressed_ko_list}
 
