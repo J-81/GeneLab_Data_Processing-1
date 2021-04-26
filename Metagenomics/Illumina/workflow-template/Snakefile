@@ -170,7 +170,9 @@ rule run_gtdbtk_on_MAGs:
     params:
         MAGs_dir = config["MAGs_dir"],
         gtdb_tk_num_cpus = config["gtdb_tk_num_cpus"],
-        gtdbtk_db_dir = config["REF_DB_ROOT_DIR"] + config["GTDB_DATA_PATH"]
+        gtdbtk_db_dir = config["REF_DB_ROOT_DIR"] + config["GTDB_DATA_PATH"],
+        gtdb_tk_pplacer_cpus = config["gtdb_tk_pplacer_cpus"],
+        gtdb_tk_scratch_location = config["gtdb_tk_scratch_location"]
     output:
         directory(config["MAGs_dir"] + "gtdbtk-out")
     log:
@@ -192,7 +194,15 @@ rule run_gtdbtk_on_MAGs:
         # only running if any MAGs were recovered
         if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
-            gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} > {log} 2>&1
+            if [ -s {params.gtdb_tk_scratch_location} ]; then
+
+                gtdbtk classify_wf --scratch_dir {params.gtdb_tk_scratch_location} --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.gtdb_tk_pplacer_cpus} > {log} 2>&1
+
+            else
+
+                gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.gtdb_tk_pplacer_cpus} > {log} 2>&1
+
+            fi
 
         else
 
@@ -207,7 +217,7 @@ rule run_gtdbtk_on_MAGs:
 rule filtering_checkm_results_and_copying_MAGs:
     """ 
     Filters checkm results based on est. completion, redundancy, and strain heterogeneity set in 'config.yaml'
-    Defaults are conservatively 90, 10, and 0
+    Defaults are conservatively 90, 10, and 50
     """
 
     input:
@@ -302,7 +312,8 @@ rule run_checkm_on_bins:
         tmp_output_dir = config["bins_dir"] + "checkm-out-tmp/",
         tmp_working_dir = config["bins_dir"] + "checkm-working-tmp/",
         num_threads = config["num_threads"],
-        num_cpus = config["num_cpus"]
+        num_cpus = config["num_cpus"],
+        reduced_tree = config["reduced_tree"]
     output:
         config["bins_dir"] + "bins-checkm-out.tsv"
     log:
@@ -314,7 +325,16 @@ rule run_checkm_on_bins:
 
             mkdir -p {params.tmp_working_dir}
 
-            checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+            if [ {params.reduced_tree} == True ]; then
+
+                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --reduced_tree --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+
+            else
+
+                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+
+            fi
+
             rm -rf {params.tmp_output_dir} {params.tmp_working_dir}
 
         else
@@ -392,7 +412,7 @@ rule metabat_binning:
             # changing extensions from .fa to .fasta to match nt fasta extension elsewhere in GeneLab
             find {params.bins_dir} -name {wildcards.ID}*.fa > bin-files.tmp
             
-            if [ -s bin-files.tmp ];
+            if [ -s bin-files.tmp ]; then
                 paste -d " " <( sed 's/^/mv /' bin-files.tmp ) <( sed 's/.fa/.fasta/' bin-files.tmp) > do.tmp
                 bash do.tmp
             fi
@@ -821,7 +841,8 @@ rule run_tax_classification:
         tmp_contigs = config["annotations_and_tax_dir"] + "{ID}-contig-tax.tmp",
         cat_db = config["REF_DB_ROOT_DIR"] + config["CAT_DIR"] + config["CAT_DB"],
         cat_tax = config["REF_DB_ROOT_DIR"] + config["CAT_DIR"] + config["CAT_TAX"],
-        num_cpus = config["num_cpus"]
+        num_cpus = config["num_cpus"],
+        block_size = config["block_size"]
     log:
         config["logs_dir"] + "{ID}-CAT.log"
     shell:
@@ -829,7 +850,7 @@ rule run_tax_classification:
         # only running if assembly produced any contigs and genes were identified (they are required for this)
         if [ -s {input.assembly} ] && [ -s {input.AA} ]; then
 
-            CAT contigs -d {params.cat_db} -t {params.cat_tax} -n {params.num_cpus} -r 3 --top 4 --I_know_what_Im_doing -c {input.assembly} -p {input.AA} -o {params.tmp_out_prefix} --no_stars --block_size 4 --index_chunks 2 --force > {log} 2>&1
+            CAT contigs -d {params.cat_db} -t {params.cat_tax} -n {params.num_cpus} -r 3 --top 4 --I_know_what_Im_doing -c {input.assembly} -p {input.AA} -o {params.tmp_out_prefix} --no_stars --block_size {params.block_size} --index_chunks 2 --force > {log} 2>&1
 
             # adding names to gene classifications
             CAT add_names -i {params.tmp_out_prefix}.ORF2LCA.txt -o {params.tmp_genes} -t {params.cat_tax} --only_official --exclude_scores > {log} 2>&1

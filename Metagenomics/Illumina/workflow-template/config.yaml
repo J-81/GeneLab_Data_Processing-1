@@ -20,7 +20,7 @@ raw_reads_dir:
     "../Raw_Data/"
 
 ## raw read suffixes (region following the unique part of the sample names)
-  # e.g. for "Sample-1_R1_raw.fastq.gz" would be "_R1_raw.fastq.gz"
+    # e.g. for "Sample-1_R1_raw.fastq.gz" would be "_R1_raw.fastq.gz"
 raw_R1_suffix:
     "_R1_raw.fastq.gz"
 raw_R2_suffix:
@@ -47,15 +47,33 @@ num_threads:
 num_cpus:
     15
 
-## number of CPUs to use for gtdb-tk (only 1 gtdb-tk job will be run, so not multiplied, but the pplacer step can be more memory intensive with more cpus i think)
+## number of CPUs to use for gtdb-tk (only 1 gtdb-tk job will be run, so not multiplied
 gtdb_tk_num_cpus:
     20
+
+## number of cpus passed to pplacer by gtdb-tk, pplacer can have issues with memory with multiple cpus; see https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
+gtdb_tk_pplacer_cpus:
+    4
+
+## scratch directory for gtdb-tk, if wanting to use disk space instead of RAM, can be memory intensive; see https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
+    # leave empty if wanting to use memory, the default, put in quotes the path to a directory that already exists if wanting to use disk space
+gtdb_tk_scratch_location:
+    ""
 
 ## maximum memory allowed passed to megahit assembler
     # can be set either by proportion of available on system, e.g. 0.5
     # or by absolute value in bytes, e.g. 100e9 would be 100 GB
 max_mem:
     0.5
+
+## Block size variable for CAT/diamond, lower value means less RAM usage; see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#memory--performance-options
+block_size:
+    4
+
+## reduced_tree option for checkm, limits the RAM usage to 16GB; https://github.com/Ecogenomics/CheckM/wiki/Genome-Quality-Commands#tree
+    # "True" for yes, use reduced tree; "False" to use the default full tree
+reduced_tree:
+    "False"
 
 ## MAG filtering cutoffs based on checkm quality assessments (in percent); see https://github.com/Ecogenomics/CheckM/wiki/Reported-Statistics
 minimum_estimated_completion:
