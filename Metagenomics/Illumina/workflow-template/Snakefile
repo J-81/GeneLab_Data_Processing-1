@@ -64,11 +64,30 @@ rule all:
         config["MAGs_dir"] + "MAGs-overview.tsv",
         config["bins_dir"] + "bins-overview.tsv",
         config["assemblies_dir"] + "assembly-summaries.tsv",
+        config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
         config["fastqc_out_dir"] + "raw_multiqc_data.zip",
         config["fastqc_out_dir"] + "filtered_multiqc_data.zip",
         config["read_based_dir"] + "Gene-families-cpm.tsv",
         config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
         config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
+
+
+rule generate_assembly_processing_overview_table:
+    input:
+        trigger = config["MAGs_dir"] + "MAGs-overview.tsv"
+    params:
+        sample_IDs_file = config["sample_info_file"],
+        assemblies_dir = config["assemblies_dir"],
+        genes_dir = config["genes_dir"],
+        mapping_dir = config["mapping_dir"],
+        bins_dir = config["bins_dir"],
+        MAGs_dir = config["MAGs_dir"]
+    output:
+        config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv"
+    shell:
+        """
+        bash scripts/generate-assembly-based-overview-table.sh {params.sample_IDs_file} {params.assemblies_dir} {params.genes_dir} {params.mapping_dir} {params.bins_dir} {params.MAGs_dir} {output}
+        """
 
 
 rule generate_MAGs_overview_table:
