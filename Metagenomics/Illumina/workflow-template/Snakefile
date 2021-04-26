@@ -792,6 +792,10 @@ rule get_cov_and_det:
                 # writing out empty genes coverage file
                 printf "gene_ID\tcoverage\n" > {output.gene_covs}
                 printf "\n\nGene-level coverage info not recovered because the assembly didn't have any genes identified.\n" >> {log}
+
+                # removing intermediate files
+                rm {params.contig_cov_and_det_tmp} {params.contig_cov_tmp}
+
             fi
 
         else
@@ -1275,4 +1279,4 @@ rule setup_humann3_dbs:
 
 rule clean_all:
     shell:
-        "rm -rf {dirs_to_create} .snakemake/ snakemake-run.log"
+        "rm -rf {dirs_to_create} .snakemake/"
