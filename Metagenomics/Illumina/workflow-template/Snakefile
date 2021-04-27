@@ -110,7 +110,7 @@ rule generate_MAGs_overview_table:
     shell:
         """
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             # making sure none of the intermediate files exist already
             rm -rf {params.checkm_tmp} {params.gtdb_tmp} {params.checkm_w_header_tmp} {params.gtdb_w_header_tmp} {params.overview_tmp} {params.overview_header_tmp} {params.overview_sorted_tmp}
@@ -162,7 +162,7 @@ rule summarize_MAG_assemblies:
     shell:
         """
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             bit-summarize-assembly {params.MAGs_dir}*.fasta -o {params.intermediate_file} -t
 
@@ -190,7 +190,7 @@ rule run_gtdbtk_on_MAGs:
         MAGs_dir = config["MAGs_dir"],
         gtdb_tk_num_cpus = config["gtdb_tk_num_cpus"],
         gtdbtk_db_dir = config["REF_DB_ROOT_DIR"] + config["GTDB_DATA_PATH"],
-        gtdb_tk_pplacer_cpus = config["gtdb_tk_pplacer_cpus"],
+        pplacer_cpus = config["gtdb_tk_checkm_pplacer_cpus"],
         gtdb_tk_scratch_location = config["gtdb_tk_scratch_location"]
     output:
         directory(config["MAGs_dir"] + "gtdbtk-out")
@@ -211,15 +211,15 @@ rule run_gtdbtk_on_MAGs:
         fi
 
         # only running if any MAGs were recovered
-        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
-            if [ {params.gtdb_tk_scratch_location} != "" ]; then
+            if [ "{params.gtdb_tk_scratch_location}" != "" ]; then
 
-                gtdbtk classify_wf --scratch_dir {params.gtdb_tk_scratch_location} --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.gtdb_tk_pplacer_cpus} > {log} 2>&1
+                gtdbtk classify_wf --scratch_dir {params.gtdb_tk_scratch_location} --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.pplacer_cpus} > {log} 2>&1
 
             else
 
-                gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.gtdb_tk_pplacer_cpus} > {log} 2>&1
+                gtdbtk classify_wf --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.pplacer_cpus} > {log} 2>&1
 
             fi
 
@@ -253,7 +253,7 @@ rule filtering_checkm_results_and_copying_MAGs:
     shell:
         """        
         # only running if there were bins recovered
-        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             cat <( printf "Bin Id\tMarker lineage\t# genomes\t# markers\t# marker sets\t0\t1\t2\t3\t4\t5+\tCompleteness\tContamination\tStrain heterogeneity\n" ) \
                 <( awk -F $'\\t' ' $12 >= {params.min_est_comp} && $13 <= {params.max_est_redund} && $14 <= {params.max_est_strain_het} ' {input} ) > {params.tmp_file}
@@ -290,15 +290,15 @@ rule generate_bins_overview_table:
     shell:
         """
         # only running if there were bins recovered
-        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             # making sure none of the intermediate files exist already
             rm -rf {params.checkm_tmp} {params.checkm_w_header_tmp}
 
-            for MAG in $(cut -f 1 {input.assembly_summaries} | tail -n +2)
+            for bin in $(cut -f 1 {input.assembly_summaries} | tail -n +2)
             do
 
-                grep -w -m 1 "^${{MAG}}" {input.checkm_results} | cut -f 12,13,14 >> {params.checkm_tmp}
+                grep -w -m 1 "^${{bin}}" {input.checkm_results} | cut -f 12,13,14 >> {params.checkm_tmp}
 
             done
 
@@ -330,7 +330,7 @@ rule run_checkm_on_bins:
     params:
         tmp_output_dir = config["bins_dir"] + "checkm-out-tmp/",
         tmp_working_dir = config["bins_dir"] + "checkm-working-tmp/",
-        num_threads = config["num_threads"],
+        num_threads = config["gtdb_tk_checkm_pplacer_cpus"],
         num_cpus = config["num_cpus"],
         reduced_tree = config["reduced_tree"]
     output:
@@ -340,7 +340,7 @@ rule run_checkm_on_bins:
     shell:
         """
         # only running if there were bins recovered
-        if [ $(find {input.bins_dir} -name "*fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {input.bins_dir} -name "*fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             mkdir -p {params.tmp_working_dir}
 
@@ -380,7 +380,7 @@ rule summarize_bin_assemblies:
     shell:
         """
         # only running if any bins were recovered
-        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             bit-summarize-assembly {params.bins_dir}*.fasta -o {params.intermediate_file} -t
 
@@ -422,7 +422,7 @@ rule metabat_binning:
             jgi_summarize_bam_contig_depths --outputDepth {output.depth_file} --percentIdentity 97 --minContigLength 1000 --minContigDepth 1.0  --referenceFasta {input.assembly} {input.bam} > {log} 2>&1
 
             # only running if there are contigs with coverage information in the coverage file we just generated
-            if [ $(wc -l {output.depth_file} | cut -f 1 -d " ") -gt 1 ]; then 
+            if [ $(wc -l {output.depth_file} | sed 's/^ *//' | cut -f 1 -d " ") -gt 1 ]; then 
                 metabat2  --inFile {input.assembly} --outFile {params.prefix} --abdFile {output.depth_file} -t {params.num_threads} > {log} 2>&1
             else
                 printf "\n\nThere was no coverage info generated in {output.depth_file}, so no binning with metabat was performed.\n\n" > {log}
