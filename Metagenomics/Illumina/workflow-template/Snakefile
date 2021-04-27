@@ -70,7 +70,7 @@ rule all:
         config["read_based_dir"] + "Gene-families-cpm.tsv",
         config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
         config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
-
+        
 
 rule generate_assembly_processing_overview_table:
     input:
@@ -81,12 +81,16 @@ rule generate_assembly_processing_overview_table:
         genes_dir = config["genes_dir"],
         mapping_dir = config["mapping_dir"],
         bins_dir = config["bins_dir"],
-        MAGs_dir = config["MAGs_dir"]
+        MAGs_dir = config["MAGs_dir"],
+        assembly_summaries = config["bins_dir"] + "bin-assembly-summaries.tsv",
+        checkm_results = config["bins_dir"] + "bins-checkm-out.tsv"
     output:
         config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv"
     shell:
         """
         bash scripts/generate-assembly-based-overview-table.sh {params.sample_IDs_file} {params.assemblies_dir} {params.genes_dir} {params.mapping_dir} {params.bins_dir} {params.MAGs_dir} {output}
+        # removing intermediate files from assembly-based process
+        rm -rf {params.assembly_summaries} {params.checkm_results}
         """
 
 
@@ -308,7 +312,7 @@ rule generate_bins_overview_table:
             # combining
             paste {input.assembly_summaries} {params.checkm_w_header_tmp} > {output}
 
-            rm -rf {params.checkm_tmp} {params.checkm_w_header_tmp} {input.assembly_summaries} {input.checkm_results}
+            rm -rf {params.checkm_tmp} {params.checkm_w_header_tmp}
 
         else
 
@@ -325,9 +329,9 @@ rule run_checkm_on_bins:
     conda:
         "envs/checkm.yaml"
     input:
-        bins_dir = config["bins_dir"],
         trigger = expand(config["mapping_dir"] + "{ID}-metabat-assembly-depth.tsv", ID = sample_ID_list)
     params:
+        bins_dir = config["bins_dir"],
         tmp_output_dir = config["bins_dir"] + "checkm-out-tmp/",
         tmp_working_dir = config["bins_dir"] + "checkm-working-tmp/",
         num_threads = config["gtdb_tk_checkm_pplacer_cpus"],
@@ -340,17 +344,17 @@ rule run_checkm_on_bins:
     shell:
         """
         # only running if there were bins recovered
-        if [ $(find {input.bins_dir} -name "*fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
+        if [ $(find {params.bins_dir} -name "*fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
             mkdir -p {params.tmp_working_dir}
 
             if [ {params.reduced_tree} == True ]; then
 
-                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --reduced_tree --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --reduced_tree --pplacer_threads {params.num_threads} -x fasta {params.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
 
             else
 
-                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fasta {input.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
+                checkm lineage_wf -f {output} --tab_table -t {params.num_cpus} --pplacer_threads {params.num_threads} -x fasta {params.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
 
             fi
 
