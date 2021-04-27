@@ -213,7 +213,7 @@ rule run_gtdbtk_on_MAGs:
         # only running if any MAGs were recovered
         if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l) -gt 0 ]; then
 
-            if [ -s {params.gtdb_tk_scratch_location} ]; then
+            if [ {params.gtdb_tk_scratch_location} != "" ]; then
 
                 gtdbtk classify_wf --scratch_dir {params.gtdb_tk_scratch_location} --genome_dir {params.MAGs_dir} -x fasta --out_dir {output} --cpus {params.gtdb_tk_num_cpus} --pplacer_cpus {params.gtdb_tk_pplacer_cpus} > {log} 2>&1
 
