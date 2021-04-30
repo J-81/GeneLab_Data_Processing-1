@@ -46,6 +46,10 @@ primer_trimmed_suffix:
 filtered_suffix:
     "_filtered.fastq.gz"
 
+## output prefix (if needed to distinguish from multiple primer sets, leave as empty string if not)
+output_prefix:
+    ""
+
 ## output directories (all relative to processing directory, they will be created if needed)
 fastqc_out_dir:
     "../FastQC_Outputs/"
