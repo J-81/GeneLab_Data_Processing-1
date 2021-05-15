@@ -374,7 +374,6 @@ rule summarize_bin_assemblies:
     conda:
         "envs/bit.yaml"
     input:
-        bins_dir = config["bins_dir"],
         trigger = expand(config["mapping_dir"] + "{ID}-metabat-assembly-depth.tsv", ID = sample_ID_list)
     params:
         intermediate_file = config["bins_dir"] + "bin-summaries.tmp",
