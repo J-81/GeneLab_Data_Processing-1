@@ -17,7 +17,7 @@ sample_info_file:
 
 ## raw reads directory (can be relative to workflow directory, or needs to be full path)
 raw_reads_dir:
-    "../Raw_Data/"
+    "../Raw_Sequence_Data/"
 
 ## raw read suffixes (region following the unique part of the sample names)
     # e.g. for "Sample-1_R1_raw.fastq.gz" would be "_R1_raw.fastq.gz"
