@@ -59,30 +59,31 @@ rule all:
     input:
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"], ID = sample_ID_list),
         expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_suffix"], ID = sample_ID_list),
-        config["trimmed_reads_dir"] + "cutadapt.log",
-        config["trimmed_reads_dir"] + "trimmed-read-counts.tsv",
-        config["filtered_reads_dir"] + "bbduk.log",
-        config["filtered_reads_dir"] + "filtered-read-counts.tsv",
-        config["final_outputs_dir"] + "taxonomy.tsv",
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom.zip",
-        config["final_outputs_dir"] + "OTUs.fasta",
-        config["final_outputs_dir"] + "read-count-tracking.tsv",
-        config["final_outputs_dir"] + "counts.tsv",
-        config["final_outputs_dir"] + "taxonomy-and-counts.tsv",
-        config["fastqc_out_dir"] + "raw_multiqc_data.zip",
-        config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        config["trimmed_reads_dir"] + config["output_prefix"] + "cutadapt.log",
+        config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv",
+        config["filtered_reads_dir"] + config["output_prefix"] + "bbduk.log",
+        config["filtered_reads_dir"] + config["output_prefix"] + "filtered-read-counts.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom.zip",
+        config["final_outputs_dir"] + config["output_prefix"] + "OTUs.fasta",
+        config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
+        config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip",
+        config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
+
 
 
 rule zip_biom:
     input:
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom"
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom"
     output:
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom.zip"
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom.zip"
     params:
-        final_outputs_dir = config["final_outputs_dir"]
+        initial_output = config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom"
     shell:
         """
-        zip -q {params.final_outputs_dir}taxonomy-and-counts.biom.zip {params.final_outputs_dir}taxonomy-and-counts.biom && rm {params.final_outputs_dir}taxonomy-and-counts.biom
+        zip -q {output} {params.initial_output} && rm {params.initial_output}
         """
 
 
@@ -90,22 +91,24 @@ rule run_R:
     conda:
         "envs/R.yaml"
     input:
-        otus = config["final_outputs_dir"] + "OTUs.fasta",
-        counts = config["final_outputs_dir"] + "counts.tsv"
+        otus = config["final_outputs_dir"] + config["output_prefix"] + "OTUs.fasta",
+        counts = config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv"
     output:
-        config["final_outputs_dir"] + "taxonomy.tsv",
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom",
-        config["final_outputs_dir"] + "taxonomy-and-counts.tsv",
-        config["final_outputs_dir"] + "read-count-tracking.tsv"
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom",
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
+        config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv"
     params:
         trimmed_reads_dir = config["trimmed_reads_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
-        final_outputs_dir = config["final_outputs_dir"]
+        final_outputs_dir = config["final_outputs_dir"],
+        target_region = config["target_region"],
+        output_prefix = config["output_prefix"]
     log:
         "R-processing.log"
     shell:
         """
-        Rscript scripts/454-IonTorrent-R-processing.R {input.otus} {params.trimmed_reads_dir} {params.filtered_reads_dir} {params.final_outputs_dir} > {log} 2>&1
+        Rscript scripts/454-IonTorrent-R-processing.R "{input.otus}" "{params.trimmed_reads_dir}" "{params.filtered_reads_dir}" "{params.final_outputs_dir}" "{params.output_prefix}" "{params.target_region}" > {log} 2>&1
         """
 
 
@@ -122,8 +125,8 @@ rule vsearch_process_all:
     log:
         "vsearch.log"
     output:
-        otus = config["final_outputs_dir"] + "OTUs.fasta",
-        counts = config["final_outputs_dir"] + "counts.tsv"
+        otus = config["final_outputs_dir"] + config["output_prefix"] + "OTUs.fasta",
+        counts = config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv"
     shell:
         """
         # dereplicate all
@@ -190,13 +193,13 @@ rule filtered_multiqc:
         out_filename_prefix = config["output_prefix"] + "filtered_multiqc",
         fastqc_out_dir = config["fastqc_out_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
-        int_output = config["fastqc_out_dir"] + "filtered_multiqc.html",
-        int_output2 = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc.html",
+        int_output2 = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_report.html",
         base_out_name = config["output_prefix"] + "filtered_multiqc_report.html",
         base_out_name_zip = config["output_prefix"] + "filtered_multiqc_report.html.zip"
     output:
-        html = config["fastqc_out_dir"] + "filtered_multiqc_report.html.zip",
-        data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_report.html.zip",
+        data = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix}  {params.filtered_reads_dir} > /dev/null 2>&1
@@ -234,8 +237,8 @@ rule combine_bbduk_logs_and_summarize:
         counts = expand(config["filtered_reads_dir"] + "{ID}-filtered-counts.tsv", ID = sample_ID_list),
         logs = expand(config["filtered_reads_dir"] + "{ID}-bbduk.log", ID = sample_ID_list)
     output:
-        combined_log = config["filtered_reads_dir"] + "bbduk.log",
-        combined_counts = config["filtered_reads_dir"] + "filtered-read-counts.tsv"
+        combined_log = config["filtered_reads_dir"] + config["output_prefix"] + "bbduk.log",
+        combined_counts = config["filtered_reads_dir"] + config["output_prefix"] + "filtered-read-counts.tsv"
     shell:
         """
         cat {input.logs} > {output.combined_log}
@@ -255,12 +258,13 @@ rule bbduk:
         filtered_reads = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"],
         filtered_counts = config["filtered_reads_dir"] + "{ID}-filtered-counts.tsv"
     params:
-        min_bbduk_len = config["min_bbduk_len"]
+        min_bbduk_len = config["min_bbduk_len"],
+        min_bbduk_avg_q = config["min_bbduk_avg_quality"]
     log:
         config["filtered_reads_dir"] + "{ID}-bbduk.log"
     shell:
         """
-        bbduk.sh in={input} out1={output.filtered_reads} qtrim=r trimq=10 mlf=0.5 minavgquality=20 minlength={params.min_bbduk_len} > {log} 2>&1
+        bbduk.sh in={input} out1={output.filtered_reads} qtrim=r trimq=10 mlf=0.5 minavgquality={params.min_bbduk_avg_q} minlength={params.min_bbduk_len} > {log} 2>&1
         paste <( printf "{wildcards.ID}" ) <( grep "Input:" {log} | tr -s " " "\t" | cut -f 2 ) <( grep "Result:" {log} | tr -s " " "\t" | cut -f 2 ) > {output.filtered_counts}
         """
 
@@ -271,8 +275,8 @@ rule combine_cutadapt_logs_and_summarize:
         counts = expand(config["trimmed_reads_dir"] + "{ID}-trimmed-counts.tsv", ID = sample_ID_list),
         logs = expand(config["trimmed_reads_dir"] + "{ID}-cutadapt.log", ID = sample_ID_list)
     output:
-        combined_log = config["trimmed_reads_dir"] + "cutadapt.log",
-        combined_counts = config["trimmed_reads_dir"] + "trimmed-read-counts.tsv"
+        combined_log = config["trimmed_reads_dir"] + config["output_prefix"] + "cutadapt.log",
+        combined_counts = config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv"
     shell:
         """
         cat {input.logs} > {output.combined_log}
@@ -317,13 +321,13 @@ rule raw_multiqc:
         out_filename_prefix = config["output_prefix"] + "raw_multiqc",
         raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
-        int_output = config["fastqc_out_dir"] + "raw_multiqc.html",
-        int_output2 = config["fastqc_out_dir"] + "raw_multiqc_report.html",
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc.html",
+        int_output2 = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_report.html",
         base_out_name = config["output_prefix"] + "raw_multiqc_report.html",
         base_out_name_zip = config["output_prefix"] + "raw_multiqc_report.html.zip"
     output:
-        html = config["fastqc_out_dir"] + "raw_multiqc_report.html.zip",
-        data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_report.html.zip",
+        data = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1

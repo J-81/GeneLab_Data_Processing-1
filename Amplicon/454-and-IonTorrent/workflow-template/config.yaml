@@ -30,9 +30,9 @@ F_primer:
 R_primer:
     "GCTGCCTCCCGTAGGAGT"
 
-## minimum length threshold for bbduk
-min_bbduk_len:
-    50
+## target region (16S or ITS acceptable; determines which reference database is used for taxonomic classification)
+target_region:
+    "16S"
 
 
 ######################################################################
@@ -59,6 +59,14 @@ filtered_reads_dir:
     "../Filtered_Sequence_Data/"
 final_outputs_dir:
     "../Final_Outputs/"
+
+## minimum length threshold for bbduk
+min_bbduk_len:
+    50
+
+## bbduk minimum average quality
+min_bbduk_avg_quality:
+    15
 
 
 ############################################################

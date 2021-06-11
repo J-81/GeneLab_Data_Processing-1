@@ -47,9 +47,10 @@ F_linked_primer:
 R_linked_primer:
     "GGACTACHVGGGTWTCTAA...TTACCGCGGCKGCTGGCAC"
 
-## minimum length threshold for cutadapt
-min_cutadapt_len:
-    150
+## target region (16S or ITS acceptable; determines which reference database is used for taxonomic classification)
+target_region:
+    "16S"
+
 
 ######################################################################
 ##### The rest only need to be altered if we want to change them #####
@@ -90,6 +91,10 @@ filtered_reads_dir:
     "../Filtered_Sequence_Data/"
 final_outputs_dir:
     "../Final_Outputs/"
+
+## minimum length threshold for cutadapt
+min_cutadapt_len:
+    150
 
 
 ############################################################

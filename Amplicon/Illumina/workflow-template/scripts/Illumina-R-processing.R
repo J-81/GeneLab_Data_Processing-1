@@ -3,15 +3,15 @@
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                              ##
 ##################################################################################
 
-# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <left_trunc> <right_trunc> <left_maxEE> <right_maxEE> <TRUE/FALSE - GL trimmed primers or not> <unique-sample-IDs-file> <starting_reads_dir_for_R> <filtered_reads_dir> <input_file_R1_suffix> <input_file_R2_suffix> <filtered_filename_R1_suffix> <filtered_filename_R2_suffix> <final_outputs_directory> <output_prefix>
+# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <left_trunc> <right_trunc> <left_maxEE> <right_maxEE> <TRUE/FALSE - GL trimmed primers or not> <unique-sample-IDs-file> <starting_reads_dir_for_R> <filtered_reads_dir> <input_file_R1_suffix> <input_file_R2_suffix> <filtered_filename_R1_suffix> <filtered_filename_R2_suffix> <final_outputs_directory> <output_prefix> <target_region>
     # where <left_trim> and <right_trim> are the values to be passed to the truncLen parameter of dada2's filterAndTrim()
     # and <left_maxEE> and <right_maxEE> are the values to be passed to the maxEE parameter of dada2's filterAndTrim()
 
 # checking at least 8 arguments provided, first 4 are integers, and setting variables used within R:
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) < 13) {
-    stop("At least 13 positional arguments are required, see top of this R script for more info.", call.=FALSE)
+if (length(args) < 15) {
+    stop("At least 15 positional arguments are required, see top of this R script for more info.", call.=FALSE)
 } else {
     suppressWarnings(left_trunc <- as.integer(args[1]))
     suppressWarnings(right_trunc <- as.integer(args[2]))
@@ -28,6 +28,7 @@ if (length(args) < 13) {
     suppressWarnings(filtered_filename_R2_suffix <- args[12])
     suppressWarnings(final_outputs_dir <- args[13])
     suppressWarnings(output_prefix <- args[14])
+    suppressWarnings(target_region <- args[15])
 
 }
 
