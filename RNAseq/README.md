@@ -16,3 +16,15 @@ Sylvain Costes (GeneLab Project Manager)
 Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)  
 Homer Fogle (GeneLab Data Processing Representative)  
 Jonathan Galazka (GeneLab Project Scientist)  
+
+---
+
+**Nextflow workflow implementation developed and maintained by:**  
+Jonathan Oribello (Jonathan.D.Oribello@nasa.gov)
+
+# Repository links
+
+* [Current processing protocol (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md)
+* [Processed dataset files](GLDS_Processing_Scripts)
+* [Workflow files](https://github.com/J-81/Nextflow_RCP/tree/e99e2bca709ac4426c5ba939cdbbca2f61cfddd4)
+* [Workflow information and usage instructions](workflow-usage.md)
