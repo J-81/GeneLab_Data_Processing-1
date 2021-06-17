@@ -22,6 +22,15 @@ Jonathan Galazka (GeneLab Project Scientist)
 **Nextflow workflow implementation developed and maintained by:**  
 Jonathan Oribello (Jonathan.D.Oribello@nasa.gov)
 
+
+---
+
+<p align="center">
+<a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline.png"></a>
+</p>
+
+---
+
 # Repository links
 
 * [Current processing protocol (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md)
