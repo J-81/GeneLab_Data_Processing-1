@@ -7,7 +7,7 @@ The current processing protocol is implemented as a [Nextflow](https://nextflow.
 ## Utilizing the workflow
 
 1. [Install conda and Nextflow](#1-install-conda-and-nextflow)  
-2. [Download the workflow template files](#2-download-the-workflow-template-files)  
+2. [Download the workflow files](#2-download-the-workflow-files)  
 3. [Setup execution permission for bin scripts](#3-setup-execution-permission-for-bin-scripts)  
 4. [Run the workflow](#4-run-the-workflow)
 
@@ -21,7 +21,7 @@ conda install -c bioconda nextflow
 nextflow self-update
 ```
 
-### 2. Download the workflow template files
+### 2. Download the workflow files
 All files required for utilizing the GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a copy of that directory on to your system, copy the github web address of that directory, paste it into [GitZip here](http://kinolien.github.io/gitzip/), and then click download:
 
 <p align="center">
