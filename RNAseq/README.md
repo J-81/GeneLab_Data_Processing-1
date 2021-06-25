@@ -35,5 +35,5 @@ Jonathan Oribello (Jonathan.D.Oribello@nasa.gov)
 
 * [Current processing protocol (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md)
 * [Processed dataset files](GLDS_Processing_Scripts)
-* [Workflow files](https://github.com/J-81/Nextflow_RCP/tree/e99e2bca709ac4426c5ba939cdbbca2f61cfddd4)
+* [Workflow files](https://github.com/J-81/Nextflow_RCP/tree/dd119e2c1e9718284c9e1ed0d007bfe2803c4170)
 * [Workflow information and usage instructions](workflow-usage.md)
