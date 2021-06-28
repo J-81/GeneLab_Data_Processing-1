@@ -206,7 +206,7 @@ rule filtered_multiqc:
         # removing the individual fastqc files and temp locations
         rm -rf {params.filtered_reads_dir}*fastqc*
 
-        # renaming and zipping html file (since not allowed to have html format in system)
+        # renaming and zipping html file (since not allowed to have html format in GL data system)
         mv {params.int_output} {params.int_output2}
           # zipping from a different directory causes strange things when unzipping, so moving here to zip, then sending back
         mv {params.int_output2} .
@@ -334,7 +334,7 @@ rule raw_multiqc:
         # removing the individual fastqc files
         rm -rf {params.raw_reads_dir}*fastqc*
 
-        # renaming and zipping html file (since not allowed to have html format in system)
+        # renaming and zipping html file (since not allowed to have html format in GL data system)
         mv {params.int_output} {params.int_output2}
           # zipping from a different directory causes strange things when unzipping, so moving here to zip, then sending back
         mv {params.int_output2} .
