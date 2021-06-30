@@ -40,20 +40,20 @@ REF_DB_ROOT_DIR:
 ## number of threads to use PER snakemake job (which is set with the -j parameter passed to snakemake call)
     # passed to megahit, bowtie2, samtools, metabat2, checkm-pplacer (many may be running concurrently)
 num_threads:
-    15
+    8
 
 ## number of CPUs to use PER snakemake job
     # passed to KOFamScan, CAT, checkm (many may be running concurrently)
 num_cpus:
-    15
+    8
 
 ## number of cpus passed to pplacer by gtdb-tk and checkm, pplacer can have issues with memory with multiple cpus; see e.g. https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
 gtdb_tk_checkm_pplacer_cpus:
-    4
+    1
 
-## number of CPUs to use for gtdb-tk (only 1 gtdb-tk job will be run, so not multiplied
+## number of CPUs to use for gtdb-tk (only 1 gtdb-tk job will be run, so not multiplied)
 gtdb_tk_num_cpus:
-    20
+    8
 
 ## scratch directory for gtdb-tk, if wanting to use disk space instead of RAM, can be memory intensive; see https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
     # leave empty if wanting to use memory, the default, put in quotes the path to a directory that already exists if wanting to use disk space

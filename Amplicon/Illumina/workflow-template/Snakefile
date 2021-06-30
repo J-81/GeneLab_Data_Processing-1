@@ -36,6 +36,12 @@ Variables that may need to be adjusted should be changed there, not here.
 sample_IDs_file = config["sample_info_file"]
 sample_ID_list = [line.strip() for line in open(sample_IDs_file)]
 
+# making sure there are all unique names
+if len(set(sample_ID_list)) != len(sample_ID_list):
+
+    print("\n    Not all sample IDs in the " + str(config["sample_info_file"]) + " file are unique :(\n")
+    print("    Exiting for now.\n")
+    exit()
 
 ########################################
 ######## Setting up directories ########

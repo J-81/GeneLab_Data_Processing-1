@@ -36,6 +36,12 @@ Variables that may need to be adjusted should be changed there, not here.
 sample_IDs_file = config["sample_info_file"]
 sample_ID_list = [line.strip() for line in open(sample_IDs_file)]
 
+# making sure there are all unique names
+if len(set(sample_ID_list)) != len(sample_ID_list):
+
+    print("\n    Not all sample IDs in the " + str(config["sample_info_file"]) + " file are unique :(\n")
+    print("    Exiting for now.\n")
+    exit()
 
 ########################################
 ######## Setting up directories ########
@@ -133,16 +139,16 @@ rule vsearch_process_all:
         vsearch --derep_fulllength {input} --strand both --output {params.all_derep} --sizein --sizeout > {log} 2>&1
 
         # clustering to get rep seqs
-        vsearch --cluster_size {params.all_derep} --id 0.97 --strand both --sizein --sizeout --relabel "OTU_" --centroids {params.rep_seqs} > {log} 2>&1
+        vsearch --cluster_size {params.all_derep} --id 0.97 --strand both --sizein --sizeout --relabel "OTU_" --centroids {params.rep_seqs} >> {log} 2>&1
 
         # removing singletons
-        vsearch --sortbysize {params.rep_seqs} --minsize 2 --output {params.rep_seqs_no_singletons} > {log} 2>&1
+        vsearch --sortbysize {params.rep_seqs} --minsize 2 --output {params.rep_seqs_no_singletons} >> {log} 2>&1
 
         # chimera check and removal
-        vsearch --uchime_denovo {params.rep_seqs_no_singletons} --sizein --nonchimeras {output.otus} --relabel "OTU_" > {log} 2>&1
+        vsearch --uchime_denovo {params.rep_seqs_no_singletons} --sizein --nonchimeras {output.otus} --relabel "OTU_" >> {log} 2>&1
 
         # mapping seqs to OTUs to get OTU abundances per sample
-        vsearch --usearch_global {input} -db {output.otus} --sizein --id 0.97 --otutabout {params.tmp_counts} > {log} 2>&1
+        vsearch --usearch_global {input} -db {output.otus} --sizein --id 0.97 --otutabout {params.tmp_counts} >> {log} 2>&1
         sed 's/^#OTU ID/OTU_ID/' {params.tmp_counts} > {output.counts}
 
         # removing line wraps from fasta file

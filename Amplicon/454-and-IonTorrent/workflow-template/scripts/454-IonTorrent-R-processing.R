@@ -3,13 +3,12 @@
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                              ##
 ##################################################################################
 
-# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <trimmed_dir> <filtered_dir> <final_outputs_directory> <output_prefix> <target_region>
-    # where <left_trim> and <right_trim> are the values to be passed to the truncLen parameter of dada2's filterAndTrim()
-    # and <left_maxEE> and <right_maxEE> are the values to be passed to the maxEE parameter of dada2's filterAndTrim()
+# as called from the associated Snakefile, this expects to be run as: Rscript full-R-processing.R <otus_fasta_path> <trimmed_dir> <filtered_dir> <final_outputs_directory> <output_prefix> <target_region>
 
 # setting variables used within R:
 args <- commandArgs(trailingOnly = TRUE)
 
+suppressWarnings(otus_fasta_path <- args[1])
 suppressWarnings(trimmed_dir <- args[2])
 suppressWarnings(filtered_dir <- args[3])
 suppressWarnings(final_outputs_dir <- args[4])
