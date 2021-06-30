@@ -68,6 +68,7 @@ rule all:
         config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
         config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
         config["MAGs_dir"] + "MAGs-overview.tsv",
+#        config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv",
         config["bins_dir"] + "bins-overview.tsv",
         config["assemblies_dir"] + "assembly-summaries.tsv",
         config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
@@ -77,6 +78,70 @@ rule all:
         config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
         config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
         
+
+rule summarize_MAG_KO_annots_with_KEGG_Decoder:
+    conda:
+        "envs/keggdecoder.yaml"
+    input:
+        config["MAGs_dir"] + "MAG-level-KO-annotations.tsv"
+    params:
+        MAGs_dir = config["MAGs_dir"]
+    output:
+        config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv"
+    shell:
+        """
+        # getting number of MAGs recovered
+        num_mags_recovered=$(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//')
+        # only running if any MAGs were recovered
+        if [ ${{num_mags_recovered}} -gt 0 ]; then
+
+            # can only create html output if there are more than 1
+            if [ ${{num_mags_recovered}} -gt 1 ]; then
+                KEGG-decoder -v interactive -i {input} -o {output}
+            else
+                KEGG-decoder -i {input} -o {output}
+            fi
+
+        else
+
+            printf "There were no MAGs recovered.\n" > {output}
+
+        fi
+        """
+
+
+rule summarize_MAG_level_KO_annotations:
+    input:
+        config["MAGs_dir"] + "MAGs-overview.tsv"
+    params:
+        MAGs_dir = config["MAGs_dir"],
+        annot_and_tax_dir = config["annotations_and_tax_dir"],
+        tmp_contig_IDs = "curr-contig-ids.tmp"
+    output:
+        config["MAGs_dir"] + "MAG-level-KO-annotations.tsv"
+    shell:
+        """
+        # only running if any MAGs were recovered
+        if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
+
+            for MAG in $(cut -f 1 {input} | tail -n +2)
+            do
+
+                sample_ID=$(echo $MAG | sed 's/-MAG-[0-9]*$//')
+                grep "^>" {params.MAGs_dir}${{MAG}}.fasta | tr -d ">" > {params.tmp_contig_IDs}
+
+                python scripts/parse-MAG-annots.py -i {params.annot_and_tax_dir}${{sample_ID}}-gene-coverage-annotation-and-tax.tsv -w {params.tmp_contig_IDs} -M ${{MAG}} -o {output}
+                rm {params.tmp_contig_IDs}
+
+            done
+
+        else
+
+            printf "There were no MAGs recovered.\n" > {output}
+
+        fi
+        """
+
 
 rule generate_assembly_processing_overview_table:
     input:
