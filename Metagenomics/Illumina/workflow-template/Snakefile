@@ -112,7 +112,8 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
 
 rule summarize_MAG_level_KO_annotations:
     input:
-        config["MAGs_dir"] + "MAGs-overview.tsv"
+        MAG_overview = config["MAGs_dir"] + "MAGs-overview.tsv",
+        trigger = expand(config["annotations_and_tax_dir"] + "{ID}-gene-coverage-annotation-and-tax.tsv", ID = sample_ID_list)
     params:
         MAGs_dir = config["MAGs_dir"],
         annot_and_tax_dir = config["annotations_and_tax_dir"],
@@ -124,7 +125,7 @@ rule summarize_MAG_level_KO_annotations:
         # only running if any MAGs were recovered
         if [ $(find {params.MAGs_dir} -name "*.fasta" | wc -l | sed 's/^ *//') -gt 0 ]; then
 
-            for MAG in $(cut -f 1 {input} | tail -n +2)
+            for MAG in $(cut -f 1 {input.MAG_overview} | tail -n +2)
             do
 
                 sample_ID=$(echo $MAG | sed 's/-MAG-[0-9]*$//')
