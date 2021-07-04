@@ -74,6 +74,6 @@ A quick example can be run with the files included in the [workflow-template](wo
 ---
 
 ## Reference database info
-The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be automatically downloaded to run with this workflow (it's ~4.3 GB uncompressed). The steps for building it are described on the [Reference database info page](reference-database-info.md).
+The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be automatically downloaded to run with this workflow (it's ~4.3 GB uncompressed). The steps for building it are described on the [reference database info page](reference-database-info.md).
 
 ---
