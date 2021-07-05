@@ -127,12 +127,12 @@ rule setup_kraken2_db:
         cd {params.ref_db_root_dir}
         rm -rf {params.kraken2_db_dir}
 
-        printf "### Setting up humann3 reference databases ###\n\n" > {log} 2>&1
+        printf "### Setting up kraken2 reference database ###\n\n" > ${{starting_dir}}/{log} 2>&1
 
-        printf "  Downloading GeneLab-built reference database:\n\n" >> {log} 2>&1
-        curl -L -o kraken2-human-db.tar.gz https://ndownloader.figshare.com/files/25627058
+        printf "  Downloading GeneLab-built reference database:\n\n" >> ${{starting_dir}}/{log} 2>&1
+        curl -L -o kraken2-human-db.tar.gz https://ndownloader.figshare.com/files/25627058 >> ${{starting_dir}}/{log} 2>&1
 
-        printf "\n\n  Unpacking and decompressing database:\n\n" >> {log} 2>&1
+        printf "\n\n  Unpacking and decompressing database:\n\n" >> ${{starting_dir}}/{log} 2>&1
         tar -xzvf kraken2-human-db.tar.gz
         rm kraken2-human-db.tar.gz
 
