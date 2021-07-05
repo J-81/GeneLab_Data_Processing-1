@@ -133,7 +133,7 @@ rule setup_kraken2_db:
         curl -L -o kraken2-human-db.tar.gz https://ndownloader.figshare.com/files/25627058 >> ${{starting_dir}}/{log} 2>&1
 
         printf "\n\n  Unpacking and decompressing database:\n\n" >> ${{starting_dir}}/{log} 2>&1
-        tar -xzvf kraken2-human-db.tar.gz
+        tar -xzvf kraken2-human-db.tar.gz >> ${{starting_dir}}/{log} 2>&1
         rm kraken2-human-db.tar.gz
 
         # dealing with the fact that the download directory comes in with the default name, but the user might have changed it
