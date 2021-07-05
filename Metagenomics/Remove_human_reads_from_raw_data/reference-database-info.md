@@ -1,11 +1,11 @@
 # Reference database info
-The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be downloaded automatically the first time the workflow is run (it's ~4.3 GB uncompressed). 
+The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be downloaded automatically the first time the workflow is run (it's ~4.3 GB uncompressed).
 
 ---
 
 ## Kraken2 human database build
 
-> The following was performed on 29-Nov-2020 with kraken v2.1.1.
+> The following was performed on 29-Nov-2020 with kraken v2.1.1, which at that time pulled RefSeq human genome reference GCF_000001405.39, GRCh38.p13.
 
 **Download human reference (takes ~2 minutes as run here):**
 
