@@ -6,15 +6,14 @@ The current processing protocol is implemented as a [Snakemake](https://snakemak
 
 ## Utilizing the workflow
 
-1. [Install conda](#1-install-conda)  
-2. [Download the workflow template files](#2-download-the-workflow-template-files)  
-3. [Modify the variables in the config.yaml file](#3-modify-the-variables-in-the-configyaml-file)  
-4. [Run the workflow](#4-run-the-workflow)   
+1. [Install conda and `genelab-utils` package](#1-install-conda-and-genelab-utils-package)  
+2. [Download the workflow template files](#3-download-the-workflow-template-files)  
+3. [Modify the variables in the config.yaml file](#4-modify-the-variables-in-the-configyaml-file)  
+4. [Run the workflow](#5-run-the-workflow)   
 
-### 1. Install conda
+### 1. Install conda and `genelab-utils` package
 We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the above link](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
 
-### 2. Install `genelab-utils` conda package
 Once conda is installed on your system, you can install the genelab-utils conda package in a new environment with the following:
 
 ```bash
@@ -27,7 +26,7 @@ The environment then needs to be activated:
 conda activate genelab-utils
 ```
 
-### 3. Download the workflow template files
+### 2. Download the workflow template files
 All files required for utilizing the GeneLab workflow for removing human reads from metagenomics data are in the [workflow-template](workflow-template) directory. To get a copy of that directory on to your system, run the following command:
 
 ```bash
