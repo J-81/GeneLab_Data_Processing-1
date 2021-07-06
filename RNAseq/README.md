@@ -4,29 +4,14 @@
 
 ---
 
-**Date:** August 4, 2020  
-**Revision:** C  
-**Document Number:** GL-DPPD-7101-C  
-
-**Submitted by:**  
-Amanda Saravia-Butler (GeneLab Data Processing Team)
-
-**Approved by:**  
-Sylvain Costes (GeneLab Project Manager)  
-Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)  
-Homer Fogle (GeneLab Data Processing Representative)  
-Jonathan Galazka (GeneLab Project Scientist)  
-
----
-
-**Nextflow workflow implementation developed and maintained by:**  
-Jonathan Oribello (Jonathan.D.Oribello@nasa.gov)
-
+**RNASeq processing pipeline & Nextflow workflow implementation developed and maintained by:**  
+- Jonathan Oribello (Jonathan.D.Oribello@nasa.gov)
+- Amanda Saravia-Butler (Amanda.M.Saravia-Butler@nasa.gov)
 
 ---
 
 <p align="center">
-<a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline.png"></a>
+<a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline_just_processing.png"></a>
 </p>
 
 ---
