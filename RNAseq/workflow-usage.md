@@ -2,7 +2,39 @@
 
 
 ## General workflow info
+### Implemenation Tools
 The current processing protocol is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow and utilizes [conda](https://docs.conda.io/en/latest/) environments. This workflow is run using the CLI of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow. An introduction to conda with installation help and links to other resources can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro).  
+
+### Workflow & Subworkflows
+---
+
+<p align="center">
+<a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline.png"></a>
+</p>
+
+---
+This workflow is composed of three subworkflows as shown in the image above.
+Below is a description of each subworkflow as well as the output files if not listed in the processing protocol:
+1. Analysis Staging Subworkflow
+  - Description: 
+    - This subworkflow extracts the processing parameters (e.g. organism, library layout) from the GLDS ISA archive as well as retrieves the raw reads files hosted on the GeneLab Data Repository.
+
+2. RNASeq Concensus Pipeline Subworkflow
+  - Description:
+     - This subworkflow uses the staged raw data and processing parameters to generate processed data.
+3. V&V Pipeline Subworkflow 
+  - Description:
+    - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
+---
+| Flag ID | Severity              |
+|---------|-----------------------|
+| 20      | Info-Only             |
+| 30      | Passed-Green          |
+| 50      | Warning-Yellow        |
+| 60      | Warning-Red           |
+| 90      | Issue-Halt_Processing |
+
+
 
 ## Utilizing the workflow
 
@@ -10,6 +42,9 @@ The current processing protocol is implemented as a [Nextflow](https://nextflow.
 2. [Download the workflow files](#2-download-the-workflow-files)  
 3. [Setup execution permission for bin scripts](#3-setup-execution-permission-for-bin-scripts)  
 4. [Run the workflow](#4-run-the-workflow)
+5. [Additional Output Files](#5-additional-output-files)
+
+
 
 ### 1. Install conda and Nextflow
 We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the above link](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
@@ -67,3 +102,24 @@ nextflow run <path/to/main.nf> --gldsAccession=GLDS-194 --ensemblVersion=96 [--o
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
 
 ---
+
+### 5. Additional Output Files
+
+The output from the Analysis Staging subworkflow and V&V Pipeline subworkflow are described here.
+Note: the output from the RNASeq Concensus Pipeline are documented in the current processing protocol, (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md),
+
+1. Analysis Staging Subworkflow
+  - Output:
+    - \*_runsheet.csv (a table that include processing parameters and raw reads files location)
+    - \*-ISA.zip (the ISA archive fetched from the GeneLab Data Repository)
+    - \*_metadata_table.txt (a table that includes additional information about the GLDS entry, not used for processing)
+
+2. V&V Pipeline Subworkflow 
+  - Output:
+    - VV_Log/VV_FULL_OUT.tsv (A tab-separated values file that includes all V&V flags levels logged)
+    - VV_Log/only-issues__VV_FULL_OUT.tsv (A tab-separated values file that includes V&V flags levels logged with severities greater than 30)
+    - VV_Log/Summary.tsv (A tab-separated values file that summarizes the percent of samples that have Warnings for each step)
+    - VV_Log/all-by-sample.txt (A text file that lists, by sample, all flags with severities greater than 30)
+    - VV_Log/bySample/{sample_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by sample)
+    - VV_Log/byStep/{step_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by processing step)
+
