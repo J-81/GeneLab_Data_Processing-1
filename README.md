@@ -28,8 +28,8 @@ We encourage all investigators working with space-relevant omics data to process
 ## License
 
 The software for each pipeline is released under the NASA Open Source Agreement Version 1.3
-- [Amplicon License]()
-- [Metagenomics License]()
+- [Amplicon License](License_Amplicon_and_Metagenomics.pdf)
+- [Metagenomics License](License_Amplicon_and_Metagenomics.pdf)
 
 ## Notices
 
