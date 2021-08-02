@@ -1152,27 +1152,54 @@ rule filtered_fastqc:
         """
 
 
-rule bbduk:
-    """
-    This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
-    """
+# quality-trimming/filtering rule run slightly different if data are generated with Swift 1S library prep
+if config["swift_1S"] == "TRUE":
 
-    conda:
-        "envs/qc.yaml"
-    input:
-        in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
-        in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
-    output:
-        out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-        out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
-    log:
-        config["logs_dir"] + "{ID}-bbduk.log"
-    shell:
+    rule bbduk:
         """
-        bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
-                ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
-                trimq=10 mlf=0.5 maxns=0 > {log} 2>&1
+        This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
         """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
+            in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+        output:
+            out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+        log:
+            config["logs_dir"] + "{ID}-bbduk.log"
+        shell:
+            """
+            bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
+                    ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                    trimq=10 mlf=0.5 maxns=0 swift=t > {log} 2>&1
+            """
+
+else:
+
+    rule bbduk:
+        """
+        This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
+            in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+        output:
+            out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+        log:
+            config["logs_dir"] + "{ID}-bbduk.log"
+        shell:
+            """
+            bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
+                    ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                    trimq=10 mlf=0.5 maxns=0 > {log} 2>&1
+            """
 
 
 rule raw_multiqc:
