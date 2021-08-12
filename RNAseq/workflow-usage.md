@@ -43,6 +43,7 @@ Below is a description of each subworkflow as well as the output files if not li
 3. [Setup execution permission for bin scripts](#3-setup-execution-permission-for-bin-scripts)  
 4. [Run the workflow](#4-run-the-workflow)
 5. [Additional Output Files](#5-additional-output-files)
+6. [Known Issues](#6-known-issues)
 
 
 
@@ -123,3 +124,11 @@ Note: the output from the RNASeq Concensus Pipeline are documented in the curren
     - VV_Log/bySample/{sample_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by sample)
     - VV_Log/byStep/{step_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by processing step)
 
+---
+
+### 6. Known Issues
+
+## Truncated raw read files
+- This is a known issue for Nextflow file staging from URL.  If the Nextflow process is interrupted while staging a file (most notably raw read files for this pipeline), the truncated file will **NOT** be re-downloaded, resulting in a pipeline trying to process with the truncated file.
+- This is most common when an unexpected error occurs for a process that uses raw read files.
+- The advised workaround is to purge the staged files, located in your Nextflow "work" directory under the "stage" sub-directory, and relaunch the pipeline.
