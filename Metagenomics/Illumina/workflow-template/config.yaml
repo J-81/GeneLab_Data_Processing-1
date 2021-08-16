@@ -58,7 +58,7 @@ gtdb_tk_num_cpus:
 ## scratch directory for gtdb-tk, if wanting to use disk space instead of RAM, can be memory intensive; see https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
     # leave empty if wanting to use memory, the default, put in quotes the path to a directory that already exists if wanting to use disk space
 gtdb_tk_scratch_location:
-    ""
+    "./gtdb-scratch"
 
 ## maximum memory allowed passed to megahit assembler
     # can be set either by proportion of available on system, e.g. 0.5
