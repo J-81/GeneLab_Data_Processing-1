@@ -77,13 +77,14 @@ rule run_kraken2:
         R2_tmp_out = config["output_reads_dir"] + "{ID}_R_2.fastq",
         R1_tmp_out_compressed = config["output_reads_dir"] + "{ID}_R_1.fastq.gz",
         R2_tmp_out_compressed = config["output_reads_dir"] + "{ID}_R_2.fastq.gz",
-        kraken2_db_dir = config["REF_DB_ROOT_DIR"] + config["kraken2_db_dir"],
-        num_threads = config["num_threads"]
+        kraken2_db_dir = config["REF_DB_ROOT_DIR"] + config["kraken2_db_dir"]
+    resources:
+        cpus = config["num_threads"]
     log:
         config["logs_dir"] + "{ID}-kraken2-run.log"
     shell:
         """
-        kraken2 --db {params.kraken2_db_dir} --gzip-compressed --threads {params.num_threads} --use-names --paired --output {output.main} --report {output.report} --unclassified-out {params.reads_out_arg} {input.R1} {input.R2} > {log} 2>&1
+        kraken2 --db {params.kraken2_db_dir} --gzip-compressed --threads {resources.cpus} --use-names --paired --output {output.main} --report {output.report} --unclassified-out {params.reads_out_arg} {input.R1} {input.R2} > {log} 2>&1
 
         # compressing outputs
         gzip {params.R1_tmp_out}
