@@ -1,4 +1,4 @@
-## The NASA GeneLab [Amplicon]() and [Metagenomics]() Processing Pipelines software also makes use of the following 3rd party Open Source software:
+## The NASA GeneLab [Amplicon](../Amplicon) and [Metagenomics](../Metagenomics) Processing Pipelines software also makes use of the following 3rd party Open Source software:
 
 |3rd Party Software Name|License|License URL|Copyright Notice|
 |:----------------------|:------|:----------|:----------------------|
