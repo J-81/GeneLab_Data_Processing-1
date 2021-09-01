@@ -1,7 +1,7 @@
 ## The NASA GeneLab [Amplicon]() and [Metagenomics]() Processing Pipelines software also makes use of the following 3rd party Open Source software:
 
 |3rd Party Software Name|License|License URL|Copyright Notice|
-|:----------------------|:------|:----------|:---------------|
+|:----------------------|:------|:----------|:----------------------|
 |MetaPhlAn3|[The MIT License (MIT) Copyright (c) 2015, Duy Tin Truong, Nicola Segata and Curtis Huttenhower](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/MetaPhlAn3_license.pdf)|[https://github.com/biobakery/MetaPhlAn/blob/3.0/license.txt](https://github.com/biobakery/MetaPhlAn/blob/3.0/license.txt)|Copyright (c) 2015, Duy Tin Truong, Nicola Segata and Curtis Huttenhower|
 |FastQC|[GNU GENERAL PUBLIC LICENSE Version 2, June 1991](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/FASTQC_LICENSE.pdf)|[https://github.com/s-andrews/FastQC/blob/master/LICENSE](https://github.com/s-andrews/FastQC/blob/master/LICENSE)|Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.|
 |MultiQC|[GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/MultiQC_LICENSE.pdf)|[https://github.com/ewels/MultiQC/blob/master/LICENSE](https://github.com/ewels/MultiQC/blob/master/LICENSE)|Copyright (C) 2007 Free Software Foundation, Inc <http://fsf.org/> Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.|
