@@ -3,9 +3,16 @@
 |3rd Party Software Name|License|License URL|Copyright Notice|
 |:----------------------|:-----:|:----------|:---------------|
 |MetaPhlAn3|[The MIT License (MIT) Copyright (c) 2015, Duy Tin Truong, Nicola Segata and Curtis Huttenhower](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/MetaPhlAn3_license.pdf)|[https://github.com/biobakery/MetaPhlAn/blob/3.0/license.txt](https://github.com/biobakery/MetaPhlAn/blob/3.0/license.txt)|Copyright (c) 2015, Duy Tin Truong, Nicola Segata and Curtis Huttenhower|
-|FastQC|[GNU GENERAL PUBLIC LICENSE Version 2, June 1991](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[https://github.com/s-andrews/FastQC/blob/master/LICENSE](https://github.com/s-andrews/FastQC/blob/master/LICENSE)|Insert copyright|
-|MultiQC|[GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[https://github.com/ewels/MultiQC/blob/master/LICENSE](https://github.com/ewels/MultiQC/blob/master/LICENSE)|Insert copyright|
-|Cutadapt|[Copyright (c) 2010-2020 Marcel Martin](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[https://github.com/marcelm/cutadapt/blob/main/LICENSE](https://github.com/marcelm/cutadapt/blob/main/LICENSE)|Insert copyright|
+|FastQC|[GNU GENERAL PUBLIC LICENSE Version 2, June 1991](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/FASTQC_LICENSE.pdf)|[https://github.com/s-andrews/FastQC/blob/master/LICENSE](https://github.com/s-andrews/FastQC/blob/master/LICENSE)|Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.|
+|MultiQC|[GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/MultiQC_LICENSE.pdf)|[https://github.com/ewels/MultiQC/blob/master/LICENSE](https://github.com/ewels/MultiQC/blob/master/LICENSE)|Copyright (C) 2007 Free Software Foundation, Inc <http://fsf.org/> Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.|
+|Cutadapt|[Copyright (c) 2010-2020 Marcel Martin](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/cutadapt_LICENSE.pdf)|[https://github.com/marcelm/cutadapt/blob/main/LICENSE](https://github.com/marcelm/cutadapt/blob/main/LICENSE)|Copyright (c) 2010-2020 Marcel Martin <marcel.martin@scilifelab.se>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:|
 |DADA2|[GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[https://www.bioconductor.org/packages/release/bioc/licenses/dada2/LICENSE](https://www.bioconductor.org/packages/release/bioc/licenses/dada2/LICENSE)|Insert copyright|
 |DECIPHER|[GNU GENERAL PUBLIC LICENSE Version 3, 29 June](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html)|Insert copyright|
 |biomformat|[Modified BSD](Amplicon_and_Metagenomics_3rd_Party_Software_Licenses/)|[http://biom-format.org/BIOM_LICENSE.html](http://biom-format.org/BIOM_LICENSE.html)|Insert copyright|
