@@ -31,12 +31,13 @@ The software for each pipeline is released under the NASA Open Source Agreement 
 - [Amplicon License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
 - [Metagenomics License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
 
-## 3rd Party Software Licenses
+### 3rd Party Software Licenses
 
 Licenses for the 3rd party open source software utilized for each pipeline can be found by clicking the respective pipeline link below:
-- [Amplicon License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
-- [Metagenomics License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
+- [Amplicon License](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Softwre.md)
+- [Metagenomics License](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Softwre.md)
 
+---
 
 ## Notices
 
