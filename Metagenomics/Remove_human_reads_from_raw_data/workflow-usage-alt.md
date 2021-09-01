@@ -68,7 +68,7 @@ Sample-2
 
 ### 4. Run the workflow
 
-While in the directory holding the Snakefile, config.yaml, and other workflow files that you downloaded in step 3, here is one example command of how to run the workflow:
+While in the directory holding the Snakefile, config.yaml, and other workflow files that you downloaded in step 2, here is one example command of how to run the workflow:
 
 ```bash
 snakemake --use-conda --conda-prefix ${CONDA_PREFIX}/envs -j 2 -p
