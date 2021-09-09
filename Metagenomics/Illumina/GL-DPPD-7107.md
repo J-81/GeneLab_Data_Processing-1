@@ -171,9 +171,6 @@ bbduk.sh in=sample-1-R1-raw.fastq.gz in2=sample-1-R2-raw.fastq.gz out1=sample-1-
 * *-trimmed.fastq.gz (filtered/trimmed reads)
 * bbduk.log (log file of standard output and error from bbduk run)
 
-
-> **NOTE**
-> If running on libraries prepared with the Swift1S kit, add the `swift
 <br>
 
 ---
@@ -880,7 +877,7 @@ gtdbtk classify_wf --genome_dir MAGs/ -x fa --out_dir gtdbtk-output-dir
 ### 15. Generating MAG-level functional summary overview
 
 #### 15a. Getting KO annotations per MAG
-This utilizes the helper script [`parse-MAG-annots.py`](../workflow-template/scripts/parse-MAG-annots.py).
+This utilizes the helper script [`parse-MAG-annots.py`](workflow-template/scripts/parse-MAG-annots.py).
 
 ```bash
 for file in $( ls MAGs/*.fasta )
