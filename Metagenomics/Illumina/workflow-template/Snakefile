@@ -88,7 +88,10 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
     input:
         config["MAGs_dir"] + "MAG-level-KO-annotations.tsv"
     params:
-        MAGs_dir = config["MAGs_dir"]
+        MAGs_dir = config["MAGs_dir"],
+        mod_input_annotations = config["MAGs_dir"] + "mod-MAG-level-KO-annotations.tmp",
+        temp_output = config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tmp",
+        mapping_file = config["MAGs_dir"] + "MAG-ID-map.tmp"
     output:
         config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv"
     benchmark:
@@ -100,12 +103,34 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
         # only running if any MAGs were recovered
         if [ ${{num_mags_recovered}} -gt 0 ]; then
 
-            # can only create html output if there are more than 1
+            # KEGGDecoder splits on the first underscore to identify unique genome/MAG IDs
+                # this can be problematic with how things are named, so we are swapping them all to not have
+                # any "_" first, then afterwards we are changing the output table back to the original names so 
+                # they match elsewhere (they will still be slightly different in the html output, but that is
+                # only manually explored anyway)
+
+            # making version of input for KEGGDecoder with no underscores
+            tr "_" "-" < {input} > {params.mod_input_annotations}
+
+            # making mapping file
+            paste <( cut -f 1 {input} ) <( cut -f 1 {params.mod_input_annotations} ) > {params.mapping_file}
+
+
+            # running KEGGDecoder
+                # can only create html output if there are more than 1
             if [ ${{num_mags_recovered}} -gt 1 ]; then
-                KEGG-decoder -v interactive -i {input} -o {output}
+                KEGG-decoder -v interactive -i {params.mod_input_annotations} -o {params.temp_output}
             else
-                KEGG-decoder -i {input} -o {output}
+                KEGG-decoder -i {params.mod_input_annotations} -o {params.temp_output}
             fi
+
+
+            # swapping MAG IDs back in output tsv from KEGGDecoder
+            python scripts/swap-MAG-IDs.py -i {params.temp_output} -m {params.mapping_file} -o {output}
+
+            # removing intermediate files
+            rm {params.mod_input_annotations} {params.mapping_file} {params.temp_output}
+
 
         else
 
