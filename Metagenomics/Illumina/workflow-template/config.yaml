@@ -115,6 +115,12 @@ read_based_dir:
 logs_dir:
     "logs/"
 
+
+## additional prefix to add to output files that describe more than one sample (to make them unique compared to other datasets)
+# leave as empty, i.e. "", if not wanted, include separator at end if adding one, e.g. "Swift1S_"
+additional_filename_prefix:
+    ""
+
 ## setting for trimming recommended when working with Swift 1S libraries
     # adds `swift=t` setting to bbduk quality trimming/filtering command
     # for info on this see, e.g., https://swiftbiosci.com/wp-content/uploads/2019/03/16-0853-Tail-Trim-Final-442019.pdf
