@@ -8,7 +8,7 @@ Michael D. Lee (Mike.Lee@nasa.gov)
 --- 
 
 <p align="center">
-<a href="../../images/GL-amplicon-overview.pdf"><img src="../../images/GL-amplicon-overview.png"></a>
+<a href="../images/GL-amplicon-overview.pdf"><img src="../images/GL-amplicon-overview.png"></a>
 </p>
 
 --- 
