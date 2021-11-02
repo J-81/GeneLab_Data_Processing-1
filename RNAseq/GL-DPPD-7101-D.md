@@ -118,7 +118,7 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ## 1b. Compile Raw Data QC  
 
 ```
-multiqc -n raw_multiqc_report -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
@@ -132,8 +132,8 @@ multiqc -n raw_multiqc_report -o /path/to/raw_multiqc/output/directory /path/to/
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
-- raw_multiqc_report.html (multiqc report)
-- raw_multiqc_report_data (directory containing multiqc data)
+- raw_multiqc.html (multiqc report)
+- raw_multiqc_data (directory containing multiqc data)
 
 <br>
 
@@ -195,7 +195,7 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 ## 2c. Compile Trimmed Data QC  
 
 ```
-multiqc -n trimmed_multiqc_report -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
+multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
 ```
 
 **Parameter Definitions:**
@@ -209,8 +209,8 @@ multiqc -n trimmed_multiqc_report -o /path/to/trimmed_multiqc/output/directory /
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
-- trimmed_multiqc_report.html (multiqc report)
-- trimmed_multiqc_report_data (directory containing multiqc data)
+- trimmed_multiqc.html (multiqc report)
+- trimmed_multiqc_data (directory containing multiqc data)
 
 <br>
 
@@ -270,7 +270,7 @@ STAR genome reference, which consists of the following files:
 
 ---
 
-## 4. Align reads to reference genome with STAR
+## 4a. Align reads to reference genome with STAR
 
 ```
 STAR --twopassMode Basic \
@@ -346,6 +346,46 @@ STAR --twopassMode Basic \
   - BAMsort (directory containing subdirectories that are empty – this was the location for temp files that were automatically removed after successful completion)
 
 \#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects). 
+
+<br>
+
+## 4b. Compile Alignment Logs 
+
+```
+multiqc -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
+```
+
+**Parameter Definitions:**
+
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+
+**Input Data:**
+- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc. from step 4a)
+
+**Output Data:**
+- align_multiqc.html (multiqc report)
+- align_multiqc_data (directory containing multiqc data)
+
+<br>
+
+## 4c. Index Aligned Reads 
+
+```
+samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
+```
+
+**Parameter Definitions:**
+
+* `-@` - number of threads available on server node to index alignment files
+* `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+
+**Input Data:**
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from step 4a)
+
+**Output Data:**
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
 
 <br>
 
