@@ -270,7 +270,7 @@ STAR genome reference, which consists of the following files:
 
 ---
 
-## 4a. Align reads to reference genome with STAR
+## 4a. Align Reads to Reference Genome with STAR
 
 ```
 STAR --twopassMode Basic \
@@ -391,7 +391,104 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 
 ---
 
-## 5. Build RSEM Reference
+## 5a. Convert GTF to genePred File  
+
+```
+gtfToGenePred -geneNameAsName2 \
+  /path/to/annotation/gtf/file \
+  /path/to/output/genePred/file
+
+```
+
+**Parameter Definitions:**
+
+* `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
+* `/path/to/annotation/gtf/file` – specifies the file(s) containg annotated reference transcripts in the standard gtf format, provided as a positional argument
+* `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
+
+**Input Data:**
+- *.gtf (genome annotation\#)
+
+\#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+
+**Output Data:**
+- *.genePred (genome annotation in genePred format)
+
+<br>
+
+## 5b. Convert genePred to BED File  
+
+```
+genePredToBed /path/to/annotation/genePred/file \
+  /path/to/output/BED/file
+
+```
+
+**Parameter Definitions:**
+
+* `/path/to/annotation/genePred/file` – specifies the file(s) containg annotated reference transcripts in the genePred format, provided as a positional argument
+* `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
+
+**Input Data:**
+- *.genePred (genome annotation in genePred format, from step 5a)
+
+**Output Data:**
+- *.bed (genome annotation in BED format)
+
+<br>
+
+---
+
+## 6a. Determine Read Strandedness
+
+```
+infer_experiment.py -r /path/to/annotation/BED/file \
+	-i /path/to/*Aligned.sortedByCoord.out.bam \
+	-s 15000000 > /path/to/*infer_expt.out
+```
+
+**Parameter Definitions:**
+
+* `-r` – specifies the path to the reference annotation BED file
+* `-i` - specifies the path to the input bam file(s)
+* `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
+* `>` - redirects standard output to specified file
+* `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
+
+**Input Data:**
+- *.bed (genome annotation in BED format, output from step 5b)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from step 4a)
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step 4c, although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
+
+**Output Data:**
+- *infer_expt.out (file containing the infer_experiment standard output)
+
+<br>
+
+## 6b. Compile Alignment Logs 
+
+```
+multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
+```
+
+**Parameter Definitions:**
+
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
+
+**Input Data:**
+- *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
+
+**Output Data:**
+- infer_exp_multiqc.html (multiqc report)
+- infer_exp_multiqc_data (directory containing multiqc data)
+
+<br>
+
+---
+
+## 7. Build RSEM Reference
 
 ```
 rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
