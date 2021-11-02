@@ -13,11 +13,11 @@
 
 ## single-column file with unique sample identifiers:
 sample_info_file:
-    "unique-sample-names.txt"
+    "unique-sample-IDs.txt"
 
 ## input reads directory (can be relative to workflow directory, or needs to be full path)
 raw_reads_dir:
-    "../Raw_Data/"
+    "../Raw_Sequence_Data/"
 
 ## raw read suffix (region following the unique part of the sample names)
   # e.g. for "Sample-1_raw.fastq.gz" would be "_raw.fastq.gz"
@@ -30,9 +30,9 @@ F_primer:
 R_primer:
     "GCTGCCTCCCGTAGGAGT"
 
-## minimum length threshold for bbduk
-min_bbduk_len:
-    50
+## target region (16S or ITS acceptable; determines which reference database is used for taxonomic classification)
+target_region:
+    "16S"
 
 
 ######################################################################
@@ -46,6 +46,10 @@ primer_trimmed_suffix:
 filtered_suffix:
     "_filtered.fastq.gz"
 
+## output prefix (if needed to distinguish from multiple primer sets, leave as empty string if not)
+output_prefix:
+    ""
+
 ## output directories (all relative to processing directory, they will be created if needed)
 fastqc_out_dir:
     "../FastQC_Outputs/"
@@ -55,6 +59,14 @@ filtered_reads_dir:
     "../Filtered_Sequence_Data/"
 final_outputs_dir:
     "../Final_Outputs/"
+
+## minimum length threshold for bbduk
+min_bbduk_len:
+    50
+
+## bbduk minimum average quality
+min_bbduk_avg_quality:
+    15
 
 
 ############################################################

@@ -1,5 +1,5 @@
 ############################################################################################
-## Configuration file for GeneLab Illumina metagenomics processing workflow               ##
+## Configuration file for GeneLab removal of human reads from metagenomic data            ##
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                                        ##
 ############################################################################################
 
@@ -13,7 +13,7 @@
 
 ## single-column file with unique sample identifiers:
 sample_info_file:
-    "unique-sample-names.txt"
+    "unique-sample-IDs.txt"
 
 ## input reads directory (can be relative to workflow directory, or needs to be full path)
 input_reads_dir:
@@ -44,14 +44,21 @@ output_reads_dir:
 
 ## wanted output R1 and R2 suffixes after human-read removal
 R1_out_suffix:
-    "_human_removed_R1.fastq.gz"
+    "_R1_HRremoved_raw.fastq.gz"
 R2_out_suffix:
-    "_human_removed_R2.fastq.gz"
+    "_R2_HRremoved_raw.fastq.gz"
 
 ## Number of threads to pass to kraken2 call (will be multiplied by number of jobs running, set with the -j parameter in the snakemake call)
 num_threads:
     10
 
+## log directory
+logs_dir:
+    "logs/"
+
+## kraken output files
+kraken_outputs:
+    "kraken-outputs/"
 
 ######################################################
 ################# REFERENCE DATABASE #################

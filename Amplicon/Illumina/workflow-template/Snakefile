@@ -36,6 +36,12 @@ Variables that may need to be adjusted should be changed there, not here.
 sample_IDs_file = config["sample_info_file"]
 sample_ID_list = [line.strip() for line in open(sample_IDs_file)]
 
+# making sure there are all unique names
+if len(set(sample_ID_list)) != len(sample_ID_list):
+
+    print("\n    Not all sample IDs in the " + str(config["sample_info_file"]) + " file are unique :(\n")
+    print("    Exiting for now.\n")
+    exit()
 
 ########################################
 ######## Setting up directories ########
@@ -66,21 +72,16 @@ if config["trim_primers"] == "TRUE":
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"], ID = sample_ID_list),
             expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R1_suffix"], ID = sample_ID_list),
             expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R2_suffix"], ID = sample_ID_list),
-            config["trimmed_reads_dir"] + "cutadapt.log",
-            config["trimmed_reads_dir"] + "trimmed-read-counts.tsv",
-            config["final_outputs_dir"] + "taxonomy.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.biom.zip",
-            config["final_outputs_dir"] + "ASVs.fasta",
-            config["final_outputs_dir"] + "read-count-tracking.tsv",
-            config["final_outputs_dir"] + "counts.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.tsv",
+            config["trimmed_reads_dir"] + config["output_prefix"] + "cutadapt.log",
+            config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom.zip",
+            config["final_outputs_dir"] + config["output_prefix"] + "ASVs.fasta",
+            config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
             config["fastqc_out_dir"] + "raw_multiqc_data.zip",
             config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
-        shell:
-            """
-            # copying log file to store with processing info
-            cp .snakemake/log/$(ls -t .snakemake/log/ | head -n 1) snakemake-run.log
-            """
 
 else:
 
@@ -88,49 +89,46 @@ else:
         input:
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"], ID = sample_ID_list),
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"], ID = sample_ID_list),
-            config["final_outputs_dir"] + "taxonomy.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.biom.zip",
-            config["final_outputs_dir"] + "ASVs.fasta",
-            config["final_outputs_dir"] + "read-count-tracking.tsv",
-            config["final_outputs_dir"] + "counts.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom.zip",
+            config["final_outputs_dir"] + config["output_prefix"] + "ASVs.fasta",
+            config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
             config["fastqc_out_dir"] + "raw_multiqc_data.zip",
             config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
-        shell:
-            """
-            # copying log file to store with processing info
-            cp .snakemake/log/$(ls -t .snakemake/log/ | head -n 1) snakemake-run.log
-            """
 
 
 rule zip_biom:
     input:
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom"
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom"
     output:
-        config["final_outputs_dir"] + "taxonomy-and-counts.biom.zip"
+        config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom.zip"
     params:
-        final_outputs_dir = config["final_outputs_dir"]
+        initial_output = config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom"
     shell:
         """
-        zip -q {params.final_outputs_dir}taxonomy-and-counts.biom.zip {params.final_outputs_dir}taxonomy-and-counts.biom && rm {params.final_outputs_dir}taxonomy-and-counts.biom
+        zip -q {output} {params.initial_output} && rm {params.initial_output}
         """
 
 
 if config["trim_primers"] == "TRUE":
 
     rule run_R:
+        conda:
+            "envs/R.yaml"
         input:
             expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R1_suffix"], ID = sample_ID_list),
             expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R2_suffix"], ID = sample_ID_list)
         output:
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"], ID = sample_ID_list),
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"], ID = sample_ID_list),
-            config["final_outputs_dir"] + "taxonomy.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.biom",
-            config["final_outputs_dir"] + "ASVs.fasta",
-            config["final_outputs_dir"] + "read-count-tracking.tsv",
-            config["final_outputs_dir"] + "counts.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.tsv"
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom",
+            config["final_outputs_dir"] + config["output_prefix"] + "ASVs.fasta",
+            config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv"
         params:
             left_trunc = config["left_trunc"],
             right_trunc = config["right_trunc"],
@@ -143,29 +141,33 @@ if config["trim_primers"] == "TRUE":
             primer_trimmed_R2_suffix = config["primer_trimmed_R2_suffix"],
             filtered_R1_suffix = config["filtered_R1_suffix"],
             filtered_R2_suffix = config["filtered_R2_suffix"],
-            final_outputs_dir = config["final_outputs_dir"]
+            final_outputs_dir = config["final_outputs_dir"],
+            target_region = config["target_region"],
+            output_prefix = config["output_prefix"]
         log:
             "R-processing.log"
         shell:
             """
-            Rscript scripts/full-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.trimmed_reads_dir}" "{params.filtered_reads_dir}" "{params.primer_trimmed_R1_suffix}" "{params.primer_trimmed_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" > {log} 2>&1
+            Rscript scripts/Illumina-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.trimmed_reads_dir}" "{params.filtered_reads_dir}" "{params.primer_trimmed_R1_suffix}" "{params.primer_trimmed_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" "{params.output_prefix}" "{params.target_region}" > {log} 2>&1
             """
 
 else:
 
     rule run_R:
+        conda:
+            "envs/R.yaml"
         input:
             expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"], ID = sample_ID_list),
             expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"], ID = sample_ID_list)
         output:
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"], ID = sample_ID_list),
             expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"], ID = sample_ID_list),
-            config["final_outputs_dir"] + "taxonomy.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.biom",
-            config["final_outputs_dir"] + "ASVs.fasta",
-            config["final_outputs_dir"] + "read-count-tracking.tsv",
-            config["final_outputs_dir"] + "counts.tsv",
-            config["final_outputs_dir"] + "taxonomy-and-counts.tsv"
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.biom",
+            config["final_outputs_dir"] + config["output_prefix"] + "ASVs.fasta",
+            config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
+            config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv"
         params:
             left_trunc = config["left_trunc"],
             right_trunc = config["right_trunc"],
@@ -178,12 +180,14 @@ else:
             raw_R2_suffix = config["raw_R2_suffix"],
             filtered_R1_suffix = config["filtered_R1_suffix"],
             filtered_R2_suffix = config["filtered_R2_suffix"],
-            final_outputs_dir = config["final_outputs_dir"]
+            final_outputs_dir = config["final_outputs_dir"],
+            target_region = config["target_region"],
+            output_prefix = config["output_prefix"]
         log:
             "R-processing.log"
         shell:
             """
-            Rscript scripts/full-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.raw_reads_dir}" "{params.filtered_reads_dir}" "{params.raw_R1_suffix}" "{params.raw_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" > {log} 2>&1
+            Rscript scripts/Illumina-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.raw_reads_dir}" "{params.filtered_reads_dir}" "{params.raw_R1_suffix}" "{params.raw_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" "{params.output_prefix}" "{params.target_region}" > {log} 2>&1
             """
 
 
@@ -193,8 +197,8 @@ rule combine_cutadapt_logs_and_summarize:
         counts = expand(config["trimmed_reads_dir"] + "{ID}-trimmed-counts.tsv", ID = sample_ID_list),
         logs = expand(config["trimmed_reads_dir"] + "{ID}-cutadapt.log", ID = sample_ID_list)
     output:
-        combined_log = config["trimmed_reads_dir"] + "cutadapt.log",
-        combined_counts = config["trimmed_reads_dir"] + "trimmed-read-counts.tsv"
+        combined_log = config["trimmed_reads_dir"] + config["output_prefix"] + "cutadapt.log",
+        combined_counts = config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv"
     shell:
         """
         cat {input.logs} > {output.combined_log}
@@ -250,18 +254,21 @@ rule filtered_multiqc:
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
+        out_filename_prefix = config["output_prefix"] + "filtered_multiqc",
         fastqc_out_dir = config["fastqc_out_dir"],
-        filtered_reads_dir = config["filtered_reads_dir"]
+        filtered_reads_dir = config["filtered_reads_dir"],
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc.html"
     output:
-        config["fastqc_out_dir"] + "filtered_multiqc.html",
-        config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_report.html",
+        data = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n filtered_multiqc  {params.filtered_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.filtered_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files and temp locations
         rm -rf {params.filtered_reads_dir}*fastqc*
+        # renaming html file
+        mv {params.int_output} {output.html}
         """
-
 
 
 rule filtered_fastqc:
@@ -294,17 +301,22 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
+        out_filename_prefix = config["output_prefix"] + "raw_multiqc",
         raw_reads_dir = config["raw_reads_dir"],
-        fastqc_out_dir = config["fastqc_out_dir"]
+        fastqc_out_dir = config["fastqc_out_dir"],
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc.html"
     output:
-        config["fastqc_out_dir"] + "raw_multiqc.html",
-        config["fastqc_out_dir"] + "raw_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_report.html",
+        data = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n raw_multiqc {params.raw_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
         # removing the individual fastqc files
         rm -rf {params.raw_reads_dir}*fastqc*
+        # renaming html file
+        mv {params.int_output} {output.html}
         """
+
 
 
 rule raw_fastqc:
