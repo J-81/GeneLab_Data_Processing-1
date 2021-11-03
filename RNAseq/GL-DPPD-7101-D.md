@@ -26,7 +26,7 @@ Two additional sub-steps were added to step 4:
 
 Two additional steps were added prior to aligned read quantitaion:
 - Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
-- Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-logs), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
+- Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
 
 The aligned read quantition step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
 > Note: A subset of samples from all datasets previously processed wwere evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
@@ -61,7 +61,7 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
     - [**5b. Convert genePred to BED File**](#5b-convert-genepred-to-bed-file)
   - **6. Assess Strandedness**
     - [**6a. Determine Read Strandedness**](#6a-determine-read-strandedness)
-    - [**6b. Compile Strandedness Logs**](#6b-compile-strandedness-logs)
+    - [**6b. Compile Strandedness Reports**](#6b-compile-strandedness-reports)
   - [**7. Build RSEM Reference**](#7-build-rsem-reference)
   - [**8. Count Aligned Reads with RSEM**](#8-count-aligned-reads-with-rsem)
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
@@ -479,7 +479,7 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 <br>
 
-## 6b. Compile Alignment Logs 
+## 6b. Compile Strandedness Reports
 
 ```
 multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
