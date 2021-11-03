@@ -24,11 +24,11 @@ Two additional sub-steps were added to step 4:
 - A step to compile the alignment log files using multiQC, [step 4b](#4b-compile-alignment-logs)
 - A step to index the alignment files, [step 4c](#4c-index-aligned-reads), which is required to assess read strandedness
 
-Two additional steps were added prior to aligned read quantitaion:
+Two additional steps were added prior to aligned read quantitation:
 - Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
 - Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
 
-The aligned read quantition step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
+The aligned read quantitation step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
 > Note: A subset of samples from all datasets previously processed were evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
 
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
@@ -251,9 +251,9 @@ STAR --runThreadN NumberOfThreads \
 * `--limitGenomeGenerateRAM` - maximum RAM available (in bytes) to generate STAR reference, at least 35GB are needed for mouse and the example above shows 55GB
 * `--genomeSAindexNbases` - length (in bases) of the SA pre-indexing string, usually between 10 and 15. Longer strings require more memory but allow for faster searches. This value should be scaled down for smaller genomes (like bacteria) to min(14, log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would be 9.
 * `--genomeDir` - specifies the path to the directory where the STAR reference will be stored. At least 100GB of available disk space is required for mammalian genomes.
-* `--genomeFastaFiles` - specifies one or more fasta file(s) containg the genome reference sequences
-* `--sjdbGTFfile` – specifies the file(s) containg annotated transcripts in the standard gtf format
-* `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the length of the reads.
+* `--genomeFastaFiles` - specifies one or more fasta file(s) containing the genome reference sequences
+* `--sjdbGTFfile` – specifies the file(s) containing annotated transcripts in the standard gtf format
+* `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the maximum length of the reads.
 
 **Input Data:**
 - *.fasta (genome sequence\#)
@@ -346,7 +346,7 @@ STAR --twopassMode Basic \
 **Output Data:**
 - *Aligned.sortedByCoord.out.bam# (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam# (sorted mapping to transcriptome)
-- *Log.final.out# (log file conting alignment info/stats such as reads mapped, etc)
+- *Log.final.out# (log file containing alignment info/stats such as reads mapped, etc)
 - *Log.out
 - *Log.progress.out
 - *SJ.out.tab\#
@@ -396,7 +396,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 * `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from step 4a)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 - *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
@@ -417,7 +417,7 @@ gtfToGenePred -geneNameAsName2 \
 **Parameter Definitions:**
 
 * `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
-* `/path/to/annotation/gtf/file` – specifies the file(s) containg annotated reference transcripts in the standard gtf format, provided as a positional argument
+* `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
 * `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
 
 **Input Data:**
@@ -440,7 +440,7 @@ genePredToBed /path/to/annotation/genePred/file \
 
 **Parameter Definitions:**
 
-* `/path/to/annotation/genePred/file` – specifies the file(s) containg annotated reference transcripts in the genePred format, provided as a positional argument
+* `/path/to/annotation/genePred/file` – specifies the file(s) containing annotated reference transcripts in the genePred format, provided as a positional argument
 * `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
 
 **Input Data:**
@@ -471,8 +471,8 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 - *.bed (genome annotation in BED format, output from step 5b)
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from step 4a)
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step 4c, although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
 
 **Output Data:**
 - *infer_expt.out (file containing the infer_experiment standard output)
@@ -513,8 +513,8 @@ rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
 
 **Parameter Definitions:**
 
-* `--gtf` – specifies the file(s) containg annotated transcripts in the standard gtf format
-* `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containg the genome reference sequences, provided as a positional argument
+* `--gtf` – specifies the file(s) containing annotated transcripts in the standard gtf format
+* `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containing the genome reference sequences, provided as a positional argument
 * `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference will be stored and the prefix desired for the RSEM reference files, provided as a positional argument 
 
 **Input Data:**
@@ -564,14 +564,14 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 * `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
 * `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data 
 * `--no-bam-output` - instructs RSEM not to output any bam file
-* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from step 6) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
+* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
 * `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
 * `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
 * `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 
 **Input Data:**
 - RSEM genome reference (output from Step 7)
-- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from Step 4a)
+- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 - *genes.results (counts per gene)
@@ -659,7 +659,7 @@ n = as.numeric(which(isa@assay.technology.types == "RNA Sequencing (RNA-Seq)"))
 isa_tabs<-isa@assay.tabs[[n]]@assay.file
 factors <- as.data.frame(isa@factors[[1]], stringsAsFactors = FALSE)
 colnames(factors)<-paste("factor",1:dim(factors)[2], sep = "_")
-compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors)
+compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors) # note: both the s_* table and a_* table in ISA MUST have rows in the same order, otherwise samples may be assigned to the incorrect factor group
 
 ## Create data frame containing all samples and respective factors
 
@@ -1266,7 +1266,7 @@ n = as.numeric(which(isa@assay.technology.types == "RNA Sequencing (RNA-Seq)"))
 isa_tabs<-isa@assay.tabs[[n]]@assay.file
 factors <- as.data.frame(isa@factors[[1]], stringsAsFactors = FALSE)
 colnames(factors)<-paste("factor",1:dim(factors)[2], sep = "_")
-compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors)
+compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors) # note: both the s_* table and a_* table in ISA MUST have rows in the same order, otherwise samples may be assigned to the incorrect factor group
 
 ## Create data frame containing all samples and respective factors
 
