@@ -29,7 +29,7 @@ Two additional steps were added prior to aligned read quantitaion:
 - Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
 
 The aligned read quantition step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
-> Note: A subset of samples from all datasets previously processed wwere evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
+> Note: A subset of samples from all datasets previously processed were evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
 
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
 - Perform ERCC normalization using only ERCC group B genes, since the concentration of these genes are the same in ERCC mix 1 and mix 2
