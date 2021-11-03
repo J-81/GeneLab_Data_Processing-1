@@ -1229,11 +1229,11 @@ library(Risa)
 
 organism <- "organism_that_samples_were_derived_from"
 
-## Create a directory for the metadata and in that directory, download the *ISA.zip file for the study being analyzed, which is located in the GLDS repository under 'STUDY FILES' -> 'Study Metadata Files'
+## Create a directory for the metadata and in that directory, download the *ISA.zip file for the study being analyzed, which is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files'
 
 ## Define the location of the input data and where the ouput data will be printed to
 metadata_dir="/path/to/directory/containing/*ISA.zip/file"
-work_dir="/path/to/working/directory" ## Must contain organisms.csv file
+work_dir="/path/to/working/directory/where/script/is/executed/from" ## Must contain organisms.csv file
 counts_dir="/path/to/directory/containing/RSEM/counts/files"
 norm_output="/path/to/normalized/counts/output/directory"
 DGE_output="/path/to/DGE/output/directory"
@@ -1314,9 +1314,10 @@ summary(dds)
 
 ##### Filter out genes with counts of less than 10 in all samples #####
 
-keep <- rowSums(counts(dds)) > 10
-dds <- dds[keep,]
+keepGenes <- rowSums(counts(dds)) > 10
+dds <- dds[keepGenes,]
 summary(dds)
+dim(dds)
 
 
 ##### Perform DESeq analysis #####
@@ -1376,12 +1377,12 @@ output_table_1 <- normCounts
 
 ## Iterate through Wald Tests to generate pairwise comparisons of all groups
 for (i in 1:dim(contrasts)[2]){
-	res_1 <- results(dds_1, contrast=c("condition",contrasts[1,i],contrasts[2,i]))
-	res_1 <- as.data.frame(res_1@listData)[,c(2,5,6)]
-	colnames(res_1) <-c(paste0("Log2fc_",colnames(contrasts)[i]),paste0("P.value_",colnames(contrasts)[i]),paste0("Adj.p.value_",colnames(contrasts)[i]))
-	output_table_1<-cbind(output_table_1,res_1)
-	reduced_output_table_1 <- cbind(reduced_output_table_1,res_1)
-	rm(res_1)
+  res_1 <- results(dds_1, contrast=c("condition",contrasts[1,i],contrasts[2,i]))
+  res_1 <- as.data.frame(res_1@listData)[,c(2,4,5,6)]
+  colnames(res_1)<-c(paste0("Log2fc_",colnames(contrasts)[i]),paste0("Stat_",colnames(contrasts)[i]),paste0("P.value_",colnames(contrasts)[i]),paste0("Adj.p.value_",colnames(contrasts)[i]))
+  output_table_1<-cbind(output_table_1,res_1)
+  reduced_output_table_1 <- cbind(reduced_output_table_1,res_1)
+  rm(res_1)
 }
 
 ## Create annotation table and add gene annotation columns
@@ -1405,7 +1406,7 @@ if ("ENTREZID" %in% columns(eval(parse(text = ann.dbi),env=.GlobalEnv))){
 }
 
 ## Create and add string annotation columns to the annotation table
-string_db <- STRINGdb$new( version="10", species=organism_table$taxon[organism_table$name == organism],score_threshold=0)
+string_db <- STRINGdb$new( version="11", species=organism_table$taxon[organism_table$name == organism],score_threshold=0)
 string_map <- string_db$map(annot,"SYMBOL",removeUnmappedRows = FALSE, takeFirst = TRUE)[,c(1,6)]
 string_map <- string_map[!duplicated(string_map$SYMBOL),]
 annot <- dplyr::left_join(annot,string_map, by = "SYMBOL")
@@ -1422,7 +1423,7 @@ output_table_1$All.mean <- rowMeans(normCounts, na.rm = TRUE, dims = 1)
 reduced_output_table_1$All.mean <- rowMeans(normCounts, na.rm = TRUE, dims = 1)
 
 ## Generate and add all sample stdev column to the normalized counts table
-output_table_1$stdev <- rowSds(as.matrix(normCounts), na.rm = TRUE, dims = 1)
+output_table_1$All.stdev <- rowSds(as.matrix(normCounts), na.rm = TRUE, dims = 1)
 reduced_output_table_1$All.stdev <- rowSds(as.matrix(normCounts), na.rm = TRUE, dims = 1)
 
 ## Add F statistic p-value (similar to ANOVA p-value) column to the normalized counts table
@@ -1516,7 +1517,7 @@ sessionInfo()
 
 - Unnormalized_Counts.csv\#
 - Normalized_Counts.csv\#
-- SampleTable.csv
+- SampleTable.csv\#
 - visualization_output_table.csv\#\#
 - visualization_PCA_table.csv\#\#
 - differential_expression.csv\#
