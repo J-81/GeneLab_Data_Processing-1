@@ -1266,7 +1266,7 @@ n = as.numeric(which(isa@assay.technology.types == "RNA Sequencing (RNA-Seq)"))
 isa_tabs<-isa@assay.tabs[[n]]@assay.file
 factors <- as.data.frame(isa@factors[[1]], stringsAsFactors = FALSE)
 colnames(factors)<-paste("factor",1:dim(factors)[2], sep = "_")
-compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors)
+compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors) # note: both the s_* table and a_* table in ISA MUST have rows in the same order, otherwise samples may be assigned to the incorrect factor group
 
 ## Create data frame containing all samples and respective factors
 
