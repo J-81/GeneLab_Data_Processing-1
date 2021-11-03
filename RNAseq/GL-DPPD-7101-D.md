@@ -20,9 +20,23 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous revision
 
-In step 7, a line was added to both the section for datasets with ERCC Spike-In ([step 7a](#7a-for-datasets-with-ercc-spike-in)) and the section for datasets without ERCC Spike-In ([step 7b](#7b-for-datasets-without-ercc-spike-in)) to force the RSEM &ast;genes.results files to be imported in the same order that the samples are listed in the ISA files (this avoids the possibility of counts being associated with the wrong sample when generating counts tables). 
+Two additional sub-steps were added to step 4:
+- A step to compile the alignment log files using multiQC, [step 4b](#4b-compile-alignment-logs)
+- A step to index the alignment files, [step 4c](#4c-index-aligned-reads), which is required to assess read strandedness
 
-Note that all RNAseq datasets originally processed with [Revision B](Previous_GL-DPPD-7101_Revisions/GL-DPPD-7101-B.md) or [Revision A](Previous_GL-DPPD-7101_Revisions/GL-DPPD-7101-A.md) in which the &ast;genes.results files were not imported in the same order that the samples were listed in the ISA files (or &ast;metadata.csv file for datasets processed with Revision A) were re-processed with this line added to the respective step 7 scripts. 
+Two additional steps were added prior to aligned read quantitaion:
+- Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
+- Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-logs), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
+
+The aligned read quantition step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
+> Note: A subset of samples from all datasets previously processed wwere evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
+
+The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
+- Perform ERCC normalization using only ERCC group B genes, since the concentration of these genes are the same in ERCC mix 1 and mix 2
+- Remove any samples that do not contain detectible ERCC group B spike-ins prior to generation and subsequent analysis of ERCC-normalized count data
+- Account for the edge case in which rescaling using ERCC size factors fails due to zero gene counts
+
+Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the DGE output tables for datasets both with and without ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in) and [step 9b](#9b-for-datasets-without-ercc-spike-in), respectively, which will be used for GSEA visualizations
 
 ---
 
