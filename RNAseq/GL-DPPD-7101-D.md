@@ -458,7 +458,7 @@ genePredToBed /path/to/annotation/genePred/file \
 ```
 infer_experiment.py -r /path/to/annotation/BED/file \
 	-i /path/to/*Aligned.sortedByCoord.out.bam \
-	-s 15000000 > /path/to/*infer_expt.out
+	-s 15000000 > /path/to/*_infer_experiment.out
 ```
 
 **Parameter Definitions:**
@@ -467,7 +467,7 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 * `-i` - specifies the path to the input bam file(s)
 * `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
 * `>` - redirects standard output to specified file
-* `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
+* `/path/to/*_infer_experiment.out` - specifies the location and name of the file containing the infer_experiment standard output
 
 **Input Data:**
 - *.bed (genome annotation in BED format, output from step 5b)
@@ -475,24 +475,24 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 - *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step 4c, although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
 
 **Output Data:**
-- *infer_expt.out (file containing the infer_experiment standard output)
+- *_infer_experiment.out (file containing the infer_experiment standard output)
 
 <br>
 
 ## 6b. Compile Strandedness Reports
 
 ```
-multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
+multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*_infer_experiment.out/files
 ```
 
 **Parameter Definitions:**
 
 * `-n` - prefix name for output files
 * `-o` – the output directory to store results
-* `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
+* `/path/to/*_infer_experiment.out/files` – the directory holding the *_infer_experiment.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
 
 **Input Data:**
-- *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
+- *_infer_experiment.out (file containing the infer_experiment standard output, from step 6a)
 
 **Output Data:**
 - infer_exp_multiqc.html (multiqc report)
