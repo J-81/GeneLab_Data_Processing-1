@@ -396,7 +396,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 * `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from step 4a)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 - *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
@@ -471,8 +471,8 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 - *.bed (genome annotation in BED format, output from step 5b)
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from step 4a)
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step 4c, although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
 
 **Output Data:**
 - *infer_expt.out (file containing the infer_experiment standard output)
@@ -564,14 +564,14 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 * `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
 * `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data 
 * `--no-bam-output` - instructs RSEM not to output any bam file
-* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from step 6) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
+* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
 * `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
 * `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
 * `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 
 **Input Data:**
 - RSEM genome reference (output from Step 7)
-- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from Step 4a)
+- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 - *genes.results (counts per gene)
