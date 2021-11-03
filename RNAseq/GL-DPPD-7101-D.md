@@ -458,7 +458,7 @@ genePredToBed /path/to/annotation/genePred/file \
 ```
 infer_experiment.py -r /path/to/annotation/BED/file \
 	-i /path/to/*Aligned.sortedByCoord.out.bam \
-	-s 15000000 > /path/to/*_infer_experiment.out
+	-s 15000000 > /path/to/*infer_expt.out
 ```
 
 **Parameter Definitions:**
