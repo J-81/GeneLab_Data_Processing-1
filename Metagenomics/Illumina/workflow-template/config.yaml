@@ -152,7 +152,7 @@ CAT_DIR:
 CAT_DL_FILE:
     "CAT_prepare_20210107.tar.gz"
 CAT_DL_LINK:
-    "tbb.bio.uu.nl/bastiaan/CAT_prepare/CAT_prepare_20210107.tar.gz"
+    "https://tbb.bio.uu.nl/bastiaan/CAT_prepare/CAT_prepare_20210107.tar.gz"
 CAT_TRIGGER_FILE:
     "CAT_DB_SETUP"
 CAT_DB:

@@ -849,7 +849,7 @@ rule combine_contig_tax_and_coverage:
                 paste <( head -n 1 {input.cov} ) <( head -n 1 {input.tax} | cut -f 2- ) > {params.header_tmp}
                 cat {params.header_tmp} {params.contig_tmp} > {output}
                 rm -rf {params.contig_tmp} {params.header_tmp}
-                # rm -rf {input}
+                rm -rf {input}
 
             else
 
@@ -858,14 +858,14 @@ rule combine_contig_tax_and_coverage:
                 paste {params.contig_p1_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} > {params.contig_tmp}
                 cat <( printf "contig_ID\tcoverage\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" ) {params.contig_tmp} > {output}
                 rm -rf {params.contig_p1_tmp} {params.tax_col_tmp} {params.contig_tmp}
-                # rm -rf {input}
+                rm -rf {input}
 
             fi
 
         else
 
             printf "contig_ID\tcoverage\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" > {output}
-            # rm -rf {input}
+            rm -rf {input}
 
         fi
         """
@@ -899,12 +899,12 @@ rule combine_gene_annots_tax_and_coverage:
             cat {params.header_tmp} {params.gene_tmp} > {output}
 
             rm -rf {params.gene_tmp} {params.header_tmp}
-            # rm -rf {input}
+            rm -rf {input}
 
         else
 
             printf "gene_ID\tcoverage\tKO_ID\tKO_function\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" > {output}
-            # rm -rf {input}
+            rm -rf {input}
 
         fi
         """
