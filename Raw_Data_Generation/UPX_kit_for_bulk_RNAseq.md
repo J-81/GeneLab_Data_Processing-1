@@ -45,8 +45,8 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # Software used  
 
-|Program|Version*|Relevant Links|
-|:------|:------:|:-------------|
+|Program|Version|Relevant Links|
+|:------|:-----:|:-------------|
 |bcl2fastq|2.20|[https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)|
 |umi_tools|1.1.2|[https://umi-tools.readthedocs.io/en/latest/](https://umi-tools.readthedocs.io/en/latest/)|
 
@@ -73,8 +73,17 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 
 **Parameter Definitions:**
 
-* `-o` – the output directory to store results
-* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+* `--runfolder-dir` – path to the directory output from the NovaSeq sequencing run 
+* > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
+* `--output-dir` – path to the directory to store the bcl2fastq output files 
+* `--loading-threads` - number of threads used to load the bcl data
+* `--writing-threads` - number of threads used to write the fastq data
+* `--processing-threads` - number of threads used to demultiplex the data
+* `--barcode-mismatches` - number of mismatches allowed per index adapter
+* `--no-lane-splitting` - instructs the program not to split the fastq files by lane (only use if the same pool of pooled samples is run on all lanes of the flow cell)
+* `--no-bgzf-compression` - turn off bgzf and instead use gzip to compress the fastq files
+* `--minimum-trimmed-read-length` - specifies the minimum read length after adapter trimming, a value of 0 indicates no adapter trimming
+* `--mask-short-adapter-reads` - specifies the number of reads to mask if less than the minimum trimmed read length
 
 **Input Data:**
 - *fastq.gz (raw reads)
