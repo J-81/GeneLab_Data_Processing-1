@@ -1,6 +1,12 @@
-# GeneLab raw data generation for bulk RNAseq prepared with the UPX kit
+# GeneLab raw data generation for bulk RNAseq prepared with the Qiagen UPX kit
 
-> **This page holds an overview and instructions for how GeneLab generates raw RNA sequence data  RNAseq datasets. Exact processing commands and GL-DPPD-7101 revision used for specific datasets are available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This page holds an overview and instructions for how GeneLab generates raw RNA sequence data from libraries prepared using the [Qiagen UPX kit](https://www.qiagen.com/us/products/discovery-and-translational-research/next-generation-sequencing/rna-sequencing/three-rnaseq/qiaseq-upx-3-transcriptome-kits/). The instructions below assume that the samples were prepared as follows:
+> 1. Bulk RNA was was extracted from samples 
+> 2. Each sample was prepared with a unique cell ID
+> 3. Samples were pooled together to create sample pools
+> 4. Each sample pool was prepared with a unique single index
+> 5. Sample pools were pooled together to create a pool of pooled samples
+> 6. The pool of pooled samples was sequenced on an Illumina NovaSeq instrument**  
 
 ---
 
