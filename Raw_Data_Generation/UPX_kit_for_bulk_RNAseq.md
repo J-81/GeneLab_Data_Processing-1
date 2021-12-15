@@ -98,8 +98,8 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 ## 2. Identify Cell IDs  
 
 ```
-umi_tools whitelist	--stdin=/path/to/reverse/read \
-  --bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
+umi_tools whitelist --stdin=/path/to/reverse/read \
+	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
 	-L /path/to/whitelist/log/output/file \
 	--set-cell-number 20 \
 	--subset-reads 700000000 > /path/to/whitelist/output/files/${sample}_whitelist.tsv
@@ -108,11 +108,11 @@ umi_tools whitelist	--stdin=/path/to/reverse/read \
 **Parameter Definitions:**
 
 * `--stdin` - read contining the cell ID (this is the reverse read for samples prepared with the Qiagen UPX kit) 
-* `--bc-pattern` – the output directory to store results
-* `-L` -
-* `--set-cell-number` -
-* `--subset-reads` -
-* `${sample}_whitelist.tsv` - file to output the cell IDs identified for each sample pool
+* `--bc-pattern` – pattern for the barcode on the read containing the cell ID; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
+* `-L` - specifies output log file
+* `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
+* `--subset-reads` - number of reads to use to identify true cell barcodes; to use all reads set this number to greater than the max number of reads
+* `${sample}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
 
 **Input Data:**
 - *fastqc.html (FastQC report)
