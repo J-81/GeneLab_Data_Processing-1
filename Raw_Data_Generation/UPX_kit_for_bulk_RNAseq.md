@@ -74,7 +74,7 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 **Parameter Definitions:**
 
 * `--runfolder-dir` – path to the directory output from the NovaSeq sequencing run 
-* > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
+   > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
 * `--output-dir` – path to the directory to store the bcl2fastq output files 
 * `--loading-threads` - number of threads used to load the bcl data
 * `--writing-threads` - number of threads used to write the fastq data
@@ -86,15 +86,16 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 * `--mask-short-adapter-reads` - specifies the number of reads to mask if less than the minimum trimmed read length
 
 **Input Data:**
-- *fastq.gz (raw reads)
+- NovaSeq/directory (output directory from the NovaSeq run - must contain the SampleSheet.csv file)
 
 **Output Data:**
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
+- *fastq.gz (fastq.gz files for each sample listed in the SampleSheet.csv file plus a set of fastq.gz files for Undetermined reads)
+- /Stats (directory containing demultiplexing statistics)
+- /Reports (directory containing html reports of the demultiplexing statistics)
 
 <br>
 
-## 1b. Compile Raw Data QC  
+## 2. Identify Cell IDs  
 
 ```
 multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
