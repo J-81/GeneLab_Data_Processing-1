@@ -73,8 +73,7 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 
 **Parameter Definitions:**
 
-* `--runfolder-dir` – path to the directory output from the NovaSeq sequencing run 
-   > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
+* `--runfolder-dir` – path to the directory output from the NovaSeq sequencing run  
 * `--output-dir` – path to the directory to store the bcl2fastq output files 
 * `--loading-threads` - number of threads used to load the bcl data
 * `--writing-threads` - number of threads used to write the fastq data
@@ -87,6 +86,7 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 
 **Input Data:**
 - NovaSeq/directory (output directory from the NovaSeq run - must contain the SampleSheet.csv file)
+   > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
 
 **Output Data:**
 - *fastq.gz (fastq.gz files for each sample listed in the SampleSheet.csv file plus a set of fastq.gz files for Undetermined reads)
@@ -98,14 +98,21 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 ## 2. Identify Cell IDs  
 
 ```
-multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+umi_tools whitelist	--stdin=/path/to/reverse/read \
+  --bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
+	-L /path/to/whitelist/log/output/file \
+	--set-cell-number 20 \
+	--subset-reads 700000000 > /path/to/whitelist/output/files/${sample}_whitelist.tsv
 ```
 
 **Parameter Definitions:**
 
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
+* `--stdin` - read contining the cell ID (this is the reverse read for samples prepared with the Qiagen UPX kit) 
+* `--bc-pattern` – the output directory to store results
+* `-L` -
+* `--set-cell-number` -
+* `--subset-reads` -
+* `${sample}_whitelist.tsv` - file to output the cell IDs identified for each sample pool
 
 **Input Data:**
 - *fastqc.html (FastQC report)
