@@ -89,7 +89,7 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
    > Note: Make sure the NovaSeq output directory contains a properly formatted [SampleSheet.csv](https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/sequencing-sheet-format-specifications-technical-note-970-2017-004.pdf) file in which the samples listed are the sample pools rather than individual samples.  
 
 **Output Data:**
-- *fastq.gz (fastq.gz files for each sample listed in the SampleSheet.csv file plus a set of fastq.gz files for Undetermined reads)
+- *fastq.gz (fastq.gz files for each sample pool listed in the SampleSheet.csv file plus a set of fastq.gz files for Undetermined reads)
 - /Stats (directory containing demultiplexing statistics)
 - /Reports (directory containing html reports of the demultiplexing statistics)
 
@@ -98,29 +98,32 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 ## 2. Identify Cell IDs  
 
 ```
-umi_tools whitelist --stdin=/path/to/reverse/read \
+umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
-	-L /path/to/whitelist/log/output/file \
-	--set-cell-number 20 \
-	--subset-reads 700000000 > /path/to/whitelist/output/files/${sample}_whitelist.tsv
+	--plot-prefix=${sample_pool}_whitelist_plot \
+	-L /path/to/${sample_pool}_whitelist.log \
+	--set-cell-number Number_of_cellIDs \
+	--subset-reads 700000000 > /path/to/whitelist/output/files/${sample_pool}_whitelist.tsv
 ```
 
 **Parameter Definitions:**
 
 * `--stdin` - read contining the cell ID (this is the reverse read for samples prepared with the Qiagen UPX kit) 
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
-* `-L` - specifies output log file
+* `--plot-prefix` - instructs the program to output a plot to visualise the set of thresholds considered for defining cell barcodes
+* `-L` - specifies whitelist output log file
 * `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
 * `--subset-reads` - number of reads to use to identify true cell barcodes; to use all reads set this number to greater than the max number of reads
-* `${sample}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
+* `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
 
 **Input Data:**
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
+- *R2*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
 
 **Output Data:**
-- raw_multiqc.html (multiqc report)
-- raw_multiqc_data (directory containing multiqc data)
+- *whitelist.log (whitelist extraction log file)
+- *whitelist_plot (plot visualizing the set of thresholds considered for defining cell barcodes)
+- *whitelist_plot (table containing the set of thresholds considered for defining cell barcodes)
+- *whitelist.tsv (whitelist output file containing 4 tab-separated columns: 1-whitelist cellID, 2-cellIDs that are 1bp different from the respective whitelist cellID identified, 3-number of whitelisted cellIDs, 4-number of 1bp different cellIDs)
 
 <br>
 
