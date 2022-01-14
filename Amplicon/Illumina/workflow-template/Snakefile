@@ -48,9 +48,9 @@ if len(set(sample_ID_list)) != len(sample_ID_list):
 ########################################
 
 if config["trim_primers"] == "TRUE":
-    needed_dirs = [config["fastqc_out_dir"], config["trimmed_reads_dir"], config["filtered_reads_dir"], config["final_outputs_dir"]]
+    needed_dirs = [config["fastqc_out_dir"], config["trimmed_reads_dir"], config["filtered_reads_dir"], config["final_outputs_dir"], "benchmarks"]
 else:
-    needed_dirs = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["final_outputs_dir"]]
+    needed_dirs = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["final_outputs_dir"], "benchmarks"]
 
 for dir in needed_dirs:
     try:
@@ -82,6 +82,10 @@ if config["trim_primers"] == "TRUE":
             config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
             config["fastqc_out_dir"] + "raw_multiqc_data.zip",
             config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        shell:
+            """
+            bash scripts/combine-benchmarks.sh
+            """       
 
 else:
 
@@ -97,6 +101,10 @@ else:
             config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
             config["fastqc_out_dir"] + "raw_multiqc_data.zip",
             config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        shell:
+            """
+            bash scripts/combine-benchmarks.sh
+            """       
 
 
 rule zip_biom:
@@ -146,6 +154,8 @@ if config["trim_primers"] == "TRUE":
             output_prefix = config["output_prefix"]
         log:
             "R-processing.log"
+        benchmark:
+            "benchmarks/run_R-benchmarks.tsv"
         shell:
             """
             Rscript scripts/Illumina-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.trimmed_reads_dir}" "{params.filtered_reads_dir}" "{params.primer_trimmed_R1_suffix}" "{params.primer_trimmed_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" "{params.output_prefix}" "{params.target_region}" > {log} 2>&1
@@ -185,6 +195,8 @@ else:
             output_prefix = config["output_prefix"]
         log:
             "R-processing.log"
+        benchmark:
+            "benchmarks/run_R-benchmarks.tsv"
         shell:
             """
             Rscript scripts/Illumina-R-processing.R "{params.left_trunc}" "{params.right_trunc}" "{params.left_maxEE}" "{params.right_maxEE}" "{params.trim_primers}" "{sample_IDs_file}" "{params.raw_reads_dir}" "{params.filtered_reads_dir}" "{params.raw_R1_suffix}" "{params.raw_R2_suffix}" "{params.filtered_R1_suffix}" "{params.filtered_R2_suffix}" "{params.final_outputs_dir}" "{params.output_prefix}" "{params.target_region}" > {log} 2>&1
@@ -199,6 +211,8 @@ rule combine_cutadapt_logs_and_summarize:
     output:
         combined_log = config["trimmed_reads_dir"] + config["output_prefix"] + "cutadapt.log",
         combined_counts = config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv"
+    benchmark:
+        "benchmarks/combine_cutadapt_logs_and_summarize-benchmarks.tsv"
     shell:
         """
         cat {input.logs} > {output.combined_log}
@@ -230,6 +244,8 @@ rule cutadapt:
         primers_linked = config["primers_linked"]
     log:
         config["trimmed_reads_dir"] + "{ID}-cutadapt.log"
+    benchmark:
+        "benchmarks/cutadapt-{ID}-benchmarks.tsv"
     shell:
         """
         # command depends on if primers are linked or not
@@ -261,6 +277,8 @@ rule filtered_multiqc:
     output:
         html = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_report.html",
         data = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
+    benchmark:
+        "benchmarks/filtered_multiqc-benchmarks.tsv"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.filtered_reads_dir} > /dev/null 2>&1
@@ -284,6 +302,8 @@ rule filtered_fastqc:
     output:
         config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
         config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+    benchmark:
+        "benchmarks/filtered_fastqc-{ID}-benchmarks.tsv"
     shell:
         """
         fastqc {input} -t 2 -q
@@ -308,6 +328,8 @@ rule raw_multiqc:
     output:
         html = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_report.html",
         data = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip"
+    benchmark:
+        "benchmarks/raw_multiqc-benchmarks.tsv"
     shell:
         """
         multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
@@ -332,6 +354,8 @@ rule raw_fastqc:
     output:
         config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
         config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+    benchmark:
+        "benchmarks/raw_fastqc-{ID}-benchmarks.tsv"
     shell:
         """
         fastqc {input} -t 2 -q
