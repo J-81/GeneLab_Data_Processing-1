@@ -20,5 +20,5 @@
 
 * [Current processing protocol (GL-DPPD-7101-D.md)](GL-DPPD-7101-D.md)
 * [Processed dataset files](GLDS_Processing_Scripts)
-* [Workflow files](workflow_files)
+* [Workflow files](workflow_code)
 * [Workflow information and usage instructions](workflow-usage.md)
