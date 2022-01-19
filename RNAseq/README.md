@@ -1,6 +1,6 @@
 # GeneLab bioinformatics processing pipeline for Illumina RNA-sequencing data
 
-> **The document [`GL-DPPD-7101-C.md`](GL-DPPD-7101-C.md) holds an overview and instructions for how GeneLab processes RNAseq datasets. Previous GL-DPPD-7101 revisions are available in the [Previous_GL-DPPD-7101_Revisions](Previous_GL-DPPD-7101_Revisions) sub-directory. Exact processing commands and GL-DPPD-7101 revision used for specific datasets that have been released are available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **The document [`GL-DPPD-7101-D.md`](GL-DPPD-7101-D.md) holds an overview and instructions for how GeneLab processes RNAseq datasets. Previous GL-DPPD-7101 revisions are available in the [Previous_GL-DPPD-7101_Revisions](Previous_GL-DPPD-7101_Revisions) sub-directory. Exact processing commands and GL-DPPD-7101 revision used for specific datasets that have been released are available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -18,7 +18,7 @@
 
 # Repository links
 
-* [Current processing protocol (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md)
+* [Current processing protocol (GL-DPPD-7101-D.md)](GL-DPPD-7101-D.md)
 * [Processed dataset files](GLDS_Processing_Scripts)
-* [Workflow files](https://github.com/J-81/Nextflow_RCP/tree/dd119e2c1e9718284c9e1ed0d007bfe2803c4170)
+* [Workflow files](workflow_files)
 * [Workflow information and usage instructions](workflow-usage.md)
