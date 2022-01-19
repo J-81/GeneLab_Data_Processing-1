@@ -73,34 +73,48 @@ chmod -R u+x bin
 
 ### 4. Run the workflow
 
-Here is one example command of how to run the workflow.  Note: main.nf is a file located in the workflow_code directory.
+#### Approach 1: Running the workflow with automatic retrieval of Ensembl reference fasta and gtf
+
+Here is one example command of how to run the workflow in using Approach 1.  Note: main.nf is a file located in the workflow_code directory.
 
 > **Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument**  
 
-
-```bash
-nextflow run <path/to/main.nf> --gldsAccession=GLDS-194 --ensemblVersion=96 [--outputDir] [--skipVV] [--limitSamplesTo=<n>] [--genomeSubsample=<n>] [--truncateTo=<n>] [--stageLocal]
 ```
+Usage example 1:
+   Fetches ensembl reference files via ftp and GeneLab raw data via https before running processing pipeline
+   > nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 96
 
-**Required Parameters**
-* `--gldsAccession` – specifies the GLDS accession id to process through the RNASeq Concensus Pipeline
-* `--ensemblVersion` – indicates the Ensembl Version to use for the reference genome
+Usage example 2:
+   Fetches GeneLab raw data via https before running processing pipeline using supplied local reference fasta and gtf files.
+   Note: ensemblVersion and ref_source are used here to label subdirectories for derived reference files.
+   > nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 96 --ref_source <reference_label>  --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
 
-**Optional Parameters**
-* `--outputDir` – specifies the directory to save staged raw files and processed files. Default: '.'
-
-**Debug Parameters**
-> Note: These parameters are offered to allow test workflows to run with minimal compute resources or skip portions of the workflow. They should **NEVER** be used to generate processed data intended for real analysis.
-
-* `--skipVV` – skip automated V&V processes. Default: false
-* `--limitSamplesTo=<n>` – limit the number of samples staged to a *n* samples
-* `--genomeSubsample=<n>` – subsamples genome fasta and gtf files to the supplied *n* chromosome
-* `--truncateTo=<n>` – limit number of reads downloaded and processed to *n* reads , for paired end limits number of reverse and forward read files to *n* reads each
-* `--stageLocal` – download the raw reads files for the supplied GLDS accession id.  Set to false to disable raw read download and processing.  Default: true
-* `-stub-run` – runs the workflow using dummy gene counts in the differential gene expression (DGE) analysis. Useful when combined with the --truncateTo parameter this often leads to low gene counts and errors in the DGE analysis
+required arguments:
+  --gldsAccession GLDS-000
+                        the GLDS accession id to process through the RNASeq Concensus Pipeline.
+  --ensemblVersion n    the ensembl Version to use for the reference genome.
+optional arguments:
+  --help                show this help message and exit
+  --skipVV              skip automated V&V processes. Default: false
+  --outputDir           directory to save staged raw files and processed files. Default: <launch directory>
+  --limitSamplesTo n    limit the number of samples staged to a number.
+  --genomeSubsample n   subsamples genome fasta and gtf files to the supplied chromosome.
+  --truncateTo n        limit number of reads downloaded and processed to *n* reads , for paired end limits number of reverse and forward read files to *n* reads each.
+  --force_single_end    forces analysis to use single end processing.  For paired end datasets, this means only R1 is used.  For single end studies, this should have no effect.
+  --stageLocal          download the raw reads files for the supplied GLDS accession id.  Set to false to disable raw read download and processing.  Default: true
+  --ref_order           specifies the reference to use from ensembl.  Allowed values:  ['toplevel','primary_assemblyELSEtoplevel']. 'toplevel' : use toplevel.  'primary_assemblyELSEtoplevel' : use primary assembly, but use toplevel if primary assembly doesn't exist. Default: 'primary_assemblyELSEtoplevel'
+  --ref_fasta           specifies a reference fasta from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl
+  --ref_gtf             specifies a reference gtf from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl
+  --referenceStorePath  specifies the directory where fetched reference files are downloaded to
+  --derivedStorePath    specifies the directory where derivative reference files are saved. Examples of such files in this pipeline included BED and PRED files generated from the reference gtf
+  --ref_source          a string to label subdirectories in 'StorePath' paths. Examples include 'ensembl' or 'ensembl_plants'.
+  -stub-run             runs the workflow forcing 'unstranded' RSEM settings and using dummy gene counts in the differential gene expression (DGE) analysis. Useful when combined with the --truncateTo parameter this often leads to low gene counts and errors in the DGE analysis
+```
 
 
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
+
+
 
 ---
 
