@@ -8,6 +8,7 @@ The current processing protocol is implemented as a [Nextflow](https://nextflow.
 ### Workflow & Subworkflows
 ---
 
+**Click image to expand**
 <p align="center">
 <a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline.png"></a>
 </p>
