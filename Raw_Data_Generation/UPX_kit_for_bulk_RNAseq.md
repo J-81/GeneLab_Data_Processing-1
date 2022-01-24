@@ -1,4 +1,4 @@
-# GeneLab raw data generation for bulk RNAseq prepared with the Qiagen UPX kit
+# GeneLab Raw Data Generation For Bulk RNAseq Prepared With The Qiagen UPX Kit
 
 > **This page holds an overview and instructions for how GeneLab generates raw RNA sequence data from libraries prepared using the [Qiagen UPX kit](https://www.qiagen.com/us/products/discovery-and-translational-research/next-generation-sequencing/rna-sequencing/three-rnaseq/qiaseq-upx-3-transcriptome-kits/). The instructions below assume that the samples were prepared as follows:**
 > 1. Bulk RNA was was extracted from samples 
@@ -53,9 +53,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 ```
 bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 	--output-dir /path/to/output/directory \
-	--loading-threads 8 \
-	--writing-threads 8 \
-	--processing-threads 12 \
+	--loading-threads NumberOfThreads \
+	--writing-threads NumberOfThreads \
+	--processing-threads NumberOfThreads \
 	--barcode-mismatches 1 \
 	--no-lane-splitting \
 	--no-bgzf-compression \
@@ -109,7 +109,7 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 * `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
 
 **Input Data:**
-- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
+- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from [Step 1](#1-demultiplex-sample-pools))
 
 **Output Data:**
 - *whitelist.log (whitelist extraction log file)
@@ -145,16 +145,16 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
 * `--stdout` – specifies the path and file name of the output fastq file 
 * `--read2-stdout` - instructs the program to only output the fastq file designated with the `--read2-in` option 
-* `--whitelist` - specifies the *whitelist.tsv file for each sample pool created in [Step 2]() 
+* `--whitelist` - specifies the *whitelist.tsv file for each sample pool 
 * `--error-correct-cell` - instructs the program to correct any single basepair mismatches in the cellID identified in column 2 of the *whitlist.tsv file for each sample pool
 * `--filter-cell-barcode` - instructs the program to filter cell barcodes according to those provided in the *whitelist.tsv file
 * `--log` - specifies the file to output the umi_tools extraction logs
 
 
 **Input Data:**
-- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from [Step 1]())
-- *R1\*fastq.gz (forward fastq.gz file for each sample pool, generated from [Step 1]())
-- *whitelist.tsv (whitelist of accepted cell barcodes for each sample pool, output from [Step 2]())
+- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from [Step 1](#1-demultiplex-sample-pools))
+- *R1\*fastq.gz (forward fastq.gz file for each sample pool, generated from [Step 1](#1-demultiplex-sample-pools))
+- *whitelist.tsv (whitelist of accepted cell barcodes for each sample pool, output from [Step 2](#2-identify-cell-ids))
 
 **Output Data:**
 - *R1_raw.fastq.gz (output fastq file containing the reads of interest with the cell ID and UMI in the read header)
@@ -172,7 +172,7 @@ third=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 3p)
 ...
 ```
 
-Check that each cellID is defined correctly by the respective variable created:
+Check that each cellID is defined correctly by the respective variable:
 ```
 echo "First_cellID: ${first}"
 echo "Second_cellID: ${second}"
@@ -182,11 +182,11 @@ echo "Third_cellID: ${third}"
 
 Use the cellID in each read header to parse the reads in the sample pool fastq file to create an individual fastq file for each sample:
 ```
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${first}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_1_${first}_R1_raw.fastq.gz
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${first}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_1_${first}_R1_raw.fastq.gz
 
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${second}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_2_${second}_R1_raw.fastq.gz
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${second}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_2_${second}_R1_raw.fastq.gz
 
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${third}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_3_${third}_R1_raw.fastq.gz
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${third}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_3_${third}_R1_raw.fastq.gz
 
 ...
 
@@ -194,10 +194,11 @@ zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/
 
 **Input Data:**
 - *cellIDs.txt (single column list of each cellID in the respective sample pool)
-- *R1_raw.fastq.gz (sample pool fastq file containing the reads of interest with the cell ID and UMI in the read header, output from [Step 3]())
+- *R1_raw.fastq.gz (sample pool fastq file containing the reads of interest with the cell ID and UMI in the read header, output from [Step 3](#3-extract-cell-ids-and-umis))
+- ... = repeat for all cellIDs in each sample pool
 
 **Output Data:**
 - *cellID_R1_raw.fastq.gz (fastq file containing reads from an indicvidual sample within a sample pool)
-  > **Note:** After all sample pool fastq files have been parsed, individual sample fastq files can be renamed to indicate the sample of origin 
+  > **Note:** After all sample pool fastq files have been parsed, individual sample fastq files can be renamed  
 
 <br>
