@@ -166,9 +166,9 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 Create a variable for each cell ID in each sample pool:
 ```
-first=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 1p)
-second=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 2p)
-third=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 3p)
+first=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 1p)
+second=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 2p)
+third=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 3p)
 ...
 ```
 
