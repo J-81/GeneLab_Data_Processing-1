@@ -151,66 +151,61 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 * `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse read for samples prepared with the Qiagen UPX kit) 
 * `--read2-in` - fastq file with the reads contining the sequence of interest (this is the forward read for samples prepared with the Qiagen UPX kit)
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
-* `--stdout` – specifies the path and file name of the output fastq file with the reads of interest containing the cell ID and UMI in the read header
-* `--read2-stdout` - instructs the program to only output the fastq file with the reads containing the sequence of interest (which will have the cell ID and UMI in the read headers)
-* `--whitelist` - specifies the whitelist.tsv file for each sample pool created in [Step 2]() 
+* `--stdout` – specifies the path and file name of the output fastq file 
+* `--read2-stdout` - instructs the program to only output the fastq file designated with the `--read2-in` option 
+* `--whitelist` - specifies the *whitelist.tsv file for each sample pool created in [Step 2]() 
 * `--error-correct-cell` - instructs the program to correct any single basepair mismatches in the cellID identified in column 2 of the *whitlist.tsv file for each sample pool
 * `--filter-cell-barcode` - instructs the program to filter cell barcodes according to those provided in the *whitelist.tsv file
-* `--log` - specifies the file to output the cellID and UMI extraction logs
+* `--log` - specifies the file to output the umi_tools extraction logs
 
 
 **Input Data:**
-- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
-- *R1\*fastq.gz (forward fastq.gz file for each sample pool, generated from step 1)
+- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from [Step 1]())
+- *R1\*fastq.gz (forward fastq.gz file for each sample pool, generated from [Step 1]())
+- *whitelist.tsv (whitelist of accepted cell barcodes for each sample pool, output from [Step 2]())
 
 **Output Data:**
-- *fastq.gz (trimmed reads)
-- *trimming_report.txt (trimming report)
+- *R1_raw.fastq.gz (output fastq file containing the reads of interest with the cell ID and UMI in the read header)
+- *R1_raw_extraction.log (umi_tools extraction log file)
 
 <br>
 
-## 2b. Trimmed Data QC  
+## 4. Parse Sample Fastq Files 
+
+Create a variable for each cellID in each sample pool:
+```
+first=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 1p)
+second=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 2p)
+third=$(cat ./cellIDs/${sample_pool}_cellIDs.txt | sed -n 3p)
+...
+```
+
+Check that each cellID is defined correctly by the respective variable created:
+```
+echo "First_cellID: ${first}"
+echo "Second_cellID: ${second}"
+echo "Third_cellID: ${third}"
+...
+```
+
+Use the cellID in each read header to parse the reads in the sample pool fastq file to create an individual fastq file for each sample:
+```
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${first}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_1_${first}_R1_raw.fastq.gz
+
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${second}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_2_${second}_R1_raw.fastq.gz
+
+zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${third}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/files/${sample_pool}_3_${third}_R1_raw.fastq.gz
+
+...
 
 ```
-fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
-```
-
-**Parameter Definitions:**
-
-* `-o` – the output directory to store results
-* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
 
 **Input Data:**
-- *fastq.gz (trimmed reads)
+- *cellIDs.txt (single column list of each cellID in the respective sample pool)
+- *R1_raw.fastq.gz (sample pool fastq file containing the reads of interest with the cell ID and UMI in the read header, output from [Step 3]())
 
 **Output Data:**
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
+- *cellID_R1_raw.fastq.gz (fastq file containing reads from an indicvidual sample within a sample pool)
+  > **Note:** After all sample pool fastq files have been parsed, individual sample fastq files can be renamed to indicate the sample of origin 
 
 <br>
-
-## 2c. Compile Trimmed Data QC  
-
-```
-multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
-```
-
-**Parameter Definitions:**
-
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
-
-**Input Data:**
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
-
-**Output Data:**
-- trimmed_multiqc.html (multiqc report)
-- trimmed_multiqc_data (directory containing multiqc data)
-
-<br>
-
----
-
-## 3. Build STAR Reference  
