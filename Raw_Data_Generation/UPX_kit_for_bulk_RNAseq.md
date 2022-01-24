@@ -135,15 +135,15 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 ## 3. Extract Cell IDs and UMIs  
 
 ```
-trim_galore --gzip \
-  --path_to_cutadapt /path/to/cutadapt \
-  --phred33 \
-  --illumina \ # if adapters are not illumina, replace with adapters used
-  --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for PE studies, remove this paramater if raw data are SE
-  sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
-# if SE, replace the last line with only the forward reads (R1) of each sample
-
+umi_tools extract --stdin=./Fastq/${sample}_R2_001.fastq.gz \
+	--read2-in=./Fastq/${sample}_R1_001.fastq.gz \
+	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
+	--stdout=./Fastq_cellID-umi-extracted/${sample}_R1_raw.fastq.gz \
+	--read2-stdout \
+	--whitelist=./whitelist_files/${sample}_whitelist.tsv \
+	--error-correct-cell \
+	--filter-cell-barcode \
+	--log=./cellID-umi-extraction_logs/${sample}_R1_raw_extraction.log
 ```
 
 **Parameter Definitions:**
