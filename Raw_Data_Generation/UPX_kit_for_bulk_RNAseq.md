@@ -28,18 +28,10 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 - [**Software used**](#software-used)
 - [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
-  - **1. Demultiplex Sample Pools**
-    - [**1a. Raw Data QC**](#1a-raw-data-qc)
-    - [**1b. Compile Raw Data QC**](#1b-compile-raw-data-qc)
-  - **2. Identify Cell IDs**
-    - [**2a. Trim/Filter Raw Data**](#2a-trimfilter-raw-data)
-    - [**2b. Trimmed Data QC**](#2b-trimmed-data-qc)
-    - [**2c. Compile Trimmed Data QC**](#2c-compile-trimmed-data-qc)
-  - [**3. Extract Cell IDs and UMIs**](#3-build-star-reference)
-  - **4. Demultiplex Individual Samples**
-    - [**4a. Align Reads to Reference Genome with STAR**](#4a-align-reads-to-reference-genome-with-star)
-    - [**4b. Compile Alignment Logs**](#4b-compile-alignment-logs)
-    - [**4c. Index Aligned Reads**](#4c-index-aligned-reads)
+  - **1. [Demultiplex Sample Pools](#1-demultiplex-sample-pools)**
+  - **2. [Identify Cell IDs](#2-identify-cell-ids)**
+  - **3. [Extract Cell IDs and UMIs](#3-extract-cell-ids-and-umis)**
+  - **4. [Demultiplex Individual Samples](#4-demultiplex-individual-samples)**
   
 ---
 
@@ -170,7 +162,7 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 <br>
 
-## 4. Parse Sample Fastq Files 
+## 4. Demultiplex Individual Samples 
 
 Create a variable for each cellID in each sample pool:
 ```
