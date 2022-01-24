@@ -101,7 +101,7 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 **Parameter Definitions:**
 
 * `--stdin` - fastq file with the reads contining the cell ID and UMI (reverse reads for samples prepared with the Qiagen UPX kit) 
-* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
+* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`'s indicate placeholders for cell IDs; `N`'s indicate placeholders for UMIs 
 * `--plot-prefix` - instructs the program to output plots to visualise the set of thresholds considered for defining cell barcodes
 * `-L` - specifies whitelist output log file
 * `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
@@ -140,9 +140,9 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 **Parameter Definitions:**
 
-* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse read for samples prepared with the Qiagen UPX kit) 
-* `--read2-in` - fastq file with the reads contining the sequence of interest (this is the forward read for samples prepared with the Qiagen UPX kit)
-* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
+* `--stdin` - fastq file with the reads contining the cell ID and UMI (reverse reads for samples prepared with the Qiagen UPX kit) 
+* `--read2-in` - fastq file with the reads contining the sequence of interest (forward reads for samples prepared with the Qiagen UPX kit)
+* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`'s indicate placeholders for cell IDs; `N`'s indicate placeholders for UMIs 
 * `--stdout` – specifies the path and file name of the output fastq file 
 * `--read2-stdout` - instructs the program to only output the fastq file designated with the `--read2-in` option 
 * `--whitelist` - specifies the *whitelist.tsv file for each sample pool 
