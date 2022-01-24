@@ -100,7 +100,7 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 **Parameter Definitions:**
 
-* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse reads for samples prepared with the Qiagen UPX kit) 
+* `--stdin` - fastq file with the reads contining the cell ID and UMI (reverse reads for samples prepared with the Qiagen UPX kit) 
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
 * `--plot-prefix` - instructs the program to output plots to visualise the set of thresholds considered for defining cell barcodes
 * `-L` - specifies whitelist output log file
