@@ -148,20 +148,20 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 **Parameter Definitions:**
 
-* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse reads for samples prepared with the Qiagen UPX kit) 
-* `--read2-in` - fastq file with the reads contining the sequence of interest 
+* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse read for samples prepared with the Qiagen UPX kit) 
+* `--read2-in` - fastq file with the reads contining the sequence of interest (this is the forward read for samples prepared with the Qiagen UPX kit)
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
 * `--stdout` – specifies the path and file name of the output fastq file with the reads of interest containing the cell ID and UMI in the read header
 * `--read2-stdout` - instructs the program to only output the fastq file with the reads containing the sequence of interest (which will have the cell ID and UMI in the read headers)
-* `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
-* `-L` - specifies whitelist output log file
-* `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
-* `--subset-reads` - number of reads to use to identify true cell barcodes; to use all reads set this number to greater than the max number of reads
-* `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
+* `--whitelist` - specifies the whitelist.tsv file for each sample pool created in [Step 2]() 
+* `--error-correct-cell` - instructs the program to correct any single basepair mismatches in the cellID identified in column 2 of the *whitlist.tsv file for each sample pool
+* `--filter-cell-barcode` - instructs the program to filter cell barcodes according to those provided in the *whitelist.tsv file
+* `--log` - specifies the file to output the cellID and UMI extraction logs
 
 
 **Input Data:**
-- *fastq.gz (raw reads)
+- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
+- *R1\*fastq.gz (forward fastq.gz file for each sample pool, generated from step 1)
 
 **Output Data:**
 - *fastq.gz (trimmed reads)
