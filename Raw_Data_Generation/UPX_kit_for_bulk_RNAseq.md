@@ -94,8 +94,8 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
 	--plot-prefix=/path/to/plot/output/files/${sample_pool} \
 	-L /path/to/${sample_pool}_whitelist.log \
-	--set-cell-number Number_of_cellIDs \
-	--subset-reads Number_of_reads > /path/to/whitelist/output/files/${sample_pool}_whitelist.tsv
+	--set-cell-number NumberOfCellIDs \
+	--subset-reads NumberOfReads > /path/to/whitelist/output/files/${sample_pool}_whitelist.tsv
 ```
 
 **Parameter Definitions:**
