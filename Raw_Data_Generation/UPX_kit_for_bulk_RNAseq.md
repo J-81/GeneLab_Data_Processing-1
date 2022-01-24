@@ -198,7 +198,7 @@ zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/
 - ... = repeat for all cell IDs in each sample pool
 
 **Output Data:**
-- *cellID_R1_raw.fastq.gz (fastq file containing reads from an indicvidual sample within a sample pool)
+- *cellID_R1_raw.fastq.gz (fastq file containing reads from an individual sample within a sample pool)
   > **Note:** After all sample pool fastq files have been parsed, individual sample fastq files can be renamed. 
 
 <br>
