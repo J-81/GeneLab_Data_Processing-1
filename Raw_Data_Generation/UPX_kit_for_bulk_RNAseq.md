@@ -108,8 +108,8 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 **Parameter Definitions:**
 
-* `--stdin` - read contining the cell ID (this is the reverse read for samples prepared with the Qiagen UPX kit) 
-* `--bc-pattern` – pattern for the barcode on the read containing the cell ID; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
+* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse reads for samples prepared with the Qiagen UPX kit) 
+* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
 * `--plot-prefix` - instructs the program to output plots to visualise the set of thresholds considered for defining cell barcodes
 * `-L` - specifies whitelist output log file
 * `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
@@ -135,26 +135,30 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 ## 3. Extract Cell IDs and UMIs  
 
 ```
-umi_tools extract --stdin=./Fastq/${sample}_R2_001.fastq.gz \
-	--read2-in=./Fastq/${sample}_R1_001.fastq.gz \
+umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
+	--read2-in=/path/to/${sample_pool}*R1*fastq.gz \
 	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
-	--stdout=./Fastq_cellID-umi-extracted/${sample}_R1_raw.fastq.gz \
+	--stdout=/path/to/Fastq/output/files/${sample_pool}_R1_raw.fastq.gz \
 	--read2-stdout \
-	--whitelist=./whitelist_files/${sample}_whitelist.tsv \
+	--whitelist=/path/to/whitelist/files/${sample_pool}_whitelist.tsv \
 	--error-correct-cell \
 	--filter-cell-barcode \
-	--log=./cellID-umi-extraction_logs/${sample}_R1_raw_extraction.log
+	--log=/path/to/extract/log/files/${sample_pool}_R1_raw_extraction.log
 ```
 
 **Parameter Definitions:**
 
-* `--gzip` – compress the output files with `gzip`
-* `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
-* `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
-* `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
-* `--output_dir` - the output directory to store results
-* `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
-* `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
+* `--stdin` - fastq file with the reads contining the cell ID and UMI (this is the reverse reads for samples prepared with the Qiagen UPX kit) 
+* `--read2-in` - fastq file with the reads contining the sequence of interest 
+* `--bc-pattern` – pattern for the barcode on the read containing the cell ID and UMI; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
+* `--stdout` – specifies the path and file name of the output fastq file with the reads of interest containing the cell ID and UMI in the read header
+* `--read2-stdout` - instructs the program to only output the fastq file with the reads containing the sequence of interest (which will have the cell ID and UMI in the read headers)
+* `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
+* `-L` - specifies whitelist output log file
+* `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
+* `--subset-reads` - number of reads to use to identify true cell barcodes; to use all reads set this number to greater than the max number of reads
+* `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
+
 
 **Input Data:**
 - *fastq.gz (raw reads)
