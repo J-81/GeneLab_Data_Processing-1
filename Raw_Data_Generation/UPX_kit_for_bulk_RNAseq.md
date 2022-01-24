@@ -60,15 +60,15 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ```
 bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
-  --output-dir /path/to/output/directory \
-  --loading-threads 8 \
-  --writing-threads 8 \
-  --processing-threads 12 \
-  --barcode-mismatches 1 \
-  --no-lane-splitting \
-  --no-bgzf-compression \
-  --minimum-trimmed-read-length 0 \
-  --mask-short-adapter-reads 0
+	--output-dir /path/to/output/directory \
+	--loading-threads 8 \
+	--writing-threads 8 \
+	--processing-threads 12 \
+	--barcode-mismatches 1 \
+	--no-lane-splitting \
+	--no-bgzf-compression \
+	--minimum-trimmed-read-length 0 \
+	--mask-short-adapter-reads 0
 ```
 
 **Parameter Definitions:**
