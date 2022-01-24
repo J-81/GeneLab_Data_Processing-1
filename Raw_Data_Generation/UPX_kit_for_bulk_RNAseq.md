@@ -121,18 +121,18 @@ umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 **Output Data:**
 - *whitelist.log (whitelist extraction log file)
-- *barcode_counts.png (plot visualizing the set of thresholds considered for defining cell barcodes)
-- *barcode_knee.png (table containing the set of thresholds considered for defining cell barcodes)
+- *barcode_counts.png (plot visualizing the knee in the cell barcode count distrubution)
+- *barcode_knee.png (plot visualizing the knee in the cell barcode distrubution)
 - *whitelist.tsv (whitelist output file containing 4 tab-separated columns: 1-whitelist cellID, 2-cellIDs that are 1bp different from the respective whitelist cellID identified, 3-number of whitelisted cellIDs, 4-number of 1bp different cellIDs)
-- > **Note1:** Review column 1 of this file for each sample pool and check that all cellIDs for each sample in the respective sample pool are present. If any cellIDs are missing, increase the `--set-cell-number` option by one, and re-run this step. Repeat until all cellIDs for each sample pool are shown in column 1. 
-- >
-- > **Note2:** Before moving on to the next step, if any cellIDs are present in column 1 that are not associated with a sample in the sample pool, remove that row(s) from the *whitelist.tsv file before moving on to the next step (it's good proactice to keep a copy of the original *whitelist.tsv before modifying the file).
+  > **Note1:** Review column 1 of this file for each sample pool and check that all cellIDs for each sample in the respective sample pool are present. If any cellIDs are missing, increase the `--set-cell-number` option by one, and re-run this step. Repeat until all cellIDs for each sample pool are shown in column 1. 
+  >
+  > **Note2:** Before moving on to the next step, if any cellIDs are present in column 1 that are not associated with a sample in the sample pool, remove that row(s) from the *whitelist.tsv file before moving on to the next step (it's good proactice to keep a copy of the original *whitelist.tsv before modifying the file).
 
 <br>
 
 ---
 
-## 2a. Trim/Filter Raw Data  
+## 3. Extract Cell IDs and UMIs  
 
 ```
 trim_galore --gzip \
