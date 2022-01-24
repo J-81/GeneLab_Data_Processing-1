@@ -100,30 +100,33 @@ bcl2fastq --runfolder-dir /path/to/NovaSeq/directory \
 ```
 umi_tools whitelist --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 	--bc-pattern=CCCCCCCCCCNNNNNNNNNNNN \
-	--plot-prefix=${sample_pool}_whitelist_plot \
+	--plot-prefix=/path/to/plot/output/files/${sample_pool} \
 	-L /path/to/${sample_pool}_whitelist.log \
 	--set-cell-number Number_of_cellIDs \
-	--subset-reads 700000000 > /path/to/whitelist/output/files/${sample_pool}_whitelist.tsv
+	--subset-reads Number_of_reads > /path/to/whitelist/output/files/${sample_pool}_whitelist.tsv
 ```
 
 **Parameter Definitions:**
 
 * `--stdin` - read contining the cell ID (this is the reverse read for samples prepared with the Qiagen UPX kit) 
 * `--bc-pattern` – pattern for the barcode on the read containing the cell ID; `C`s indicate placeholders for cell IDs; `N`s indicate placeholders for UMIs 
-* `--plot-prefix` - instructs the program to output a plot to visualise the set of thresholds considered for defining cell barcodes
+* `--plot-prefix` - instructs the program to output plots to visualise the set of thresholds considered for defining cell barcodes
 * `-L` - specifies whitelist output log file
 * `--set-cell-number` - number of cell IDs to extract; this should match the number of individual samples in each sample pool
 * `--subset-reads` - number of reads to use to identify true cell barcodes; to use all reads set this number to greater than the max number of reads
 * `${sample_pool}_whitelist.tsv` - specifies the file to output the cell IDs identified for each sample pool
 
 **Input Data:**
-- *R2*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
+- *R2\*fastq.gz (reverse fastq.gz file for each sample pool, generated from step 1)
 
 **Output Data:**
 - *whitelist.log (whitelist extraction log file)
-- *whitelist_plot (plot visualizing the set of thresholds considered for defining cell barcodes)
-- *whitelist_plot (table containing the set of thresholds considered for defining cell barcodes)
+- *barcode_counts.png (plot visualizing the set of thresholds considered for defining cell barcodes)
+- *barcode_knee.png (table containing the set of thresholds considered for defining cell barcodes)
 - *whitelist.tsv (whitelist output file containing 4 tab-separated columns: 1-whitelist cellID, 2-cellIDs that are 1bp different from the respective whitelist cellID identified, 3-number of whitelisted cellIDs, 4-number of 1bp different cellIDs)
+- > **Note1:** Review column 1 of this file for each sample pool and check that all cellIDs for each sample in the respective sample pool are present. If any cellIDs are missing, increase the `--set-cell-number` option by one, and re-run this step. Repeat until all cellIDs for each sample pool are shown in column 1. 
+- >
+- > **Note2:** Before moving on to the next step, if any cellIDs are present in column 1 that are not associated with a sample in the sample pool, remove that row(s) from the *whitelist.tsv file before moving on to the next step (it's good proactice to keep a copy of the original *whitelist.tsv before modifying the file).
 
 <br>
 
