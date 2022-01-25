@@ -12,7 +12,7 @@
 
 **Date:** September 3, 2021  
 **Revision:** -  
-**Document Number:** GL-DPPD-XXXX-  
+**Document Number:** GL-DPPD-7108  
 
 **Submitted by:**  
 Amanda Saravia-Butler (GeneLab Data Processing Team)
