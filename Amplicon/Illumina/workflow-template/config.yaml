@@ -47,6 +47,10 @@ F_linked_primer:
 R_linked_primer:
     "GGACTACHVGGGTWTCTAA...TTACCGCGGCKGCTGGCAC"
 
+## discard untrimmed, sets the "--discard-untrimmed" option if TRUE
+discard_untrimmed:
+    "TRUE"
+
 ## target region (16S or ITS acceptable; determines which reference database is used for taxonomic classification)
 target_region:
     "16S"
@@ -78,7 +82,7 @@ filtered_R2_suffix:
     "_R2_filtered.fastq.gz"
 
 
-## output prefix (if needed to distinguish from multiple primer sets, leave as empty string if not)
+## output prefix (if needed to distinguish from multiple primer sets, leave as empty string if not, include connecting symbol if adding, e.g. "ITS-")
 output_prefix:
     ""
 

@@ -80,12 +80,12 @@ if config["trim_primers"] == "TRUE":
             config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
             config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
             config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
-            config["fastqc_out_dir"] + "raw_multiqc_data.zip",
-            config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+            config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip",
+            config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
         shell:
             """
             bash scripts/combine-benchmarks.sh
-            """       
+            """
 
 else:
 
@@ -99,12 +99,12 @@ else:
             config["final_outputs_dir"] + config["output_prefix"] + "read-count-tracking.tsv",
             config["final_outputs_dir"] + config["output_prefix"] + "counts.tsv",
             config["final_outputs_dir"] + config["output_prefix"] + "taxonomy-and-counts.tsv",
-            config["fastqc_out_dir"] + "raw_multiqc_data.zip",
-            config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+            config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip",
+            config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
         shell:
             """
             bash scripts/combine-benchmarks.sh
-            """       
+            """
 
 
 rule zip_biom:
@@ -241,7 +241,8 @@ rule cutadapt:
         F_primer = config["F_primer"],
         R_primer = config["R_primer"],
         min_cutadapt_len = config["min_cutadapt_len"],
-        primers_linked = config["primers_linked"]
+        primers_linked = config["primers_linked"],
+        discard_untrimmed = config["discard_untrimmed"]
     log:
         config["trimmed_reads_dir"] + "{ID}-cutadapt.log"
     benchmark:
@@ -250,9 +251,21 @@ rule cutadapt:
         """
         # command depends on if primers are linked or not
         if [ {params.primers_linked} == "TRUE" ]; then
-            cutadapt -a {params.F_linked_primer} -A {params.R_linked_primer} -o {output.R1} -p {output.R2} --discard-untrimmed -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+
+            if [ {params.discard_untrimmed} == "TRUE" ]; then
+                cutadapt -a {params.F_linked_primer} -A {params.R_linked_primer} -o {output.R1} -p {output.R2} --discard-untrimmed -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+            else
+                cutadapt -a {params.F_linked_primer} -A {params.R_linked_primer} -o {output.R1} -p {output.R2} -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+            fi
+
         else
-            cutadapt -g {params.F_primer} -G {params.R_primer} -o {output.R1} -p {output.R2} --discard-untrimmed -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+
+            if [ {params.discard_untrimmed} == "TRUE" ]; then
+                cutadapt -g {params.F_primer} -G {params.R_primer} -o {output.R1} -p {output.R2} --discard-untrimmed -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+            else
+                cutadapt -g {params.F_primer} -G {params.R_primer} -o {output.R1} -p {output.R2} -m {params.min_cutadapt_len} {input.R1} {input.R2} > {log} 2>&1
+            fi
+
         fi
 
         paste <( printf "{wildcards.ID}" ) <( grep "read pairs processed" {output.log} | tr -s " " "\t" | cut -f 5 | tr -d "," ) <( grep "Pairs written" {output.log} | tr -s " " "\t" | cut -f 5 | tr -d "," ) > {output.trim_counts}
@@ -272,8 +285,9 @@ rule filtered_multiqc:
     params:
         out_filename_prefix = config["output_prefix"] + "filtered_multiqc",
         fastqc_out_dir = config["fastqc_out_dir"],
-        filtered_reads_dir = config["filtered_reads_dir"],
-        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc.html"
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc.html",
+        r1_html_files = expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.html", ID = sample_ID_list),
+        r2_html_files = expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.html", ID = sample_ID_list)
     output:
         html = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_report.html",
         data = config["fastqc_out_dir"] + config["output_prefix"] + "filtered_multiqc_data.zip"
@@ -281,9 +295,9 @@ rule filtered_multiqc:
         "benchmarks/filtered_multiqc-benchmarks.tsv"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.filtered_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {input} > /dev/null 2>&1
         # removing the individual fastqc files and temp locations
-        rm -rf {params.filtered_reads_dir}*fastqc*
+        rm -rf {input} {params.r1_html_files} {params.r2_html_files}
         # renaming html file
         mv {params.int_output} {output.html}
         """
@@ -322,9 +336,10 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
         out_filename_prefix = config["output_prefix"] + "raw_multiqc",
-        raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
-        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc.html"
+        int_output = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc.html",
+        r1_html_files = expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.html", ID = sample_ID_list),
+        r2_html_files = expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.html", ID = sample_ID_list)
     output:
         html = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_report.html",
         data = config["fastqc_out_dir"] + config["output_prefix"] + "raw_multiqc_data.zip"
@@ -332,9 +347,9 @@ rule raw_multiqc:
         "benchmarks/raw_multiqc-benchmarks.tsv"
     shell:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
+        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {input} > /dev/null 2>&1
         # removing the individual fastqc files
-        rm -rf {params.raw_reads_dir}*fastqc*
+        rm -rf {input} {params.r1_html_files} {params.r2_html_files}
         # renaming html file
         mv {params.int_output} {output.html}
         """
