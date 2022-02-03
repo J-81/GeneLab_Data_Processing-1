@@ -183,9 +183,9 @@ GL-bulk-RNAseq-qiagen-UPX-demultiplex -c /path/to/${sample_pool}_cellIDs.txt \
 **Input Data:**
 - *cellIDs.txt (single column list of each cell ID in the respective sample pool)
 - *R1_raw.fastq.gz (sample pool fastq file containing the reads of interest with the cell ID and UMI in the read header, output from [Step 3](#3-extract-cell-ids-and-umis))
-- ... = repeat for all cell IDs in each sample pool
 
 **Output Data:**
+- *Demux-cellID-read-counts.tsv (table containing the number of reads identified for each cell ID within a sample pool)
 - *cellID_R1_raw.fastq.gz (fastq file containing reads from an individual sample within a sample pool)
   > **Note:** After all sample pool fastq files have been parsed, individual sample fastq files can be renamed. 
 
