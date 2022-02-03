@@ -41,6 +41,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |:------|:-----:|:-------------|
 |bcl2fastq|2.20|[https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)|
 |umi_tools|1.1.2|[https://umi-tools.readthedocs.io/en/latest/](https://umi-tools.readthedocs.io/en/latest/)|
+|genelab-utils|version|[link](link)|
 
 ---
 
@@ -164,33 +165,20 @@ umi_tools extract --stdin=/path/to/${sample_pool}*R2*fastq.gz \
 
 ## 4. Demultiplex Individual Samples 
 
-Create a variable for each cell ID in each sample pool:
 ```
-first=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 1p)
-second=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 2p)
-third=$(cat /path/to/${sample_pool}_cellIDs.txt | sed -n 3p)
-...
-```
-
-Check that each cell ID is defined correctly by the respective variable:
-```
-echo "First_cellID: ${first}"
-echo "Second_cellID: ${second}"
-echo "Third_cellID: ${third}"
-...
+GL-bulk-RNAseq-qiagen-UPX-demultiplex -c /path/to/${sample_pool}_cellIDs.txt \
+	-p /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz \
+	-O /path/to/individual/sample/fastq/output/files \
+	--prefix ${sample_pool}
 ```
 
-Use the cell ID in each read header to parse the reads in the sample pool fastq file to create an individual fastq file for each sample:
-```
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${first}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_1_${first}_R1_raw.fastq.gz
+**Parameter Definitions:**
 
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${second}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_2_${second}_R1_raw.fastq.gz
+* `-c` - single-column file holding unique cell IDs 
+* `-p` - fastq file with cell ID and UMI in the read header
+* `-O` – specifies the output directory 
+* `--prefix` – specifies the prefix for all output files  
 
-zcat /path/to/sample_pool/fastq/files/${sample_pool}_R1_raw.fastq.gz | sed -n '/_${third}_/{p; n;p; n;p; n;p}' | gzip > /path/to/individual/sample/fastq/output/files/${sample_pool}_3_${third}_R1_raw.fastq.gz
-
-...
-
-```
 
 **Input Data:**
 - *cellIDs.txt (single column list of each cell ID in the respective sample pool)
