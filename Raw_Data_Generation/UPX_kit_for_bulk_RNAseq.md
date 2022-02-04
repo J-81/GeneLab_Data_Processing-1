@@ -41,7 +41,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |:------|:-----:|:-------------|
 |bcl2fastq|2.20|[https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)|
 |umi_tools|1.1.2|[https://umi-tools.readthedocs.io/en/latest/](https://umi-tools.readthedocs.io/en/latest/)|
-|genelab-utils|version|[link](link)|
+|genelab-utils|1.0.32|[https://github.com/AstrobioMike/genelab-utils](https://github.com/AstrobioMike/genelab-utils)|
 
 ---
 
