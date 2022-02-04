@@ -35,7 +35,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 |Program|Version*|Relevant Links|
 |:------|:-----:|------:|
-|kraken2|`2.1.1`|[https://github.com/DerrickWood/kraken2/wiki](https://github.com/DerrickWood/kraken2/wiki)|
+|kraken2|2.1.1|[https://github.com/DerrickWood/kraken2/wiki](https://github.com/DerrickWood/kraken2/wiki)|
 
 ---
 
