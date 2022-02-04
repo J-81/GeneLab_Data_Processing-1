@@ -56,15 +56,6 @@ kraken_outputs:
 ############################################################
 # Workflow is currently equipped to work with paired-end data only, and reads are expected to be gzipped
 
-# Initial database construction done with kraken2 v2.1.1 on 29-Nov-2020
-  # - details of building can be found on the corresponding README.md of this repo, and at this page: https://hackmd.io/@astrobiomike/GL-kraken2-human-db-setup
-  # - that database can be downloaded and decompressed with the following:
-
-# curl -L -o kraken2-human-db.tar.gz https://ndownloader.figshare.com/files/25627058
-# tar -xzvf kraken2-human-db.tar.gz
-
-  # - By default, that database build will be downloaded and utilized with this workflow
-
 
 ## example usage command ##
 # snakemake --use-conda --conda-prefix ${CONDA_PREFIX}/envs -j 2 -p
