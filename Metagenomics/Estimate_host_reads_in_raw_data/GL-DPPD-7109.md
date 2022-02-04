@@ -13,12 +13,9 @@ Michael D. Lee (GeneLab Science Team)
 
 **Approved by:**  
 Sylvain Costes (GeneLab Project Manager)  
-Samrawit Gebre (GeneLab Deputy Project Manager)  
+Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)  
 Amanda Saravia-Butler (GeneLab Data Processing Lead)  
 Jonathan Galazka (GeneLab Project Scientist)  
-
-## Updates from previous revision
-None, this is the initial release.
 
 ---
 
@@ -26,10 +23,10 @@ None, this is the initial release.
 
 - [**Software used**](#software-used)
 - [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
-  - [**1. Build kraken2 database**](#1-build-kraken2-database)
+  - [**1. Build kraken2 database**](#1-build-kraken2-database-of-host-genome)
   - [**2. Identify host-classified reads**](#2-identify-host-classified-reads)
-    - [Example if paired-end reads](example-if-paired-end-reads)
-    - [Example if single-end reads](example-if-single-end-reads)
+    - [Example if paired-end reads](#example-if-paired-end-reads)
+    - [Example if single-end reads](#example-if-single-end-reads)
   - [**3. Generate a summary report**](#3-generate-a-summary-report)
 
 ---
@@ -38,9 +35,7 @@ None, this is the initial release.
 
 |Program|Version*|Relevant Links|
 |:------|:-----:|------:|
-|kraken2|`kraken2 -v`|[https://github.com/DerrickWood/kraken2/wiki](https://github.com/DerrickWood/kraken2/wiki)|
-
-> \* Exact versions utilized for a given dataset are available along with the processing commands for each specific dataset (this is due to how the system may need to be updated regularly).
+|kraken2|`2.1.1`|[https://github.com/DerrickWood/kraken2/wiki](https://github.com/DerrickWood/kraken2/wiki)|
 
 ---
 
@@ -56,7 +51,7 @@ gunzip GCF_000001635.27_GRCm39_genomic.fna.gz
 
 # building kraken2 database
 kraken2-build --download-taxonomy --db kraken2-mouse-db/
-kraken2-build --add-to-library GCF_000001635.27_GRCm39_genomic.fna.gz --no-masking --db kraken2-mouse-db/
+kraken2-build --add-to-library GCF_000001635.27_GRCm39_genomic.fna --no-masking --db kraken2-mouse-db/
 kraken2-build --build --db kraken2-mouse-db/ --threads 30 --no-masking
 kraken2-build --clean --db kraken2-mouse-db/
 ```
@@ -64,6 +59,7 @@ kraken2-build --clean --db kraken2-mouse-db/
 **Parameter Definitions:**
 
 * `--download-taxonomy` - downloads taxonomic mapping information
+* `--add-to-library` - adds the fasta file to the library of sequences being included
 * `--db` - specifies the directory we are putting the database in
 * `--threads` - specifies the number of threads to use
 * `--no-masking` - prevents [masking](https://github.com/DerrickWood/kraken2/wiki/Manual#masking-of-low-complexity-sequences) of low-complexity sequences
