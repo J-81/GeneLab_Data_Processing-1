@@ -1,5 +1,5 @@
 ##################################################################################
-## R processing script for Illumina amplicon data                               ##
+## R processing script for Illumina paired-end amplicon data                    ##
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                              ##
 ##################################################################################
 
