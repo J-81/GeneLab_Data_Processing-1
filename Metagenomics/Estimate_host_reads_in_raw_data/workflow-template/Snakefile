@@ -93,6 +93,6 @@ rule combine_summary_info:
         "Host-read-count-summary.tsv"
     shell:
         """
-        cat <( printf "Sample_ID\tTotal_fragments_before\tTotal_host_fragments\tPercent_host\n" ) {input} > {output}
+        cat <( printf "Sample_ID\tTotal_fragments\tTotal_host_fragments\tPercent_host\n" ) {input} > {output}
         rm {input}
         """
