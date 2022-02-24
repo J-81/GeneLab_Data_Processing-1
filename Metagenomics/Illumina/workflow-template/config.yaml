@@ -115,18 +115,23 @@ read_based_dir:
 logs_dir:
     "logs/"
 
-
-## additional prefix to add to output files that describe more than one sample (to make them unique compared to other datasets)
-# leave as empty, i.e. "", if not wanted, include separator at end if adding one, e.g. "Swift1S_"
-additional_filename_prefix:
-    ""
-
 ## setting for trimming recommended when working with Swift 1S libraries
     # adds `swift=t` setting to bbduk quality trimming/filtering command
     # for info on this see, e.g., https://swiftbiosci.com/wp-content/uploads/2019/03/16-0853-Tail-Trim-Final-442019.pdf
     # set to "TRUE" if data was generated with Swift 1S library prep
 swift_1S:
     "FALSE"
+
+## memory used by bbmap's pileup.sh (within the get_cov_and_det rule)
+# passed as the -Xmx parameter, 20g means 20 gigs of RAM, 20m means 20 megabytes
+# 5g should be sufficient for most assemblies, but if that rule is failing, this may need to be increased
+pileup_mem:
+    "5g"
+    # that way is needed for telling the program, but to tell snakemake how much memory will be used, we need to provide it in megabytes
+    # e.g., 5g above, for 5 gigabytes, would be 5000 megabytes, so we need to set this variable to 5000
+    # this needs to be changed to match what is in the 'pileup_mem' variable above, if 20g, then 20000, if 20m, then 20
+snakemake_pileup_mem:
+    5000
 
 #######################################################
 ################# REFERENCE DATABASES #################
@@ -152,7 +157,7 @@ CAT_DIR:
 CAT_DL_FILE:
     "CAT_prepare_20210107.tar.gz"
 CAT_DL_LINK:
-    "https://tbb.bio.uu.nl/bastiaan/CAT_prepare/CAT_prepare_20210107.tar.gz"
+    "tbb.bio.uu.nl/bastiaan/CAT_prepare/CAT_prepare_20210107.tar.gz"
 CAT_TRIGGER_FILE:
     "CAT_DB_SETUP"
 CAT_DB:

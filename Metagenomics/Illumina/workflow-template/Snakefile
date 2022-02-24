@@ -64,19 +64,19 @@ for dir in dirs_to_create:
 
 rule all:
     input:
-        config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-KO-function-coverages.tsv",
-        config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-taxonomy-coverages.tsv",
-        config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-contig-level-taxonomy-coverages.tsv",
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-overview.tsv",
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-KEGG-Decoder-out.tsv",
-        config["bins_dir"] + config["additional_filename_prefix"] + "bins-overview.tsv",
-        config["assemblies_dir"] + config["additional_filename_prefix"] + "assembly-summaries.tsv",
-        config["assembly_based_dir"] + config["additional_filename_prefix"] + "Assembly-based-processing-overview.tsv",
-        config["fastqc_out_dir"] + config["additional_filename_prefix"] + "raw_multiqc_data.zip",
-        config["fastqc_out_dir"] + config["additional_filename_prefix"] + "filtered_multiqc_data.zip",
-        config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-cpm.tsv",
-        config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-KO-cpm.tsv",
-        config["read_based_dir"] + config["additional_filename_prefix"] + "Metaphlan-taxonomy.tsv"
+        config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages.tsv",
+        config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
+        config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
+        config["MAGs_dir"] + "MAGs-overview.tsv",
+        config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv",
+        config["bins_dir"] + "bins-overview.tsv",
+        config["assemblies_dir"] + "assembly-summaries.tsv",
+        config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
+        config["fastqc_out_dir"] + "raw_multiqc_data.zip",
+        config["fastqc_out_dir"] + "filtered_multiqc_data.zip",
+        config["read_based_dir"] + "Gene-families-cpm.tsv",
+        config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
+        config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
     shell:
         """
         bash scripts/combine-benchmarks.sh
@@ -86,16 +86,11 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
     conda:
         "envs/keggdecoder.yaml"
     input:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-level-KO-annotations.tsv"
+        config["MAGs_dir"] + "MAG-level-KO-annotations.tsv"
     params:
-        MAGs_dir = config["MAGs_dir"],
-        mod_input_annotations = config["MAGs_dir"] + "mod-MAG-level-KO-annotations.tmp",
-        temp_output = config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tmp",
-        mapping_file = config["MAGs_dir"] + "MAG-ID-map.tmp",
-        orig_html_output = config["MAGs_dir"] + "MAG-KEGG-Decoder-out.html",
-        final_html_output = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-KEGG-Decoder-out.html"
+        MAGs_dir = config["MAGs_dir"]
     output:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-KEGG-Decoder-out.tsv"
+        config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv"
     benchmark:
         "benchmarks/summarize_MAG_KO_annots_with_KEGG_Decoder-benchmarks.tsv"
     shell:
@@ -105,37 +100,12 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
         # only running if any MAGs were recovered
         if [ ${{num_mags_recovered}} -gt 0 ]; then
 
-            # KEGGDecoder splits on the first underscore to identify unique genome/MAG IDs
-                # this can be problematic with how things are named, so we are swapping them all to not have
-                # any "_" first, then afterwards we are changing the output table back to the original names so 
-                # they match elsewhere (they will still be slightly different in the html output, but that is
-                # only manually explored anyway)
-
-            # making version of input for KEGGDecoder with no underscores
-            tr "_" "-" < {input} > {params.mod_input_annotations}
-
-            # making mapping file
-            paste <( cut -f 1 {input} ) <( cut -f 1 {params.mod_input_annotations} ) > {params.mapping_file}
-
-
-            # running KEGGDecoder
-                # can only create html output if there are more than 1
+            # can only create html output if there are more than 1
             if [ ${{num_mags_recovered}} -gt 1 ]; then
-                KEGG-decoder -v interactive -i {params.mod_input_annotations} -o {params.temp_output}
-                ## adding additional prefix to html output if there is one
-                if [ {params.orig_html_output} != {params.final_html_output} ]; then
-                    mv {params.orig_html_output} {params.final_html_output}
-                fi
+                KEGG-decoder -v interactive -i {input} -o {output}
             else
-                KEGG-decoder -i {params.mod_input_annotations} -o {params.temp_output}
+                KEGG-decoder -i {input} -o {output}
             fi
-
-
-            # swapping MAG IDs back in output tsv from KEGGDecoder
-            python scripts/swap-MAG-IDs.py -i {params.temp_output} -m {params.mapping_file} -o {output}
-
-            # removing intermediate files
-            rm {params.mod_input_annotations} {params.mapping_file} {params.temp_output}
 
         else
 
@@ -147,14 +117,14 @@ rule summarize_MAG_KO_annots_with_KEGG_Decoder:
 
 rule summarize_MAG_level_KO_annotations:
     input:
-        MAG_overview = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-overview.tsv",
+        MAG_overview = config["MAGs_dir"] + "MAGs-overview.tsv",
         trigger = expand(config["annotations_and_tax_dir"] + "{ID}-gene-coverage-annotation-and-tax.tsv", ID = sample_ID_list)
     params:
         MAGs_dir = config["MAGs_dir"],
         annot_and_tax_dir = config["annotations_and_tax_dir"],
         tmp_contig_IDs = "curr-contig-ids.tmp"
     output:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-level-KO-annotations.tsv"
+        config["MAGs_dir"] + "MAG-level-KO-annotations.tsv"
     benchmark:
         "benchmarks/summarize_MAG_level_KO_annotations-benchmarks.tsv"
     shell:
@@ -183,7 +153,7 @@ rule summarize_MAG_level_KO_annotations:
 
 rule generate_assembly_processing_overview_table:
     input:
-        trigger = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-overview.tsv"
+        trigger = config["MAGs_dir"] + "MAGs-overview.tsv"
     params:
         sample_IDs_file = config["sample_info_file"],
         assemblies_dir = config["assemblies_dir"],
@@ -191,10 +161,10 @@ rule generate_assembly_processing_overview_table:
         mapping_dir = config["mapping_dir"],
         bins_dir = config["bins_dir"],
         MAGs_dir = config["MAGs_dir"],
-        assembly_summaries = config["bins_dir"] + config["additional_filename_prefix"] + "bin-assembly-summaries.tsv",
-        checkm_results = config["bins_dir"] + config["additional_filename_prefix"] + "bins-checkm-out.tsv"
+        assembly_summaries = config["bins_dir"] + "bin-assembly-summaries.tsv",
+        checkm_results = config["bins_dir"] + "bins-checkm-out.tsv"
     output:
-        config["assembly_based_dir"] + config["additional_filename_prefix"] + "Assembly-based-processing-overview.tsv"
+        config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv"
     benchmark:
         "benchmarks/generate_assembly_processing_overview_table-benchmarks.tsv"
     shell:
@@ -207,8 +177,8 @@ rule generate_assembly_processing_overview_table:
 
 rule generate_MAGs_overview_table:
     input:
-        assembly_summaries = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-assembly-summaries.tsv",
-        checkm_results = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-checkm-out.tsv",
+        assembly_summaries = config["MAGs_dir"] + "MAG-assembly-summaries.tsv",
+        checkm_results = config["MAGs_dir"] + "MAGs-checkm-out.tsv",
         gtdb_done_trigger = config["MAGs_dir"] + "gtdbtk-out"
     params:
         gtdb_results = config["MAGs_dir"] + "gtdbtk-out/gtdbtk.*.summary.tsv",
@@ -221,7 +191,7 @@ rule generate_MAGs_overview_table:
         overview_sorted_tmp = config["MAGs_dir"] + "MAGs-overview-sorted.tmp",
         MAGs_dir = config["MAGs_dir"]
     output:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-overview.tsv"
+        config["MAGs_dir"] + "MAGs-overview.tsv"
     benchmark:
         "benchmarks/generate_MAGs_overview_table-benchmarks.tsv"
     shell:
@@ -270,12 +240,12 @@ rule summarize_MAG_assemblies:
     conda:
         "envs/bit.yaml"
     input:
-        trigger = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-checkm-out.tsv"
+        trigger = config["MAGs_dir"] + "MAGs-checkm-out.tsv"
     params:
         intermediate_file = config["MAGs_dir"] + "MAG-summaries.tmp",
         MAGs_dir = config["MAGs_dir"]
     output:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-assembly-summaries.tsv"
+        config["MAGs_dir"] + "MAG-assembly-summaries.tsv"
     benchmark:
         "benchmarks/summarize_MAG_assemblies-benchmarks.tsv"
     shell:
@@ -303,7 +273,7 @@ rule run_gtdbtk_on_MAGs:
     conda:
         "envs/gtdb-tk.yaml"
     input:
-        trigger = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-checkm-out.tsv",
+        trigger = config["MAGs_dir"] + "MAGs-checkm-out.tsv",
         gtdbtk_db_trigger = config["REF_DB_ROOT_DIR"] + config["GTDB_DATA_PATH"] + "/" + config["GTDB_TRIGGER_FILE"]
     params:
         MAGs_dir = config["MAGs_dir"],
@@ -364,9 +334,9 @@ rule filtering_checkm_results_and_copying_MAGs:
     """
 
     input:
-        config["bins_dir"] + config["additional_filename_prefix"] + "bins-checkm-out.tsv"
+        config["bins_dir"] + "bins-checkm-out.tsv"
     output:
-        config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-checkm-out.tsv"
+        config["MAGs_dir"] + "MAGs-checkm-out.tsv"
     params:
         bins_dir = config["bins_dir"],
         MAGs_dir = config["MAGs_dir"],
@@ -404,15 +374,15 @@ rule filtering_checkm_results_and_copying_MAGs:
 
 rule generate_bins_overview_table:
     input:
-        assembly_summaries = config["bins_dir"] + config["additional_filename_prefix"] + "bin-assembly-summaries.tsv",
-        checkm_results = config["bins_dir"] + config["additional_filename_prefix"] + "bins-checkm-out.tsv",
-        timing_trigger = config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-checkm-out.tsv"
+        assembly_summaries = config["bins_dir"] + "bin-assembly-summaries.tsv",
+        checkm_results = config["bins_dir"] + "bins-checkm-out.tsv",
+        timing_trigger = config["MAGs_dir"] + "MAGs-checkm-out.tsv"
     params:
         checkm_tmp = config["bins_dir"] + "checkm-estimates.tmp",
         checkm_w_header_tmp = config["bins_dir"] + "checkm-estimates-with-headers.tmp",
         bins_dir = config["bins_dir"]
     output:
-        config["bins_dir"] + config["additional_filename_prefix"] + "bins-overview.tsv"
+        config["bins_dir"] + "bins-overview.tsv"
     benchmark:
         "benchmarks/generate_bins_overview_table-benchmarks.tsv"
     shell:
@@ -465,7 +435,7 @@ rule run_checkm_on_bins:
         mem_mb = 50000,
         disk_mb = 100000
     output:
-        config["bins_dir"] + config["additional_filename_prefix"] + "bins-checkm-out.tsv"
+        config["bins_dir"] + "bins-checkm-out.tsv"
     log:
         config["logs_dir"] + "checkm.log"
     benchmark:
@@ -508,7 +478,7 @@ rule summarize_bin_assemblies:
         intermediate_file = config["bins_dir"] + "bin-summaries.tmp",
         bins_dir = config["bins_dir"]
     output:
-        config["bins_dir"] + config["additional_filename_prefix"] + "bin-assembly-summaries.tsv"
+        config["bins_dir"] + "bin-assembly-summaries.tsv"
     benchmark:
         "benchmarks/summarize_bin_assemblies-benchmarks.tsv"
     shell:
@@ -593,12 +563,12 @@ rule combine_read_based_processing_taxonomy:
         "envs/humann3.yaml"
     input:
         in_files = expand(config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_metaphlan_bugs_list.tsv", ID = sample_ID_list),
-        trigger1 = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-cpm.tsv",
-        trigger2 = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-KO-cpm.tsv"
+        trigger1 = config["read_based_dir"] + "Gene-families-cpm.tsv",
+        trigger2 = config["read_based_dir"] + "Gene-families-KO-cpm.tsv"
     params:
         dirs_to_remove = " ".join(expand(config["read_based_dir"] + "{ID}-humann3-out-dir/", ID = sample_ID_list))
     output:
-        config["read_based_dir"] + config["additional_filename_prefix"] + "Metaphlan-taxonomy.tsv"
+        config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
     benchmark:
         "benchmarks/combine_read_based_processing_taxonomy-benchmarks.tsv"
     shell:
@@ -618,9 +588,9 @@ rule gen_read_based_processing_KO_table:
     conda:
         "envs/humann3.yaml"
     input:
-        gene_families = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families.tsv"
+        gene_families = config["read_based_dir"] + "Gene-families.tsv"
     output:
-        gene_families_KOs_cpm = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-KO-cpm.tsv"
+        gene_families_KOs_cpm = config["read_based_dir"] + "Gene-families-KO-cpm.tsv"
     benchmark:
         "benchmarks/gen_read_based_processing_KO_table-benchmarks.tsv"
     shell:
@@ -637,11 +607,11 @@ rule gen_normalized_read_based_processing_tables:
     conda:
         "envs/humann3.yaml"
     input:
-        gene_families = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families.tsv",
-        path_abundances = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-abundances.tsv"
+        gene_families = config["read_based_dir"] + "Gene-families.tsv",
+        path_abundances = config["read_based_dir"] + "Pathway-abundances.tsv"
     output:
-        gene_families_cpm = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-cpm.tsv",
-        path_abundances_cpm = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-abundances-cpm.tsv"
+        gene_families_cpm = config["read_based_dir"] + "Gene-families-cpm.tsv",
+        path_abundances_cpm = config["read_based_dir"] + "Pathway-abundances-cpm.tsv"
     benchmark:
         "benchmarks/gen_normalized_read_based_processing_tables-benchmarks.tsv"
     shell:
@@ -660,39 +630,33 @@ rule split_read_based_processing_tables:
     conda:
         "envs/humann3.yaml"
     input:
-        gene_families = config["read_based_dir"] + config["additional_filename_prefix"] + "gene-families-initial.tsv",
-        path_abundances = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-abundances-initial.tsv",
-        path_coverages = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-coverages-initial.tsv"
+        gene_families = config["read_based_dir"] + "gene-families-initial.tsv",
+        path_abundances = config["read_based_dir"] + "pathway-abundances-initial.tsv",
+        path_coverages = config["read_based_dir"] + "pathway-coverages-initial.tsv"
     params:
-        read_based_dir = config["read_based_dir"],
-        gene_families_initial_stratified = config["read_based_dir"] + config["additional_filename_prefix"] + "gene-families-initial_stratified.tsv",
-        gene_families_initial_unstratified = config["read_based_dir"] + config["additional_filename_prefix"] + "gene-families-initial_unstratified.tsv",
-        path_abundances_initial_stratified = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-abundances-initial_stratified.tsv",
-        path_abundances_initial_unstratified = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-abundances-initial_unstratified.tsv",
-        path_coverages_initial_stratified = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-coverages-initial_stratified.tsv",
-        path_coverages_initial_unstratified = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-coverages-initial_unstratified.tsv"
+        read_based_dir = config["read_based_dir"]
     output:
-        gene_families = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families.tsv",
-        gene_families_grouped = config["read_based_dir"] + config["additional_filename_prefix"] + "Gene-families-grouped-by-taxa.tsv",
-        path_abundances = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-abundances.tsv",
-        path_abundances_grouped = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-abundances-grouped-by-taxa.tsv",
-        path_coverages = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-coverages.tsv",
-        path_coverages_grouped = config["read_based_dir"] + config["additional_filename_prefix"] + "Pathway-coverages-grouped-by-taxa.tsv",
+        gene_families = config["read_based_dir"] + "Gene-families.tsv",
+        gene_families_grouped = config["read_based_dir"] + "Gene-families-grouped-by-taxa.tsv",
+        path_abundances = config["read_based_dir"] + "Pathway-abundances.tsv",
+        path_abundances_grouped = config["read_based_dir"] + "Pathway-abundances-grouped-by-taxa.tsv",
+        path_coverages = config["read_based_dir"] + "Pathway-coverages.tsv",
+        path_coverages_grouped = config["read_based_dir"] + "Pathway-coverages-grouped-by-taxa.tsv",
     benchmark:
         "benchmarks/split_read_based_processing_tables-benchmarks.tsv"
     shell:
         """
         humann_split_stratified_table -i {input.gene_families} -o {params.read_based_dir} > /dev/null 2>&1
-        mv {params.gene_families_initial_stratified} {output.gene_families_grouped}
-        mv {params.gene_families_initial_unstratified} {output.gene_families}
+        mv {params.read_based_dir}gene-families-initial_stratified.tsv {output.gene_families_grouped}
+        mv {params.read_based_dir}gene-families-initial_unstratified.tsv {output.gene_families}
 
         humann_split_stratified_table -i {input.path_abundances} -o {params.read_based_dir} > /dev/null 2>&1
-        mv {params.path_abundances_initial_stratified} {output.path_abundances_grouped}
-        mv {params.path_abundances_initial_unstratified} {output.path_abundances}
+        mv {params.read_based_dir}pathway-abundances-initial_stratified.tsv {output.path_abundances_grouped}
+        mv {params.read_based_dir}pathway-abundances-initial_unstratified.tsv {output.path_abundances}
 
         humann_split_stratified_table -i {input.path_coverages} -o {params.read_based_dir} > /dev/null 2>&1
-        mv {params.path_coverages_initial_stratified} {output.path_coverages_grouped}
-        mv {params.path_coverages_initial_unstratified} {output.path_coverages}
+        mv {params.read_based_dir}pathway-coverages-initial_stratified.tsv {output.path_coverages_grouped}
+        mv {params.read_based_dir}pathway-coverages-initial_unstratified.tsv {output.path_coverages}
 
         rm {input}
         """
@@ -713,18 +677,14 @@ rule combine_read_based_processing_tables:
         gene_fam_dir = config["read_based_dir"] + "gene-family-results/",
         path_abund_dir = config["read_based_dir"] + "path-abundance-results/",
         path_cov_dir = config["read_based_dir"] + "path-coverage-results/",
-        utilities_path = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/utility_mapping"
     output:
-        gene_families = config["read_based_dir"] + config["additional_filename_prefix"] + "gene-families-initial.tsv",
-        path_abundances = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-abundances-initial.tsv",
-        path_coverages = config["read_based_dir"] + config["additional_filename_prefix"] + "pathway-coverages-initial.tsv"
+        gene_families = config["read_based_dir"] + "gene-families-initial.tsv",
+        path_abundances = config["read_based_dir"] + "pathway-abundances-initial.tsv",
+        path_coverages = config["read_based_dir"] + "pathway-coverages-initial.tsv"
     benchmark:
         "benchmarks/combine_read_based_processing_tables-benchmarks.tsv"
     shell:
         """
-        # setting humann3 utilities location (can be off if we pointed to a previously installed database, and doesn't hurt to reset if it was already good-to-go)
-        humann_config --update database_folders utility_mapping {params.utilities_path} > /dev/null 2>&1
-
         # they each need to be in the same directories to be merged
         mkdir -p {params.gene_fam_dir} {params.path_abund_dir} {params.path_cov_dir}
         cp {input.gene_families} {params.gene_fam_dir}
@@ -735,7 +695,7 @@ rule combine_read_based_processing_tables:
         humann_join_tables -i {params.path_abund_dir} -o {output.path_abundances} > /dev/null 2>&1
         humann_join_tables -i {params.path_cov_dir} -o {output.path_coverages} > /dev/null 2>&1
 
-        rm -rf {params.gene_fam_dir} {params.path_abund_dir} {params.path_cov_dir}
+        rm -rf {params}
         """
 
 
@@ -758,9 +718,7 @@ rule run_humann3:
         output_dir = config["read_based_dir"] + "{ID}-humann3-out-dir",
         tmp_metaphlan = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/{ID}_metaphlan_bugs_list.tsv",
         tmp_dir = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/",
-        metaphlan_dir = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"],
-        chocophlan_db_path = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/chocophlan",
-        uniref_db_path = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/uniref"
+        metaphlan_dir = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"]
     output:
         config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_genefamilies.tsv",
         config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathabundance.tsv",
@@ -776,7 +734,7 @@ rule run_humann3:
     shell:
         """
         cat {input.R1} {input.R2} > {params.combined_reads}
-        humann --input {params.combined_reads} --output {params.output_dir} --threads {resources.cpus} --output-basename {wildcards.ID} --nucleotide-database {params.chocophlan_db_path} --protein-database {params.uniref_db_path} --metaphlan-options "--bowtie2db {params.metaphlan_dir} --unknown_estimation --add_viruses --sample_id {wildcards.ID}" --bowtie-options "--sensitive --mm" > {log} 2>&1
+        humann --input {params.combined_reads} --output {params.output_dir} --threads {resources.cpus} --output-basename {wildcards.ID} --metaphlan-options "--bowtie2db {params.metaphlan_dir} --unknown_estimation --add_viruses --sample_id {wildcards.ID}" --bowtie-options "--sensitive --mm" > {log} 2>&1
         mv {params.tmp_metaphlan} {output[3]}
         rm -rf {params.combined_reads} {params.tmp_dir}
         """
@@ -788,10 +746,10 @@ rule make_combined_contig_tax_tables:
     input:
         expand(config["annotations_and_tax_dir"] + "{ID}-contig-coverage-and-tax.tsv", ID = sample_ID_list)
     params:
-        out_prefix = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined"
+        out_prefix = config["combined_output_dir"] + "Combined"
     output:
-        combined_tax = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-contig-level-taxonomy-coverages.tsv",
-        norm_combined_tax = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-contig-level-taxonomy-coverages-CPM.tsv"
+        combined_tax = config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
+        norm_combined_tax = config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages-CPM.tsv"
     benchmark:
         "benchmarks/make_combined_contig_tax_tables-benchmarks.tsv"
     shell:
@@ -806,12 +764,12 @@ rule make_combined_gene_level_tables:
     input:
         expand(config["annotations_and_tax_dir"] + "{ID}-gene-coverage-annotation-and-tax.tsv", ID = sample_ID_list)
     params:
-        out_prefix = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined"
+        out_prefix = config["combined_output_dir"] + "Combined"
     output:
-        combined_annots = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-KO-function-coverages.tsv",
-        norm_combined_annots = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-KO-function-coverages-CPM.tsv",
-        combined_tax = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-taxonomy-coverages.tsv",
-        norm_combined_tax = config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-taxonomy-coverages-CPM.tsv"
+        combined_annots = config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages.tsv",
+        norm_combined_annots = config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages-CPM.tsv",
+        combined_tax = config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
+        norm_combined_tax = config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages-CPM.tsv"
     benchmark:
         "benchmarks/make_combined_gene_level_tables-benchmarks.tsv"
     shell:
@@ -849,7 +807,7 @@ rule combine_contig_tax_and_coverage:
                 paste <( head -n 1 {input.cov} ) <( head -n 1 {input.tax} | cut -f 2- ) > {params.header_tmp}
                 cat {params.header_tmp} {params.contig_tmp} > {output}
                 rm -rf {params.contig_tmp} {params.header_tmp}
-                rm -rf {input}
+                # rm -rf {input}
 
             else
 
@@ -858,14 +816,14 @@ rule combine_contig_tax_and_coverage:
                 paste {params.contig_p1_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} {params.tax_col_tmp} > {params.contig_tmp}
                 cat <( printf "contig_ID\tcoverage\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" ) {params.contig_tmp} > {output}
                 rm -rf {params.contig_p1_tmp} {params.tax_col_tmp} {params.contig_tmp}
-                rm -rf {input}
+                # rm -rf {input}
 
             fi
 
         else
 
             printf "contig_ID\tcoverage\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" > {output}
-            rm -rf {input}
+            # rm -rf {input}
 
         fi
         """
@@ -899,12 +857,12 @@ rule combine_gene_annots_tax_and_coverage:
             cat {params.header_tmp} {params.gene_tmp} > {output}
 
             rm -rf {params.gene_tmp} {params.header_tmp}
-            rm -rf {input}
+            # rm -rf {input}
 
         else
 
             printf "gene_ID\tcoverage\tKO_ID\tKO_function\ttaxid\tdomain\tphylum\tclass\torder\tfamily\tgenus\tspecies\n" > {output}
-            rm -rf {input}
+            # rm -rf {input}
 
         fi
         """
@@ -926,10 +884,13 @@ rule get_cov_and_det:
         gene_cov_and_det_tmp = config["mapping_dir"] + "{ID}-gene-cov-and-det.tmp",
         contig_cov_and_det_tmp = config["mapping_dir"] + "{ID}-contig-cov-and-det.tmp",
         gene_cov_tmp = config["mapping_dir"] + "{ID}-gene-cov.tmp",
-        contig_cov_tmp = config["mapping_dir"] + "{ID}-contig-cov.tmp"
+        contig_cov_tmp = config["mapping_dir"] + "{ID}-contig-cov.tmp",
+        pileup_mem = config["pileup_mem"]
     output:
         gene_covs = config["mapping_dir"] + "{ID}-gene-coverages.tsv",
         contig_covs = config["mapping_dir"] + "{ID}-contig-coverages.tsv"
+    resources:
+        mem_mb = config["snakemake_pileup_mem"]
     log:
         config["logs_dir"] + "{ID}-pileup.log"
     benchmark:
@@ -942,7 +903,7 @@ rule get_cov_and_det:
             # only running on genes also if genes were identified
             if [ -s {input.nt} ]; then
 
-                pileup.sh -in {input.bam} fastaorf={input.nt} outorf={params.gene_cov_and_det_tmp} out={params.contig_cov_and_det_tmp} > {log} 2>&1
+                pileup.sh -Xmx{params.pileup_mem} -in {input.bam} fastaorf={input.nt} outorf={params.gene_cov_and_det_tmp} out={params.contig_cov_and_det_tmp} > {log} 2>&1
 
                 # filtering coverages based on detection
                     # genes
@@ -1073,7 +1034,7 @@ rule run_tax_classification:
             # formatting contig classifications
             bash scripts/format-contig-tax-classifications.sh {params.tmp_contigs} {output.contig_tax_out}
 
-            rm -rf {params.tmp_out_prefix}* {params.tmp_genes} {params.tmp_contigs}
+            # rm -rf {params.tmp_out_prefix}* {params.tmp_genes} {params.tmp_contigs}
 
         else
 
@@ -1174,7 +1135,7 @@ rule summarize_assemblies:
     input:
         expand(config["assemblies_dir"] + "{ID}-assembly.fasta", ID = sample_ID_list)        
     output:
-        config["assemblies_dir"] + config["additional_filename_prefix"] + "assembly-summaries.tsv"
+        config["assemblies_dir"] + "assembly-summaries.tsv"
     benchmark:
         "benchmarks/summarize_assemblies-benchmarks.tsv"
     shell:
@@ -1195,7 +1156,7 @@ rule assemble:
     params:
         assemblies_dir = config["assemblies_dir"],
         max_mem = config["max_mem"],
-        failed_assemblies_file = config["assemblies_dir"] + config["additional_filename_prefix"] + "Failed-assemblies.tsv"
+        failed_assemblies_file = config["assemblies_dir"] + "Failed-assemblies.tsv"
     resources:
         cpus = config["num_threads"],
         mem_mb = 10000
@@ -1233,13 +1194,13 @@ rule filtered_multiqc:
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
-        out_filename_prefix = config["additional_filename_prefix"] + "filtered_multiqc",
+        out_filename_prefix = "filtered_multiqc",
         fastqc_out_dir = config["fastqc_out_dir"],
         filtered_reads_dir = config["filtered_reads_dir"],
-        int_output = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "filtered_multiqc.html"
+        int_output = config["fastqc_out_dir"] + "filtered_multiqc.html"
     output:
-        html = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "filtered_multiqc_report.html",
-        data = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "filtered_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
+        data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
     benchmark:
         "benchmarks/filtered_multiqc-benchmarks.tsv"
     shell:
@@ -1338,13 +1299,13 @@ rule raw_multiqc:
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
         expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
     params:
-        out_filename_prefix = config["additional_filename_prefix"] + "raw_multiqc",
+        out_filename_prefix = "raw_multiqc",
         raw_reads_dir = config["raw_reads_dir"],
         fastqc_out_dir = config["fastqc_out_dir"],
-        int_output = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "raw_multiqc.html"
+        int_output = config["fastqc_out_dir"] + "raw_multiqc.html"
     output:
-        html = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "raw_multiqc_report.html",
-        data = config["fastqc_out_dir"] + config["additional_filename_prefix"] + "raw_multiqc_data.zip"
+        html = config["fastqc_out_dir"] + "raw_multiqc_report.html",
+        data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
     benchmark:
         "benchmarks/raw_multiqc-benchmarks.tsv"
     shell:
