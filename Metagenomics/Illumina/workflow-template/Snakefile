@@ -16,16 +16,21 @@ configfile: "config.yaml"
 See the corresponding 'config.yaml' file for general use information.
 Variables that may need to be adjusted should be changed there, not here.
 """
+########################################
+######## Some colors and helpers #######
+########################################
 
-## example usage command ##
-# snakemake --use-conda --conda-prefix ${CONDA_PREFIX}/envs -j 2 -p
+tty_colors = {
+    'green' : '\033[0;32m%s\033[0m',
+    'yellow' : '\033[0;33m%s\033[0m',
+    'red' : '\033[0;31m%s\033[0m'
+}
 
-# `--use-conda` – this specifies to use the conda environments included in the workflow
-# `--conda-prefix` – this allows us to point to where the needed conda environments should be stored. Including this means if we use the workflow on a different dataset somewhere else in the future, it will re-use the same conda environments rather than make new ones. The value listed here, `${CONDA_PREFIX}/envs`, is the default location for conda environments (the variable `${CONDA_PREFIX}` will be expanded to the appropriate location on whichever system it is run on).
-# `-j` – this lets us set how many jobs Snakemake should run concurrently (keep in mind that many of the thread and cpu parameters set in the config.yaml file will be multiplied by this)
-# `-p` – specifies to print out each command being run to the screen
-
-# See `snakemake -h` for more options and details.
+def color_text(text, color='green'):
+    if sys.stdout.isatty():
+        return(tty_colors[color] % text)
+    else:
+        return(text)
 
 
 ########################################
@@ -38,18 +43,40 @@ sample_ID_list = [line.strip() for line in open(sample_IDs_file)]
 # making sure there are all unique names
 if len(set(sample_ID_list)) != len(sample_ID_list):
 
-    print("\n    Not all sample IDs in the " + str(config["sample_info_file"]) + " file are unique :(\n")
+    print(color_text("\n    Not all sample IDs in the " + str(config["sample_info_file"]) + " file are unique :(\n", "yellow"))
     print("    Exiting for now.\n")
-    exit()
+    exit(1)
 
 ########################################
 ######## Setting up directories ########
 ########################################
 
-dirs_to_create = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["assembly_based_dir"],
-                 config["read_based_dir"], config["assemblies_dir"], config["genes_dir"], 
-                 config["annotations_and_tax_dir"], config["mapping_dir"], config["combined_output_dir"], 
-                 config["bins_dir"], config["MAGs_dir"], config["logs_dir"], "benchmarks"]
+if config["workflow"] == "both":
+
+    dirs_to_create = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["assembly_based_dir"],
+                     config["read_based_dir"], config["assemblies_dir"], config["genes_dir"],
+                     config["annotations_and_tax_dir"], config["mapping_dir"], config["combined_output_dir"],
+                     config["bins_dir"], config["MAGs_dir"], config["logs_dir"], "benchmarks"]
+
+elif config["workflow"] == "assembly-based":
+
+    dirs_to_create = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["assembly_based_dir"],
+                     config["assemblies_dir"], config["genes_dir"],
+                     config["annotations_and_tax_dir"], config["mapping_dir"], config["combined_output_dir"],
+                     config["bins_dir"], config["MAGs_dir"], config["logs_dir"], "benchmarks"]
+
+
+elif config["workflow"] == "read-based":
+
+    dirs_to_create = [config["fastqc_out_dir"], config["filtered_reads_dir"], config["read_based_dir"],
+                     config["MAGs_dir"], config["logs_dir"], "benchmarks"]
+
+else:
+
+    print(color_text("\n    The 'workflow' variable in the config.yaml file needs to be one of 'assembly-based', 'read-based', or 'both'.", "yellow"))
+    print("\n    Exiting for now.\n")
+
+    exit(1)
 
 for dir in dirs_to_create:
     try:
@@ -61,26 +88,63 @@ for dir in dirs_to_create:
 ########################################
 ############# Rules start ##############
 ########################################
+# all rule depends on if assembly-based, read-based, or both
 
-rule all:
-    input:
-        config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages.tsv",
-        config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
-        config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
-        config["MAGs_dir"] + "MAGs-overview.tsv",
-        config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv",
-        config["bins_dir"] + "bins-overview.tsv",
-        config["assemblies_dir"] + "assembly-summaries.tsv",
-        config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
-        config["fastqc_out_dir"] + "raw_multiqc_data.zip",
-        config["fastqc_out_dir"] + "filtered_multiqc_data.zip",
-        config["read_based_dir"] + "Gene-families-cpm.tsv",
-        config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
-        config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
-    shell:
-        """
-        bash scripts/combine-benchmarks.sh
-        """       
+if config["workflow"] == "both":
+
+    rule all:
+        input:
+            config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages.tsv",
+            config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
+            config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
+            config["MAGs_dir"] + "MAGs-overview.tsv",
+            config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv",
+            config["bins_dir"] + "bins-overview.tsv",
+            config["assemblies_dir"] + "assembly-summaries.tsv",
+            config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
+            config["fastqc_out_dir"] + "raw_multiqc_data.zip",
+            config["fastqc_out_dir"] + "filtered_multiqc_data.zip",
+            config["read_based_dir"] + "Gene-families-cpm.tsv",
+            config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
+            config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
+        shell:
+            """
+            bash scripts/combine-benchmarks.sh
+            """
+
+elif config["workflow"] == "assembly-based":
+
+    rule all:
+        input:
+            config["combined_output_dir"] + "Combined-gene-level-KO-function-coverages.tsv",
+            config["combined_output_dir"] + "Combined-gene-level-taxonomy-coverages.tsv",
+            config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
+            config["MAGs_dir"] + "MAGs-overview.tsv",
+            config["MAGs_dir"] + "MAG-KEGG-Decoder-out.tsv",
+            config["bins_dir"] + "bins-overview.tsv",
+            config["assemblies_dir"] + "assembly-summaries.tsv",
+            config["assembly_based_dir"] + "Assembly-based-processing-overview.tsv",
+            config["fastqc_out_dir"] + "raw_multiqc_data.zip",
+            config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        shell:
+            """
+            bash scripts/combine-benchmarks.sh
+            """
+
+elif config["workflow"] == "read-based":
+
+    rule all:
+        input:
+            config["fastqc_out_dir"] + "raw_multiqc_data.zip",
+            config["fastqc_out_dir"] + "filtered_multiqc_data.zip",
+            config["read_based_dir"] + "Gene-families-cpm.tsv",
+            config["read_based_dir"] + "Gene-families-KO-cpm.tsv",
+            config["read_based_dir"] + "Metaphlan-taxonomy.tsv"
+        shell:
+            """
+            bash scripts/combine-benchmarks.sh
+            """
+
 
 rule summarize_MAG_KO_annots_with_KEGG_Decoder:
     conda:

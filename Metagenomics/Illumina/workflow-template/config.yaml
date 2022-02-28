@@ -37,6 +37,11 @@ REF_DB_ROOT_DIR:
 ##### The rest only need to be altered if we want to change them #####
 ######################################################################
 
+## run assembly-based workflow, read-based, or both
+# (values need to be one of: "assembly-based", "read-based", or "both")
+workflow:
+    "both"
+
 ## number of threads to use PER snakemake job (which is set with the -j parameter passed to snakemake call)
     # passed to megahit, bowtie2, samtools, metabat2, checkm-pplacer (many may be running concurrently)
 num_threads:
