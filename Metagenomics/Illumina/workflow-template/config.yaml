@@ -7,9 +7,9 @@
 ##################### VARIABLES TO SET #####################
 ############################################################
 
-#############################################################
-##### These first 5 need to match what is on our system #####
-#############################################################
+############################################################################
+##### This first set of variables needs to match what is on our system #####
+############################################################################
 
 ## single-column file with unique portion of sample names
 sample_info_file:
@@ -19,12 +19,20 @@ sample_info_file:
 raw_reads_dir:
     "../Raw_Sequence_Data/"
 
+## if data are single-end only (only one read-file per sample), set this to "TRUE", anything else is considered paired-end
+single_end_data:
+    ""
+
 ## raw read suffixes (region following the unique part of the sample names)
     # e.g. for "Sample-1_R1_raw.fastq.gz" would be "_R1_raw.fastq.gz"
 raw_R1_suffix:
     "_R1_raw.fastq.gz"
 raw_R2_suffix:
     "_R2_raw.fastq.gz"
+
+    # if single-end data, set this one (others above don't matter)
+raw_suffix:
+    "_raw.fastq.gz"
 
 ## root directory of reference databases (or where they will be downloaded if they don't exist yet)
     # this should be provided as a full path (starting with `/`) and include the ending `/` as in the
@@ -93,6 +101,10 @@ filtered_R1_suffix:
     "_R1_filtered.fastq.gz"
 filtered_R2_suffix:
     "_R2_filtered.fastq.gz"
+
+# if single-end
+filtered_suffix:
+    "_filtered.fastq.gz"
 
 ## output directories (all relative to processing directory, will be created)
 fastqc_out_dir:

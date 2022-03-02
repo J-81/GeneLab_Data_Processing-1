@@ -331,7 +331,7 @@ rule summarize_MAG_assemblies:
         """
 
 
-rule run_gtdbtk_on_MAGs:
+rule gtdbtk_on_MAGs:
     """ assign taxonomy to MAGs with gtdb-tk """
 
     conda:
@@ -481,7 +481,7 @@ rule generate_bins_overview_table:
         """
 
 
-rule run_checkm_on_bins:
+rule checkm_on_bins:
     """ runs checkm on recovered bins """
 
     conda:
@@ -763,45 +763,88 @@ rule combine_read_based_processing_tables:
         """
 
 
-rule run_humann3:
-    """
-    This rule runs humann3 and metaphlan3 on each individual sample generating the
-    read-based functional annotations and taxonomic classifications.
-    """
-    conda:
-        "envs/humann3.yaml"
-    input:
-        R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-        R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"],
-        chocophlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_CHOCOPHLAN_TRIGGER_FILE"],
-        uniref_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UNIREF_TRIGGER_FILE"],
-        utility_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UTILITY_MAPPING_TRIGGER_FILE"],
-        metaphlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"] + "/" + config["METAPHLAN_TRIGGER_FILE"]
-    params:
-        combined_reads = config["read_based_dir"] + "{ID}-reads.tmp.fq.gz",
-        output_dir = config["read_based_dir"] + "{ID}-humann3-out-dir",
-        tmp_metaphlan = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/{ID}_metaphlan_bugs_list.tsv",
-        tmp_dir = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/",
-        metaphlan_dir = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"]
-    output:
-        config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_genefamilies.tsv",
-        config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathabundance.tsv",
-        config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathcoverage.tsv",
-        config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_metaphlan_bugs_list.tsv"
-    resources:
-        cpus = config["num_threads"],
-        mem_mb = 10000
-    log:
-        config["logs_dir"] + "{ID}-humann3-run.log"
-    benchmark:
-        "benchmarks/run_humann3-{ID}-benchmarks.tsv"
-    shell:
+if config["single_end_data"] != "TRUE":
+    # humann3 rule if paired-end data
+
+    rule humann3_PE:
         """
-        cat {input.R1} {input.R2} > {params.combined_reads}
-        humann --input {params.combined_reads} --output {params.output_dir} --threads {resources.cpus} --output-basename {wildcards.ID} --metaphlan-options "--bowtie2db {params.metaphlan_dir} --unknown_estimation --add_viruses --sample_id {wildcards.ID}" --bowtie-options "--sensitive --mm" > {log} 2>&1
-        mv {params.tmp_metaphlan} {output[3]}
-        rm -rf {params.combined_reads} {params.tmp_dir}
+        This rule runs humann3 and metaphlan3 on each individual sample generating the
+        read-based functional annotations and taxonomic classifications.
         """
+        conda:
+            "envs/humann3.yaml"
+        input:
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"],
+            chocophlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_CHOCOPHLAN_TRIGGER_FILE"],
+            uniref_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UNIREF_TRIGGER_FILE"],
+            utility_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UTILITY_MAPPING_TRIGGER_FILE"],
+            metaphlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"] + "/" + config["METAPHLAN_TRIGGER_FILE"]
+        params:
+            combined_reads = config["read_based_dir"] + "{ID}-reads.tmp.fq.gz",
+            output_dir = config["read_based_dir"] + "{ID}-humann3-out-dir",
+            tmp_metaphlan = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/{ID}_metaphlan_bugs_list.tsv",
+            tmp_dir = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/",
+            metaphlan_dir = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"]
+        output:
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_genefamilies.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathabundance.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathcoverage.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_metaphlan_bugs_list.tsv"
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 10000
+        log:
+            config["logs_dir"] + "{ID}-humann3-run.log"
+        benchmark:
+            "benchmarks/run_humann3-{ID}-benchmarks.tsv"
+        shell:
+            """
+            cat {input.R1} {input.R2} > {params.combined_reads}
+            humann --input {params.combined_reads} --output {params.output_dir} --threads {resources.cpus} --output-basename {wildcards.ID} --metaphlan-options "--bowtie2db {params.metaphlan_dir} --unknown_estimation --add_viruses --sample_id {wildcards.ID}" --bowtie-options "--sensitive --mm" > {log} 2>&1
+            mv {params.tmp_metaphlan} {output[3]}
+            rm -rf {params.combined_reads} {params.tmp_dir}
+            """
+
+else:
+    # humann3 rule if single-end data
+
+    rule humann3_SE:
+        """
+        This rule runs humann3 and metaphlan3 on each individual sample generating the
+        read-based functional annotations and taxonomic classifications.
+        """
+        conda:
+            "envs/humann3.yaml"
+        input:
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"],
+            chocophlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_CHOCOPHLAN_TRIGGER_FILE"],
+            uniref_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UNIREF_TRIGGER_FILE"],
+            utility_db_trigger = config["REF_DB_ROOT_DIR"] + config["HUMANN3_DBS_DIR"] + "/" + config["HUMANN3_UTILITY_MAPPING_TRIGGER_FILE"],
+            metaphlan_db_trigger = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"] + "/" + config["METAPHLAN_TRIGGER_FILE"]
+        params:
+            output_dir = config["read_based_dir"] + "{ID}-humann3-out-dir",
+            tmp_metaphlan = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/{ID}_metaphlan_bugs_list.tsv",
+            tmp_dir = config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_humann_temp/",
+            metaphlan_dir = config["REF_DB_ROOT_DIR"] + config["METAPHLAN3_DB_DIR"]
+        output:
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_genefamilies.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathabundance.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_pathcoverage.tsv",
+            config["read_based_dir"] + "{ID}-humann3-out-dir/{ID}_metaphlan_bugs_list.tsv"
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 10000
+        log:
+            config["logs_dir"] + "{ID}-humann3-run.log"
+        benchmark:
+            "benchmarks/run_humann3-{ID}-benchmarks.tsv"
+        shell:
+            """
+            humann --input {input.R1} --output {params.output_dir} --threads {resources.cpus} --output-basename {wildcards.ID} --metaphlan-options "--bowtie2db {params.metaphlan_dir} --unknown_estimation --add_viruses --sample_id {wildcards.ID}" --bowtie-options "--sensitive --mm" > {log} 2>&1
+            mv {params.tmp_metaphlan} {output[3]}
+            rm -rf {params.tmp_dir}
+            """
 
 
 rule make_combined_contig_tax_tables:
@@ -1009,48 +1052,93 @@ rule get_cov_and_det:
         """
 
 
-rule run_mapping:
-    """
-    This rule builds the bowtie2 index and runs the mapping for each sample.
-    """
-    conda:
-        "envs/mapping.yaml"
-    input:
-        assembly = config["assemblies_dir"] + "{ID}-assembly.fasta",
-        R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-        R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
-    params:
-        index = config["mapping_dir"] + "{ID}-index",
-        mapping_info = config["mapping_dir"] + "{ID}-mapping-info.txt",
-        num_threads = config["num_threads"]
-    resources:
-        cpus = config["num_threads"],
-        mem_mb = 5000
-    output:
-        config["mapping_dir"] + "{ID}.bam"
-    log:
-        config["logs_dir"] + "{ID}-bowtie2-build.log"
-    benchmark:
-        "benchmarks/run_mapping-{ID}-benchmarks.tsv"
-    shell:
+if config["single_end_data"] != "TRUE":
+    # mapping rule if paired-end data
+
+    rule mapping_PE:
         """
-        # only running if the assembly produced anything
-        if [ -s {input.assembly} ]; then
-
-            bowtie2-build {input.assembly} {params.index} > {log} 2>&1
-            bowtie2 --mm -q --threads {params.num_threads} -x {params.index} -1 {input.R1} -2 {input.R2} --no-unal 2> {params.mapping_info} | samtools view -b | samtools sort -@ {params.num_threads} > {output} 2> /dev/null
-            rm {params.index}*
-
-        else
-
-            touch {output}
-            printf "Mapping not performed because the assembly didn't produce anything.\n" > {log}
-
-        fi
+        This rule builds the bowtie2 index and runs the mapping for each sample.
         """
+        conda:
+            "envs/mapping.yaml"
+        input:
+            assembly = config["assemblies_dir"] + "{ID}-assembly.fasta",
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+        params:
+            index = config["mapping_dir"] + "{ID}-index",
+            mapping_info = config["mapping_dir"] + "{ID}-mapping-info.txt",
+            num_threads = config["num_threads"]
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 5000
+        output:
+            config["mapping_dir"] + "{ID}.bam"
+        log:
+            config["logs_dir"] + "{ID}-bowtie2-build.log"
+        benchmark:
+            "benchmarks/run_mapping-{ID}-benchmarks.tsv"
+        shell:
+            """
+            # only running if the assembly produced anything
+            if [ -s {input.assembly} ]; then
+
+                bowtie2-build {input.assembly} {params.index} > {log} 2>&1
+                bowtie2 --mm -q --threads {params.num_threads} -x {params.index} -1 {input.R1} -2 {input.R2} --no-unal 2> {params.mapping_info} | samtools view -b | samtools sort -@ {params.num_threads} > {output} 2> /dev/null
+                rm {params.index}*
+
+            else
+
+                touch {output}
+                printf "Mapping not performed because the assembly didn't produce anything.\n" > {log}
+
+            fi
+            """
+
+else:
+    # mapping rule if single-end data
+
+    rule mapping_SE:
+        """
+        This rule builds the bowtie2 index and runs the mapping for each sample.
+        """
+        conda:
+            "envs/mapping.yaml"
+        input:
+            assembly = config["assemblies_dir"] + "{ID}-assembly.fasta",
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"]
+        params:
+            index = config["mapping_dir"] + "{ID}-index",
+            mapping_info = config["mapping_dir"] + "{ID}-mapping-info.txt",
+            num_threads = config["num_threads"]
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 5000
+        output:
+            config["mapping_dir"] + "{ID}.bam"
+        log:
+            config["logs_dir"] + "{ID}-bowtie2-build.log"
+        benchmark:
+            "benchmarks/run_mapping-{ID}-benchmarks.tsv"
+        shell:
+            """
+            # only running if the assembly produced anything
+            if [ -s {input.assembly} ]; then
+
+                bowtie2-build {input.assembly} {params.index} > {log} 2>&1
+                bowtie2 --mm -q --threads {params.num_threads} -x {params.index} -r {input.R1} --no-unal 2> {params.mapping_info} | samtools view -b | samtools sort -@ {params.num_threads} > {output} 2> /dev/null
+                rm {params.index}*
+
+            else
+
+                touch {output}
+                printf "Mapping not performed because the assembly didn't produce anything.\n" > {log}
+
+            fi
+            """
 
 
-rule run_tax_classification:
+rule tax_classification:
     """
     This rule runs the gene- and contig-level taxonomic classifications for each assembly.
     """
@@ -1109,7 +1197,7 @@ rule run_tax_classification:
         """
 
 
-rule run_KO_annotation:
+rule KO_annotation:
     """
     This rule runs the gene-level (KO) functional annotation for each sample.
     """
@@ -1208,199 +1296,393 @@ rule summarize_assemblies:
         """
 
 
-rule assemble:
-    """
-    This rule handles running the assembly for each individual sample.
-    """
-    conda:
-        "envs/megahit.yaml"
-    input:
-        R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-        R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
-    params:
-        assemblies_dir = config["assemblies_dir"],
-        max_mem = config["max_mem"],
-        failed_assemblies_file = config["assemblies_dir"] + "Failed-assemblies.tsv"
-    resources:
-        cpus = config["num_threads"],
-        mem_mb = 10000
-    output:
-        config["assemblies_dir"] + "{ID}-assembly.fasta"
-    log:
-        config["logs_dir"] + "{ID}-assembly.log"
-    benchmark:
-        "benchmarks/assemble-{ID}-benchmarks.tsv"
-    shell:
+if config["single_end_data"] != "TRUE":
+    # assembly rule if paired-end data
+    rule assemble_PE:
         """
-        # removing output directory if exists already but rule still needs to be run (because there is no --force option to megahit i dont't think):
-        rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
-
-        megahit -1 {input.R1} -2 {input.R2} -m {params.max_mem} -t {resources.cpus} --min-contig-len 500 -o {params.assemblies_dir}{wildcards.ID}-megahit-out > {log} 2>&1
-        bit-rename-fasta-headers -i {params.assemblies_dir}{wildcards.ID}-megahit-out/final.contigs.fa -w c_{wildcards.ID} -o {output}
-
-        rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
-
-        # checking the assembly produced anything (megahit can run, produce the output fasta, but it will be empty if no contigs were assembled)
-        if [ ! -s {output} ]; then
-            printf "{wildcards.ID}\tNo contigs assembled\n" >> {params.failed_assemblies_file}
-        fi
+        This rule handles running the assembly for each individual sample.
         """
-
-
-rule filtered_multiqc:
-    """
-    This rule collates all trimmed/filtered fastqc outputs.
-    """
-
-    conda:
-        "envs/qc.yaml"
-    input:
-        expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
-        expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
-    params:
-        out_filename_prefix = "filtered_multiqc",
-        fastqc_out_dir = config["fastqc_out_dir"],
-        filtered_reads_dir = config["filtered_reads_dir"],
-        int_output = config["fastqc_out_dir"] + "filtered_multiqc.html"
-    output:
-        html = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
-        data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
-    benchmark:
-        "benchmarks/filtered_multiqc-benchmarks.tsv"
-    shell:
-        """
-        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix}  {params.filtered_reads_dir} > /dev/null 2>&1
-        # removing the individual fastqc files and temp locations
-        rm -rf {params.filtered_reads_dir}*fastqc*
-        # renaming html file
-        mv {params.int_output} {output.html}
-        """
-
-
-rule filtered_fastqc:
-    """
-    This rule runs fastqc on all trimmed/filtered input fastq files.
-    """
-
-    conda:
-        "envs/qc.yaml"
-    input:
-        config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-        config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
-    output:
-        config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
-        config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
-    benchmark:
-        "benchmarks/filtered_fastqc-{ID}-benchmarks.tsv"
-    shell:
-        """
-        fastqc {input} -t 2 -q
-        """
-
-
-# quality-trimming/filtering rule run slightly different if data are generated with Swift 1S library prep
-if config["swift_1S"] == "TRUE":
-
-    rule bbduk:
-        """
-        This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
-        """
-
         conda:
-            "envs/qc.yaml"
+            "envs/megahit.yaml"
         input:
-            in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
-            in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            R2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+        params:
+            assemblies_dir = config["assemblies_dir"],
+            max_mem = config["max_mem"],
+            failed_assemblies_file = config["assemblies_dir"] + "Failed-assemblies.tsv"
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 10000
         output:
-            out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-            out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+            config["assemblies_dir"] + "{ID}-assembly.fasta"
         log:
-            config["logs_dir"] + "{ID}-bbduk.log"
+            config["logs_dir"] + "{ID}-assembly.log"
         benchmark:
-            "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            "benchmarks/assemble-{ID}-benchmarks.tsv"
         shell:
             """
-            bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
-                    ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
-                    trimq=10 mlf=0.5 maxns=0 swift=t > {log} 2>&1
+            # removing output directory if exists already but rule still needs to be run (because there is no --force option to megahit i dont't think):
+            rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
+
+            megahit -1 {input.R1} -2 {input.R2} -m {params.max_mem} -t {resources.cpus} --min-contig-len 500 -o {params.assemblies_dir}{wildcards.ID}-megahit-out > {log} 2>&1
+            bit-rename-fasta-headers -i {params.assemblies_dir}{wildcards.ID}-megahit-out/final.contigs.fa -w c_{wildcards.ID} -o {output}
+
+            rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
+
+            # checking the assembly produced anything (megahit can run, produce the output fasta, but it will be empty if no contigs were assembled)
+            if [ ! -s {output} ]; then
+                printf "{wildcards.ID}\tNo contigs assembled\n" >> {params.failed_assemblies_file}
+            fi
             """
 
 else:
-
-    rule bbduk:
+    # assembly rule if single-end data
+    rule assemble_SE:
         """
-        This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+        This rule handles running the assembly for each individual sample.
+        """
+        conda:
+            "envs/megahit.yaml"
+        input:
+            R1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"]
+        params:
+            assemblies_dir = config["assemblies_dir"],
+            max_mem = config["max_mem"],
+            failed_assemblies_file = config["assemblies_dir"] + "Failed-assemblies.tsv"
+        resources:
+            cpus = config["num_threads"],
+            mem_mb = 10000
+        output:
+            config["assemblies_dir"] + "{ID}-assembly.fasta"
+        log:
+            config["logs_dir"] + "{ID}-assembly.log"
+        benchmark:
+            "benchmarks/assemble-{ID}-benchmarks.tsv"
+        shell:
+            """
+            # removing output directory if exists already but rule still needs to be run (because there is no --force option to megahit i dont't think):
+            rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
+
+            megahit -r {input.R1} -m {params.max_mem} -t {resources.cpus} --min-contig-len 500 -o {params.assemblies_dir}{wildcards.ID}-megahit-out > {log} 2>&1
+            bit-rename-fasta-headers -i {params.assemblies_dir}{wildcards.ID}-megahit-out/final.contigs.fa -w c_{wildcards.ID} -o {output}
+
+            rm -rf {params.assemblies_dir}{wildcards.ID}-megahit-out/
+
+            # checking the assembly produced anything (megahit can run, produce the output fasta, but it will be empty if no contigs were assembled)
+            if [ ! -s {output} ]; then
+                printf "{wildcards.ID}\tNo contigs assembled\n" >> {params.failed_assemblies_file}
+            fi
+            """
+
+
+if config["single_end_data"] != "TRUE":
+    # quality-trimming/filtering rule if this is paired-end data
+    # quality-trimming/filtering rule run slightly different if data are generated with Swift 1S library prep
+    if config["swift_1S"] == "TRUE":
+
+        rule bbduk_PE:
+            """
+            This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+            """
+
+            conda:
+                "envs/qc.yaml"
+            input:
+                in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
+                in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+            output:
+                out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+                out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+            log:
+                config["logs_dir"] + "{ID}-bbduk.log"
+            benchmark:
+                "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            shell:
+                """
+                bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
+                        ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                        trimq=10 mlf=0.5 maxns=0 swift=t > {log} 2>&1
+                """
+
+    else:
+
+        rule bbduk_PE:
+            """
+            This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+            """
+
+            conda:
+                "envs/qc.yaml"
+            input:
+                in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
+                in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+            output:
+                out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+                out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+            log:
+                config["logs_dir"] + "{ID}-bbduk.log"
+            benchmark:
+                "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            shell:
+                """
+                bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
+                        ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                        trimq=10 mlf=0.5 maxns=0 > {log} 2>&1
+                """
+
+else:
+    # quality-trimming/filtering rule if this is single-end data
+    # quality-trimming/filtering rule run slightly different if data are generated with Swift 1S library prep
+    if config["swift_1S"] == "TRUE":
+
+        rule bbduk_SE:
+            """
+            This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+            """
+
+            conda:
+                "envs/qc.yaml"
+            input:
+                in1 = config["raw_reads_dir"] + "{ID}" + config["raw_suffix"]
+            output:
+                out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"]
+            log:
+                config["logs_dir"] + "{ID}-bbduk.log"
+            benchmark:
+                "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            shell:
+                """
+                bbduk.sh in={input.in1} out1={output.out1} \
+                        ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                        trimq=10 mlf=0.5 maxns=0 swift=t > {log} 2>&1
+                """
+
+    else:
+
+        rule bbduk_SE:
+            """
+            This rule runs quality filtering/trimming on raw input fastq files for each individual sample.
+            """
+
+            conda:
+                "envs/qc.yaml"
+            input:
+                in1 = config["raw_reads_dir"] + "{ID}" + config["raw_suffix"]
+            output:
+                out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"]
+            log:
+                config["logs_dir"] + "{ID}-bbduk.log"
+            benchmark:
+                "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            shell:
+                """
+                bbduk.sh in={input.in1} out1={output.out1} \
+                        ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+                        trimq=10 mlf=0.5 maxns=0 > {log} 2>&1
+                """
+
+
+if config["single_end_data"] != "TRUE":
+    # QC rules if this is paired-end data
+    rule filtered_multiqc_PE:
+        """
+        This rule collates all trimmed/filtered fastqc outputs.
         """
 
         conda:
             "envs/qc.yaml"
         input:
-            in1 = config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
-            in2 = config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+            expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
+            expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
+        params:
+            out_filename_prefix = "filtered_multiqc",
+            fastqc_out_dir = config["fastqc_out_dir"],
+            filtered_reads_dir = config["filtered_reads_dir"],
+            int_output = config["fastqc_out_dir"] + "filtered_multiqc.html"
         output:
-            out1 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
-            out2 = config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
-        log:
-            config["logs_dir"] + "{ID}-bbduk.log"
+            html = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
+            data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
         benchmark:
-            "benchmarks/bbduk-{ID}-benchmarks.tsv"
+            "benchmarks/filtered_multiqc-benchmarks.tsv"
         shell:
             """
-            bbduk.sh in={input.in1} in2={input.in2} out1={output.out1} out2={output.out2} \
-                    ref=${{CONDA_PREFIX}}/opt/bbmap-38.86-0/resources/adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
-                    trimq=10 mlf=0.5 maxns=0 > {log} 2>&1
+            multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix}  {params.filtered_reads_dir} > /dev/null 2>&1
+            # removing the individual fastqc files and temp locations
+            rm -rf {params.filtered_reads_dir}*fastqc*
+            # renaming html file
+            mv {params.int_output} {output.html}
             """
 
 
-rule raw_multiqc:
-    """
-    This rule collates all raw fastqc outputs.
-    """
-
-    conda:
-        "envs/qc.yaml"
-    input:
-        expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
-        expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
-    params:
-        out_filename_prefix = "raw_multiqc",
-        raw_reads_dir = config["raw_reads_dir"],
-        fastqc_out_dir = config["fastqc_out_dir"],
-        int_output = config["fastqc_out_dir"] + "raw_multiqc.html"
-    output:
-        html = config["fastqc_out_dir"] + "raw_multiqc_report.html",
-        data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
-    benchmark:
-        "benchmarks/raw_multiqc-benchmarks.tsv"
-    shell:
+    rule filtered_fastqc_PE:
         """
-        multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
-        # removing the individual fastqc files
-        rm -rf {params.raw_reads_dir}*fastqc*
-        # renaming html file
-        mv {params.int_output} {output.html}
+        This rule runs fastqc on all trimmed/filtered input fastq files.
         """
 
+        conda:
+            "envs/qc.yaml"
+        input:
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"],
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"]
+        output:
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+        benchmark:
+            "benchmarks/filtered_fastqc-{ID}-benchmarks.tsv"
+        shell:
+            """
+            fastqc {input} -t 2 -q
+            """
 
-rule raw_fastqc:
-    """
-    This rule runs fastqc on all raw input fastq files.
-    """
 
-    conda:
-        "envs/qc.yaml"
-    input:
-        config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
-        config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
-    output:
-        config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
-        config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
-    benchmark:
-        "benchmarks/raw_fastqc-{ID}-benchmarks.tsv"
-    shell:
+    rule raw_multiqc_PE:
         """
-        fastqc {input} -t 2 -q
+        This rule collates all raw fastqc outputs.
         """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            expand(config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list),
+            expand(config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
+        params:
+            out_filename_prefix = "raw_multiqc",
+            raw_reads_dir = config["raw_reads_dir"],
+            fastqc_out_dir = config["fastqc_out_dir"],
+            int_output = config["fastqc_out_dir"] + "raw_multiqc.html"
+        output:
+            html = config["fastqc_out_dir"] + "raw_multiqc_report.html",
+            data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
+        benchmark:
+            "benchmarks/raw_multiqc-benchmarks.tsv"
+        shell:
+            """
+            multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
+            # removing the individual fastqc files
+            rm -rf {params.raw_reads_dir}*fastqc*
+            # renaming html file
+            mv {params.int_output} {output.html}
+            """
+
+
+    rule raw_fastqc_PE:
+        """
+        This rule runs fastqc on all raw input fastq files.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"],
+            config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"]
+        output:
+            config["raw_reads_dir"] + "{ID}" + config["raw_R1_suffix"].rsplit(".", 2)[0] + "_fastqc.zip",
+            config["raw_reads_dir"] + "{ID}" + config["raw_R2_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+        benchmark:
+            "benchmarks/raw_fastqc-{ID}-benchmarks.tsv"
+        shell:
+            """
+            fastqc {input} -t 2 -q
+            """
+
+else:
+    # rules if this is single-end data
+    rule filtered_multiqc_SE:
+        """
+        This rule collates all trimmed/filtered fastqc outputs.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
+        params:
+            out_filename_prefix = "filtered_multiqc",
+            fastqc_out_dir = config["fastqc_out_dir"],
+            filtered_reads_dir = config["filtered_reads_dir"],
+            int_output = config["fastqc_out_dir"] + "filtered_multiqc.html"
+        output:
+            html = config["fastqc_out_dir"] + "filtered_multiqc_report.html",
+            data = config["fastqc_out_dir"] + "filtered_multiqc_data.zip"
+        benchmark:
+            "benchmarks/filtered_multiqc-benchmarks.tsv"
+        shell:
+            """
+            multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix}  {params.filtered_reads_dir} > /dev/null 2>&1
+            # removing the individual fastqc files and temp locations
+            rm -rf {params.filtered_reads_dir}*fastqc*
+            # renaming html file
+            mv {params.int_output} {output.html}
+            """
+
+
+    rule filtered_fastqc_SE:
+        """
+        This rule runs fastqc on all trimmed/filtered input fastq files.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"]
+        output:
+            config["filtered_reads_dir"] + "{ID}" + config["filtered_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+        benchmark:
+            "benchmarks/filtered_fastqc-{ID}-benchmarks.tsv"
+        shell:
+            """
+            fastqc {input} -t 2 -q
+            """
+
+
+    rule raw_multiqc_SE:
+        """
+        This rule collates all raw fastqc outputs.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            expand(config["raw_reads_dir"] + "{ID}" + config["raw_suffix"].rsplit(".", 2)[0] + "_fastqc.zip", ID = sample_ID_list)
+        params:
+            out_filename_prefix = "raw_multiqc",
+            raw_reads_dir = config["raw_reads_dir"],
+            fastqc_out_dir = config["fastqc_out_dir"],
+            int_output = config["fastqc_out_dir"] + "raw_multiqc.html"
+        output:
+            html = config["fastqc_out_dir"] + "raw_multiqc_report.html",
+            data = config["fastqc_out_dir"] + "raw_multiqc_data.zip"
+        benchmark:
+            "benchmarks/raw_multiqc-benchmarks.tsv"
+        shell:
+            """
+            multiqc -z -q -o {params.fastqc_out_dir} -n {params.out_filename_prefix} {params.raw_reads_dir} > /dev/null 2>&1
+            # removing the individual fastqc files
+            rm -rf {params.raw_reads_dir}*fastqc*
+            # renaming html file
+            mv {params.int_output} {output.html}
+            """
+
+
+    rule raw_fastqc_SE:
+        """
+        This rule runs fastqc on all raw input fastq files.
+        """
+
+        conda:
+            "envs/qc.yaml"
+        input:
+            config["raw_reads_dir"] + "{ID}" + config["raw_suffix"]
+        output:
+            config["raw_reads_dir"] + "{ID}" + config["raw_suffix"].rsplit(".", 2)[0] + "_fastqc.zip"
+        benchmark:
+            "benchmarks/raw_fastqc-{ID}-benchmarks.tsv"
+        shell:
+            """
+            fastqc {input} -t 2 -q
+            """
+
 
 
 ### database checking and setup rules ###
