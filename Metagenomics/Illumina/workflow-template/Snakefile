@@ -118,7 +118,7 @@ elif config["workflow"] == "assembly-based":
         input:
             config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-KO-function-coverages.tsv",
             config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-gene-level-taxonomy-coverages.tsv",
-            config["combined_output_dir"] + "Combined-contig-level-taxonomy-coverages.tsv",
+            config["combined_output_dir"] + config["additional_filename_prefix"] + "Combined-contig-level-taxonomy-coverages.tsv",
             config["MAGs_dir"] + config["additional_filename_prefix"] + "MAGs-overview.tsv",
             config["MAGs_dir"] + config["additional_filename_prefix"] + "MAG-KEGG-Decoder-out.tsv",
             config["bins_dir"] + config["additional_filename_prefix"] + "bins-overview.tsv",
