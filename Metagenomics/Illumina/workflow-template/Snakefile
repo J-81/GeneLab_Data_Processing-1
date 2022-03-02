@@ -608,6 +608,8 @@ rule metabat_binning:
     params:
         bins_dir = config["bins_dir"],
         prefix = config["bins_dir"] + "{ID}-bin",
+        tmp_bins_file = "{ID}-bin-files.tmp",
+        tmp_rename_script = "{ID}-rename.tmp"
     resources:
         cpus = config["num_threads"]
     output:
@@ -631,14 +633,14 @@ rule metabat_binning:
             fi
 
             # changing extensions from .fa to .fasta to match nt fasta extension elsewhere in GeneLab
-            find {params.bins_dir} -name {wildcards.ID}*.fa > bin-files.tmp
+            find {params.bins_dir} -name {wildcards.ID}*.fa > {params.tmp_bins_file}
             
-            if [ -s bin-files.tmp ]; then
-                paste -d " " <( sed 's/^/mv /' bin-files.tmp ) <( sed 's/.fa/.fasta/' bin-files.tmp) > do.tmp
-                bash do.tmp
+            if [ -s {params.tmp_bins_file} ]; then
+                paste -d " " <( sed 's/^/mv /' {params.tmp_bins_file} ) <( sed 's/.fa/.fasta/' {params.tmp_bins_file} ) > {params.tmp_rename_script}
+                bash {params.tmp_rename_script}
             fi
 
-            rm -rf bin-files.tmp do.tmp
+            rm -rf {params.tmp_bins_file} {params.tmp_rename_script}
 
         else
 
