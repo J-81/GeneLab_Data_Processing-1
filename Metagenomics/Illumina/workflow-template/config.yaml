@@ -71,7 +71,7 @@ gtdb_tk_num_cpus:
 ## scratch directory for gtdb-tk, if wanting to use disk space instead of RAM, can be memory intensive; see https://ecogenomics.github.io/GTDBTk/faq.html#gtdb-tk-reaches-the-memory-limit-pplacer-crashes
     # leave empty if wanting to use memory, the default, put in quotes the path to a directory that already exists if wanting to use disk space
 gtdb_tk_scratch_location:
-    "./gtdb-scratch"
+    ""
 
 ## maximum memory allowed passed to megahit assembler
     # can be set either by proportion of available on system, e.g. 0.5
@@ -84,9 +84,9 @@ block_size:
     4
 
 ## reduced_tree option for checkm, limits the RAM usage to 16GB; https://github.com/Ecogenomics/CheckM/wiki/Genome-Quality-Commands#tree
-    # "True" for yes, use reduced tree; "False" to use the default full tree
+    # "TRUE" for yes, anything will be considered "FALSE" and the default full tree will be used
 reduced_tree:
-    "False"
+    ""
 
 ## MAG filtering cutoffs based on checkm quality assessments (in percent); see https://github.com/Ecogenomics/CheckM/wiki/Reported-Statistics
 minimum_estimated_completion:
@@ -131,6 +131,13 @@ read_based_dir:
     "../Read-based_Processing/"
 logs_dir:
     "logs/"
+
+
+## additional prefix to add to output files that describe more than one sample (to make them unique compared to other datasets)
+# leave as empty, i.e. "", if not wanted, include separator at end if adding one, e.g. "Swift1S_"
+additional_filename_prefix:
+    ""
+
 
 ## setting for trimming recommended when working with Swift 1S libraries
     # adds `swift=t` setting to bbduk quality trimming/filtering command
