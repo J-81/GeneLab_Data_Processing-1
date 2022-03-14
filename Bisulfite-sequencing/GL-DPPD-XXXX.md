@@ -32,7 +32,7 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [4. Alignment](#4-alignment)
     - [Generate reference](#generate-reference)
     - [Align](#align)
-  - [5. Deduplicate (only if not RRBS data)](#5-deduplicate-if-not-rrbs-data)
+  - [5. Deduplicate (skip if data are RRBS)](#5-deduplicate-skip-if-data-are-rrbs)
   - [6. Extract methylation calls](#6-extract-methylation-calls)
   - [7. Generate individual sample report](#7-generate-individual-sample-report)
   - [8. Generate combined summary report](#8-generate-combined-summary-report)
@@ -127,8 +127,8 @@ mv sample-1_raw_trimmed.fq.gz sample-1_trimmed.fastq.gz
 trim_galore --gzip --cores 4 --paired sample-1_R1_raw.fastq.gz sample-1_R2_raw.fastq.gz
 
 # renaming outputs to use GeneLab standard suffix
-mv sample-1_R1_raw_trimmed.fq.gz sample-1_R1_trimmed.fastq.gz
-mv sample-1_R2_raw_trimmed.fq.gz sample-1_R2_trimmed.fastq.gz
+mv sample-1_R1_raw_val_1.fq.gz sample-1_R1_trimmed.fastq.gz
+mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 ### If RRBS with MspI digestion
@@ -149,8 +149,8 @@ mv sample-1_raw_trimmed.fq.gz sample-1_trimmed.fastq.gz
 trim_galore --gzip --cores 4 --rrbs --paired sample-1_R1_raw.fastq.gz sample-1_R2_raw.fastq.gz
 
 # renaming outputs to use GeneLab standard suffix
-mv sample-1_R1_raw_trimmed.fq.gz sample-1_R1_trimmed.fastq.gz
-mv sample-1_R2_raw_trimmed.fq.gz sample-1_R2_trimmed.fastq.gz
+mv sample-1_R1_raw_val_1.fq.gz sample-1_R1_trimmed.fastq.gz
+mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 
@@ -165,12 +165,19 @@ Following their instructions, we first run an adapter-trimming/quality-filtering
 
 ```bash
 trim_galore --cores 4 -a AGATCGGAAGAGC sample-1_raw.fastq.gz
+
+# renaming output to use GeneLab standard conventions
+mv sample-1_raw_trimmed.fq.gz sample-1_trimmed.fastq.gz
 ```
 
 **Paired-end example**  
 
 ```bash
 trim_galore --cores 4 --paired -a AGATCGGAAGAGC -a2 AAATCAAAAAAAC sample-1_R1_raw.fastq.gz sample-1_R2_raw.fastq.gz
+
+# renaming output to use GeneLab standard conventions
+mv sample-1_R1_raw_val_1.fq.gz sample-1_R1_trimmed.fastq.gz
+mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 #### Now running NuGEN-specific script
@@ -184,20 +191,20 @@ curl -LO https://raw.githubusercontent.com/nugentechnologies/NuMetRRBS/master/tr
 **Single-end example**  
 
 ```bash
-python2 trimRRBSdiversityAdaptCustomers.py -1 sample-1_raw_trimmed.fq.gz
+python2 trimRRBSdiversityAdaptCustomers.py -1 sample-1_trimmed.fastq.gz
 
 # renaming outputs to use GeneLab standard suffix
-mv sample-1_raw_trimmed.fq_trimmed.fq.gz sample-1_trimmed.fastq.gz
+mv sample-1_trimmed.fastq_trimmed.fq.gz sample-1_trimmed.fastq.gz
 ```
 
 **Paired-end example**  
 
 ```bash
-python2 trimRRBSdiversityAdaptCustomers.py -1 sample-1_R1_raw.fastq.gz -2 sample-1_R2_raw.fastq.gz
+python2 trimRRBSdiversityAdaptCustomers.py -1 sample-1_R1_trimmed.fastq.gz -2 sample-1_R2_trimmed.fastq.gz
 
 # renaming outputs to use GeneLab standard suffix
-mv sample-1_R1_raw.fastq_trimmed.fq.gz sample-1_R1_trimmed.fastq.gz
-mv sample-1_R2_raw.fastq_trimmed.fq.gz sample-1_R2_trimmed.fastq.gz
+mv sample-1_R1_trimmed.fastq_trimmed.fq.gz sample-1_R1_trimmed.fastq.gz
+mv sample-1_R2_trimmed.fastq_trimmed.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 **Parameter Definitions for `trim_galore`:**  
@@ -208,7 +215,7 @@ mv sample-1_R2_raw.fastq_trimmed.fq.gz sample-1_R2_trimmed.fastq.gz
 * `-a` - specific adapter sequence to be trimmed off of forward or single reads
 * `-a2` - specific adapter sequence to be trimmed off of reverse reads
 * `--paired` - specifies data are paired-end
-* positional arguments represent the input files, 2 of them if paired-end data
+* positional arguments represent the input read files, 2 of them if paired-end data
 
 
 **Parameter Definitions for `trimRRBSdiversityAdaptCustomers.py `:**  
@@ -276,15 +283,97 @@ multiqc -o trimmed_multiqc_output -n trimmed_multiqc -z trimmed_fastqc_output/
 ## 4. Alignment
 
 ### Generate reference
+The reference will need to be specific to what was sequenced. Bismark operates on a directory holding the target reference genome in fasta format.
 
+```bash
+# creating directory to hold reference and moving it into there
+mkdir reference-genome
+mv ref-genome.fasta reference-genome/
+
+bismark_genome_preparation --parallel 4 reference-genome/
+```
+
+**Parameter Definitions:**
+
+*	`--parallel` – specifies how many threads to use (note these will be doubled as it operates on both strands simultaneously)
+*  positional argument specifing the directory holding the reference genome (should end in ".fa" or ".fasta", can be gzipped and including ".gz")
+
+**Input data:**
+
+* a directory holding the reference genome in fasta format
+
+**Output data:**
+
+* an additional subdirectory added to the the reference genome directory we provided as input that holds indexes for the bisulfite converted reference genome
+
+> **NOTE**  
+> If using RNA, need to add the `--hisat` flag.
 
 ### Align
+
+Note that if the library preparation was non-directional, we need to also add `--non_directional` to this command (whether single-end or paired-end).
+
+**Single-end example**  
+
+```bash
+bismark --bam -p 4 --genome reference-genome/ sample-1_trimmed.fastq.gz
+```
+
+**Paired-end example**  
+
+```bash
+bismark --bam -p 4 --genome reference-genome/ -1 sample-1_R1_trimmed.fastq.gz -2 sample-1_R2_trimmed.fastq.gz
+```
+
+**Parameter Definitions:**
+
+* `--bam` - specifies to convert the default output sam format into compressed bam format
+* `-p` - allows us to specify the number of threads to use (will be doubled for operating on both strands simultaneously)
+* `--genome` - specifies the directory holding the reference genome indexes (same we provided to the Generate reference step above)
+* we provide our input trimmed reads as a positional argument if they are single-end data
+* `-1` - where to specify the forward trimmed reads if paired-end data
+* `-2` - where to specify the reverse trimmed reads if paired-end data
+
+
+**Input data:**
+* directory holding indexes of reference genome
+* gzip-compressed fastq files (adapter-trimmed/quality-filtered reads)
+
+**Output data:**  
+
+* \*.bam - mapping file 
+* \*_report.txt - bismark mapping report file
+
+
+> **NOTE**  
+> If using RNA, need to add the `--hisat` flag.
+
 
 <br>
 
 ---
 
-## 5. Deduplicate (only if not RRBS data)
+## 5. Deduplicate (skip if data are RRBS)
+> **NOTE**  
+> This step should **not** be done if the data are RRBS (reduced representation bisulfite sequencing; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs)).
+
+```bash
+deduplicate_bismark sample-1_trimmed_bismark_bt2.bam
+```
+
+**Parameter Definitions:**
+
+* positional argument is the bam file produced in step 4 above
+
+**Input data:**
+
+* sample-1_trimmed_bismark_bt2.bam - mapping file produced in step 4 above
+
+**Output data:**
+
+* \*.deduplicated.bam - a deduplicated mapping file
+* \*.deduplication_report.txt - report file of deduplication 
+
 
 <br>
 
@@ -292,11 +381,78 @@ multiqc -o trimmed_multiqc_output -n trimmed_multiqc -z trimmed_fastqc_output/
 
 ## 6. Extract methylation calls
 
+
+**Single-end example**  
+
+```bash
+bismark_methylation_extractor --bedGraph --gzip --comprehensive sample-1_trimmed_bismark_bt2.bam
+    # note, input should be the deduplicated version produced is step 5 if not working with RRBS data
+```
+
+**Paired-end example**  
+
+```bash
+bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --ignore_3prime_r2 2 sample-1_trimmed_bismark_bt2.bam
+    # note, input should be the deduplicated version produced is step 5 if not working with RRBS data
+```
+
+
+**Parameter Definitions:**
+
+* `--bedGraph` - specifies to generate a bedGraph-formatted file of methylated CpGs (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
+* `--gzip` - specifies to gzip-compress teh larger output files
+* `--comprehensive` - specifies to merge all four possible strand-specific methylation outputs into context-dependent output files
+* `--ignore_r2` - allows specifying how many bases to ignore from the 5' end of the reverse reads (bismark docs recommend 2, see [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#appendix-iii-bismark-methylation-extractor))
+* `--ignore_3prime_r2` - allows specifying how many bases to ignore from the 3' end of the reverse reads (this is utilized in the [nf-core methylseq workflow](https://nf-co.re/methylseq), set at [this line](https://github.com/nf-core/methylseq/blob/03972a686bedeb2920803cd575f4d671e9135af0/main.nf#L643)) 
+* the positional argument is an input bam file
+
+**Input data:**
+
+* sample-1_trimmed_bismark_bt2.bam - bam file produced above (in step 4 if data are RRBS, or step 5 if not)
+
+> **NOTE**  
+> If data are **not** RRBS, the input bam file should be the deduplicated one produced by step 5 above. 
+
+
+**Output data:**
+
+* *\.txt.gz - bismark methylation call files for CpG, CHG, and CHH contexts (where H is A, T, or C) that were detected; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs), namely [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#methylation-call) for symbols, and [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#iv-bismark-methylation-extractor) for file format
+* \*.bedGraph.gz - gzip-compressed bedGraph-formatted file of methylation percentages of each CpG site (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
+* \*.bismark.cov.gz - gzip-compressed bedGraph-formatted file like above "\*.bedGraph.gz", but also including 2 more columns of methylated and unmethylated counts at the specified position (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
+* \*_splitting_report.txt - text file of general detected methylation information
+* \*.M-bias.txt - text file with methylation information in the context of the position in reads, helpful for investigating bias as a function of base position in the read
+
 <br>
 
 ---
 
 ## 7. Generate individual sample report
+
+
+```bash
+bismark2report --alignment_report sample-1_trimmed_bismark_bt2_SE_report.txt \
+               --splitting_report sample-1_trimmed_bismark_bt2_splitting_report.txt \
+               --mbias_report sample-1_trimmed_bismark_bt2.M-bias.txt
+```
+
+**Parameter Definitions:**
+
+* `--alignment_report` - where to provide the alignment report generated by step 4 above (e.g. "\*_bt2_SE_report.txt" if single-end data or "\*_bt2_PE_report.txt" if paired-end data)
+* `--splitting_report` - where to provide the splitting report generated by step 6 above
+* `--mbias_report` - where to provide the bias report generated by step 6 above
+
+**Input data:**
+
+* sample-1_trimmed_bismark_bt2_SE_report.txt - alignment report generated by step 4 above
+* sample-1_trimmed_bismark_bt2_splitting_report.txt - splitting report generated by step 6 above
+* sample-1_trimmed_bismark_bt2.M-bias.txt - bias report generated by step 6 above
+
+> **NOTE**  
+> If data are **not** RRBS, the deduplication report from step 5 above should also be provided to the above command, e.g.: `--dedup_report sample-1_trimmed_bismark_bt2.deduplication_report.txt` 
+
+**Output data:**
+
+* \*_report.html - a summary html file for the given sample
 
 <br>
 
@@ -304,11 +460,38 @@ multiqc -o trimmed_multiqc_output -n trimmed_multiqc -z trimmed_fastqc_output/
 
 ## 8. Generate combined summary report
 
+```bash
+bismark2summary 
+```
+
+**Input data:**  
+
+* autodetects appropriate files in current working directory intially based on bam files generated in step 4 above
+
+**Output data:**  
+
+* bismark_summary_report.txt - summary table of general information on all samples
+* bismark_summary_report.html - html summary of general information on all samples
+
+
 <br>
 
 ---
 
 ## 9. Alignment QC
+
+```bash
+
+```
+
+**Parameter Definitions:**
+
+
+**Input data:**
+
+
+**Output data:**
+
 
 <br>
 
@@ -316,7 +499,32 @@ multiqc -o trimmed_multiqc_output -n trimmed_multiqc -z trimmed_fastqc_output/
 
 ## 10. Generate MultiQC project report
 
+```bash
+
+```
+
+**Parameter Definitions:**
 
 
+**Input data:**
 
+
+**Output data:**
+
+
+## 11. Differential methylation analysis
+This is performed in R. Example code in the following R script:
+
+```R
+
+```
+
+**Input data:**
+
+
+**Output data:**
+
+<br>
+
+---
 ---
