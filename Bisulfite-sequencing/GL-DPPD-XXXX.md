@@ -52,6 +52,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |bowtie2| 2.4.2 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
 |samtools| 1.11 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
 |qualimap| 2.2.2d |[http://qualimap.conesalab.org/](http://qualimap.conesalab.org/)|
+|methylKit|1.20.0|[https://bioconductor.org/packages/release/bioc/html/methylKit.html](https://bioconductor.org/packages/release/bioc/html/methylKit.html)|
 
 ---
 
