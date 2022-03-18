@@ -132,7 +132,7 @@ mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 ### If RRBS with MspI digestion
-Note that if the library preparation was non-directional, we need to also add `--non_directional` to this command (whether single-end or paired-end). 
+Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end). 
 
 **Single-end example**  
 
@@ -182,7 +182,7 @@ mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 
 #### Now running NuGEN-specific script
 
-We can download the script from their [github](https://github.com/nugentechnologies/NuMetRRBS#analysis-guide-for-nugen-ovation-rrbs-methyl-seq) with the following:
+The NuGEN-specific script can be downloaded from their [github](https://github.com/nugentechnologies/NuMetRRBS#analysis-guide-for-nugen-ovation-rrbs-methyl-seq) with the following:
 
 ```bash
 curl -LO https://raw.githubusercontent.com/nugentechnologies/NuMetRRBS/master/trimRRBSdiversityAdaptCustomers.py
@@ -304,14 +304,14 @@ bismark_genome_preparation --parallel 4 reference-genome/
 
 **Output data:**
 
-* an additional subdirectory added to the the reference genome directory we provided as input that holds indexes for the bisulfite converted reference genome
+* an additional subdirectory added to the the reference genome directory that was provided as input which holds indexes for the bisulfite converted reference genome
 
 > **NOTE**  
 > If using RNA, need to add the `--hisat` flag.
 
 ### Align
 
-Note that if the library preparation was non-directional, we need to also add `--non_directional` to this command (whether single-end or paired-end).
+Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end). 
 
 **Single-end example**  
 
@@ -329,8 +329,8 @@ bismark --bam -p 4 --genome reference-genome/ -1 sample-1_R1_trimmed.fastq.gz -2
 
 * `--bam` - specifies to convert the default output sam format into compressed bam format
 * `-p` - allows us to specify the number of threads to use (will be doubled for operating on both strands simultaneously)
-* `--genome` - specifies the directory holding the reference genome indexes (same we provided to the Generate reference step above)
-* we provide our input trimmed reads as a positional argument if they are single-end data
+* `--genome` - specifies the directory holding the reference genome indexes (the same that was provided to the Generate reference step above)
+* input trimmed-reads are provided as a positional argument if they are single-end data
 * `-1` - where to specify the forward trimmed reads if paired-end data
 * `-2` - where to specify the reverse trimmed reads if paired-end data
 
@@ -386,14 +386,14 @@ deduplicate_bismark sample-1_trimmed_bismark_bt2.bam
 
 ```bash
 bismark_methylation_extractor --bedGraph --gzip --comprehensive sample-1_trimmed_bismark_bt2.bam
-    # note, input should be the deduplicated version produced is step 5 if not working with RRBS data
+    # note, input should be the deduplicated version produced in step 5 above if not working with RRBS data
 ```
 
 **Paired-end example**  
 
 ```bash
 bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --ignore_3prime_r2 2 sample-1_trimmed_bismark_bt2.bam
-    # note, input should be the deduplicated version produced is step 5 if not working with RRBS data
+    # note, input should be the deduplicated version produced in step 5 above if not working with RRBS data
 ```
 
 
@@ -481,16 +481,39 @@ bismark2summary
 ## 9. Alignment QC
 
 ```bash
+# sorting bam file
+samtools sort -@ 4 -o sample-1_trimmed_bismark_bt2.sorted.bam sample-1_trimmed_bismark_bt2.bam
+    # note, input should be the deduplicated version produced in step 5 above if not working with RRBS data
 
+qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam -outdir sample-1_trimmed_bismark_bt2_qualimap --collect-overlap-pairs --java-mem-size=6G -nt 4
 ```
 
-**Parameter Definitions:**
+**Parameter Definitions for `samtools`:**
 
+* `sort` - specifies the sub-program of `samtools`
+* `-@` - where to specify the number of threads to use
+* `-o` - specifies the output file name
+* the positional argument is the input bam file 
+
+**Parameter Definitions for `qualimap`:**
+
+* `bamqc` - specifies the sub-program of `qualimap`
+* `-bam` - where to specify the input bam file
+* `-outdir` - where to specify the output directory
+* `--collect-overlap-pairs` - includes statistics of overlapping paired-end reads (if data were paired-end, no effect if single-end)
+* `--java-mem-size=6G` - where to specify the amount of memory to use (here 6G)
+* `-nt` - where to specify the number of threads to use
 
 **Input data:**
 
+* sample-1_trimmed_bismark_bt2.bam - bam file produced above (in step 4 if data are RRBS, or step 5 if not)
+
+> **NOTE**  
+> If data are **not** RRBS, the input bam file should be the deduplicated one produced by step 5 above. 
 
 **Output data:**
+
+* `sample-1_trimmed_bismark_bt2_qualimap/` - subdirectory of multiple alignment QC output files presented in an html file (see [qualimap documentation](http://qualimap.conesalab.org/doc_html/analysis.html#output))
 
 
 <br>
@@ -500,16 +523,26 @@ bismark2summary
 ## 10. Generate MultiQC project report
 
 ```bash
-
+multiqc -o project_multiqc_output -n project_multiqc -z ./
 ```
 
 **Parameter Definitions:**
 
+*	`-o` – where to specify the output directory to store results
+*	`-n` – where to specify the filename prefix of results
+*	`-z` – specifies to zip the output data directory
+*	`./` – positional argument specifying to recursively search the current working directory for appropriate files for `multiqc` to act on
+
 
 **Input data:**
 
+* the current working directory is specified, and `multiqc` recursively searches and grabs all appropriate files it can summarize
 
 **Output data:**
+
+* project_multiqc_output/project_multiqc_report.html (multiqc output html summary)
+* project_multiqc_output/project_multiqc_data.zip (zipped directory containing multiqc output data)
+
 
 
 ## 11. Differential methylation analysis
@@ -528,3 +561,5 @@ This is performed in R. Example code in the following R script:
 
 ---
 ---
+
+
