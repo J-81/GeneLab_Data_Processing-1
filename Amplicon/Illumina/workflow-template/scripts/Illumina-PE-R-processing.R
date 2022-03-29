@@ -1,5 +1,5 @@
 ##################################################################################
-## R processing script for Illumina amplicon data                               ##
+## R processing script for Illumina paired-end amplicon data                    ##
 ## Developed by Michael D. Lee (Mike.Lee@nasa.gov)                              ##
 ##################################################################################
 
@@ -142,11 +142,30 @@ dna <- DNAStringSet(getSequences(seqtab.nochim))
 
     # downloading reference R taxonomy object (at some point this will be stored somewhere on GeneLab's server and we won't download it, but should leave the code here, just commented out)
 cat("\n\n  Downloading reference database...\n\n")
-download.file("http://www2.decipher.codes/Classification/TrainingSets/SILVA_SSU_r138_2019.RData", "SILVA_SSU_r138_2019.RData")
+if ( target_region == "16S" ) { 
+    download.file("http://www2.decipher.codes/Classification/TrainingSets/SILVA_SSU_r138_2019.RData", "SILVA_SSU_r138_2019.RData")
     # loading reference taxonomy object
-load("SILVA_SSU_r138_2019.RData")
+    load("SILVA_SSU_r138_2019.RData")
     # removing downloaded file
-file.remove("SILVA_SSU_r138_2019.RData")
+    file.remove("SILVA_SSU_r138_2019.RData")
+
+    ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species")
+
+} else if (target_region == "ITS" ) {
+
+    download.file("http://www2.decipher.codes/Classification/TrainingSets/UNITE_v2020_February2020.RData", "UNITE_v2020_February2020.RData")    
+    # loading reference taxonomy object
+    load("UNITE_v2020_February2020.RData")
+    # removing downloaded file
+    file.remove("UNITE_v2020_February2020.RData")
+
+    ranks <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")
+
+} else { 
+
+    cat("\n\n  The requested target_region of ", target_region, " is not accepted.\n\n")
+    quit(status = 1)
+}
 
     # classifying
 cat("\n\n  Assigning taxonomy...\n\n")
@@ -157,8 +176,15 @@ tax_info <- IdTaxa(dna, trainingSet, strand="both", processors=NULL)
 asv_seqs <- colnames(seqtab.nochim)
 asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
 
-for (i in 1:dim(seqtab.nochim)[2]) {
-    asv_headers[i] <- paste(">ASV", i, sep="_")
+# adding additional prefix to ASV headers of target region if one was provided
+if ( output_prefix != "" ) {
+    for (i in 1:dim(seqtab.nochim)[2]) {
+        asv_headers[i] <- paste(">ASV", target_region, i, sep="_")
+    }
+} else {
+    for (i in 1:dim(seqtab.nochim)[2]) {
+        asv_headers[i] <- paste(">ASV", i, sep="_")
+    }
 }
 
 cat("\n\n  Making and writing outputs...\n\n")
@@ -175,8 +201,7 @@ asv_tab <- data.frame("ASV_ID"=asv_ids, asv_tab, check.names=FALSE)
 write.table(asv_tab, paste0(final_outputs_dir, output_prefix, "counts.tsv"), sep="\t", quote=F, row.names=FALSE)
 
     # making and writing out a taxonomy table:
-    # creating vector of desired ranks
-ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species")
+    # vector of desired ranks was created above in ITS/16S target_region if statement
 
     # creating table of taxonomy and setting any that are unclassified as "NA"
 tax_tab <- t(sapply(tax_info, function(x) {
@@ -188,7 +213,13 @@ tax_tab <- t(sapply(tax_info, function(x) {
 
 colnames(tax_tab) <- ranks
 row.names(tax_tab) <- NULL
-tax_tab <- data.frame("ASV_ID"=asv_ids, tax_tab, check.names=FALSE)
+
+# need to add a column for domain if this is ITS
+if (target_region == "ITS" ) {
+    tax_tab <- data.frame("ASV_ID"=asv_ids, "domain"="Eukarya", tax_tab, check.names=FALSE)
+} else {
+    tax_tab <- data.frame("ASV_ID"=asv_ids, tax_tab, check.names=FALSE)
+}
 
 write.table(tax_tab, paste0(final_outputs_dir, output_prefix, "taxonomy.tsv"), sep = "\t", quote=F, row.names=FALSE)
 

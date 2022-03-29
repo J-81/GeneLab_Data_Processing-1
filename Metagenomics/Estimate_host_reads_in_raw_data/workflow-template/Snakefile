@@ -16,16 +16,6 @@ See the corresponding 'config.yaml' file for general use information.
 Variables that may need to be adjusted should be changed there, not here.
 """
 
-## example usage command ##
-# snakemake --use-conda --conda-prefix ${CONDA_PREFIX}/envs -j 2 -p
-
-# `--use-conda` – this specifies to use the conda environments included in the workflow
-# `--conda-prefix` – this allows us to point to where the needed conda environments should be stored. Including this means if we use the workflow on a different dataset somewhere else in the future, it will re-use the same conda environments rather than make new ones. The value listed here, `${CONDA_PREFIX}/envs`, is the default location for conda environments (the variable `${CONDA_PREFIX}` will be expanded to the appropriate location on whichever system it is run on).
-# `-j` – this lets us set how many jobs Snakemake should run concurrently (keep in mind that many of the thread and cpu parameters set in the config.yaml file will be multiplied by this)
-# `-p` – specifies to print out each command being run to the screen
-
-# See `snakemake -h` for more options and details.
-
 
 ########################################
 #### Reading samples file into list ####
@@ -57,33 +47,65 @@ rule all:
         "Host-read-count-summary.tsv"
 
 
-rule run_kraken2:
-    conda:
-        "envs/kraken2.yaml"
-    input:
-        R1 = config["input_reads_dir"] + "{ID}" + config["input_R1_suffix"],
-        R2 = config["input_reads_dir"] + "{ID}" + config["input_R2_suffix"],
-    output:
-        main = config["kraken_outputs"] + "{ID}-kraken2-output.txt",
-        report = config["kraken_outputs"] + "{ID}-kraken2-report.tsv",
-        summary = "{ID}-removal-info.tmp"
-    params:
-        kraken2_db_dir = config["REF_DB_DIR"]
-    resources:
-        cpus = config["num_threads"]
-    log:
-        config["logs_dir"] + "{ID}-kraken2-run.log"
-    shell:
-        """
-        kraken2 --db {params.kraken2_db_dir} --gzip-compressed --threads {resources.cpus} --use-names --paired --output {output.main} --report {output.report} {input.R1} {input.R2} > {log} 2>&1
+# kraken rule depends on if single-end or paired-end data
+if config["single_end_data"] != "TRUE":
+    # kraken rule if paired-end data 
+    rule kraken2_PE:
+        conda:
+            "envs/kraken2.yaml"
+        input:
+            R1 = config["input_reads_dir"] + "{ID}" + config["input_R1_suffix"],
+            R2 = config["input_reads_dir"] + "{ID}" + config["input_R2_suffix"]
+        output:
+            main = config["kraken_outputs"] + "{ID}-kraken2-output.txt",
+            report = config["kraken_outputs"] + "{ID}-kraken2-report.tsv",
+            summary = "{ID}-removal-info.tmp"
+        params:
+            kraken2_db_dir = config["REF_DB_DIR"]
+        resources:
+            cpus = config["num_threads"]
+        log:
+            config["logs_dir"] + "{ID}-kraken2-run.log"
+        shell:
+            """
+            kraken2 --db {params.kraken2_db_dir} --gzip-compressed --threads {resources.cpus} --use-names --paired --output {output.main} --report {output.report} {input.R1} {input.R2} > {log} 2>&1
 
-        # making summary info
-        total_fragments=$(wc -l {output.main} | sed 's/^ *//' | cut -f 1 -d " ")
-        fragments_classified=$(grep -w -c "^C" {output.main})
-        perc_host=$(printf "%.2f\n" $(echo "scale=4; ${{fragments_classified}} / ${{total_fragments}} * 100" | bc -l))
+            # making summary info
+            total_fragments=$(wc -l {output.main} | sed 's/^ *//' | cut -f 1 -d " ")
+            fragments_classified=$(grep -w -c "^C" {output.main})
+            perc_host=$(printf "%.2f\n" $(echo "scale=4; ${{fragments_classified}} / ${{total_fragments}} * 100" | bc -l))
 
-        printf "{wildcards.ID}\t${{total_fragments}}\t${{fragments_classified}}\t${{perc_host}}\n" > {output.summary}
-        """
+            printf "{wildcards.ID}\t${{total_fragments}}\t${{fragments_classified}}\t${{perc_host}}\n" > {output.summary}
+            """
+
+else:
+    # kraken rule if single-end data
+    rule kraken2_SE:
+        conda:
+            "envs/kraken2.yaml"
+        input:
+            reads = config["input_reads_dir"] + "{ID}" + config["input_read_suffix"]
+        output:
+            main = config["kraken_outputs"] + "{ID}-kraken2-output.txt",
+            report = config["kraken_outputs"] + "{ID}-kraken2-report.tsv",
+            summary = "{ID}-removal-info.tmp"
+        params:
+            kraken2_db_dir = config["REF_DB_DIR"]
+        resources:
+            cpus = config["num_threads"]
+        log:
+            config["logs_dir"] + "{ID}-kraken2-run.log"
+        shell:
+            """
+            kraken2 --db {params.kraken2_db_dir} --gzip-compressed --threads {resources.cpus} --use-names --output {output.main} --report {output.report} {input.reads} > {log} 2>&1
+
+            # making summary info
+            total_fragments=$(wc -l {output.main} | sed 's/^ *//' | cut -f 1 -d " ")
+            fragments_classified=$(grep -w -c "^C" {output.main})
+            perc_host=$(printf "%.2f\n" $(echo "scale=4; ${{fragments_classified}} / ${{total_fragments}} * 100" | bc -l))
+
+            printf "{wildcards.ID}\t${{total_fragments}}\t${{fragments_classified}}\t${{perc_host}}\n" > {output.summary}
+            """
 
 
 rule combine_summary_info:

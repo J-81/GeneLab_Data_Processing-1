@@ -7,9 +7,10 @@
 ##################### VARIABLES TO SET #####################
 ############################################################
 
-#############################################################
-##### These first 5 need to match what is on our system #####
-#############################################################
+############################################################################
+##### This first set of variables needs to match what is on our system #####
+############################################################################
+
 
 ## single-column file with unique sample identifiers:
 sample_info_file:
@@ -19,12 +20,20 @@ sample_info_file:
 input_reads_dir:
     "example-reads/"
 
+## if data are single-end only (only one read-file per sample), set this to "TRUE", anything else is considered paired-end
+single_end_data:
+    ""
+
 ## raw read suffixes (region following the unique part of the sample names)
   # e.g. for "Sample-1_R1_raw.fastq.gz" would be "_R1_raw.fastq.gz"
 input_R1_suffix:
     "_R1.fastq.gz"
 input_R2_suffix:
     "_R2.fastq.gz"
+
+    # if single-end data, set this one (others above don't matter)
+input_read_suffix:
+    "_raw.fastq.gz"
 
 ## directory holding kraken2 reference databas
     # this should be provided as a full path (starting with `/` as the below example
