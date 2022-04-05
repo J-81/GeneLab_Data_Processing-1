@@ -13,7 +13,7 @@ Amanda Saravia-Butler (GeneLab Data Processing Team)
 
 **Approved by:**  
 Sylvain Costes (GeneLab Project Manager)  
-Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)   
+Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)
 Jonathan Galazka (GeneLab Project Scientist)
 
 ---
@@ -21,10 +21,12 @@ Jonathan Galazka (GeneLab Project Scientist)
 ## Updates from previous revision
 
 Two additional sub-steps were added to step 4:
+
 - A step to compile the alignment log files using multiQC, [step 4b](#4b-compile-alignment-logs)
 - A step to index the alignment files, [step 4c](#4c-index-aligned-reads), which is required to assess read strandedness
 
 Two additional steps were added prior to aligned read quantitation:
+
 - Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
 - Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
 
@@ -32,6 +34,7 @@ The aligned read quantitation step, now [step 8](#8-count-aligned-reads-with-rse
 > Note: A subset of samples from all datasets previously processed were evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
 
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
+
 - Perform ERCC normalization using only ERCC group B genes, since the concentration of these genes are the same in ERCC mix 1 and mix 2
 - Remove any samples that do not contain detectible ERCC group B spike-ins prior to generation and subsequent analysis of ERCC-normalized count data
 - Account for the edge case in which rescaling using ERCC size factors fails due to zero gene counts
@@ -42,31 +45,29 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
 
 # Table of contents  
 
-- [**Software used**](#software-used)
-- [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
-  - **1. Raw Data QC**
-    - [**1a. Raw Data QC**](#1a-raw-data-qc)
-    - [**1b. Compile Raw Data QC**](#1b-compile-raw-data-qc)
-  - **2. Trim/Filter Raw Data and Trimmed Data QC**
-    - [**2a. Trim/Filter Raw Data**](#2a-trimfilter-raw-data)
-    - [**2b. Trimmed Data QC**](#2b-trimmed-data-qc)
-    - [**2c. Compile Trimmed Data QC**](#2c-compile-trimmed-data-qc)
-  - [**3. Build STAR Reference**](#3-build-star-reference)
-  - **4. Align Reads to Reference Genome then Index**
-    - [**4a. Align Reads to Reference Genome with STAR**](#4a-align-reads-to-reference-genome-with-star)
-    - [**4b. Compile Alignment Logs**](#4b-compile-alignment-logs)
-    - [**4c. Index Aligned Reads**](#4c-index-aligned-reads)
-  - **5. Create Reference BED File**
-    - [**5a. Convert GTF to genePred File**](#5a-convert-gtf-to-genepred-file)
-    - [**5b. Convert genePred to BED File**](#5b-convert-genepred-to-bed-file)
-  - **6. Assess Strandedness**
-    - [**6a. Determine Read Strandedness**](#6a-determine-read-strandedness)
-    - [**6b. Compile Strandedness Reports**](#6b-compile-strandedness-reports)
-  - [**7. Build RSEM Reference**](#7-build-rsem-reference)
-  - [**8. Count Aligned Reads with RSEM**](#8-count-aligned-reads-with-rsem)
-  - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
-    - [**9a. For Datasets with ERCC Spike-In**](#9a-for-datasets-with-ercc-spike-in)
-    - [**9b. For Datasets without ERCC Spike-In**](#9b-for-datasets-without-ercc-spike-in)
+- [GeneLab bioinformatics processing pipeline for Illumina RNA-sequencing data](#genelab-bioinformatics-processing-pipeline-for-illumina-rna-sequencing-data)
+  - [Updates from previous revision](#updates-from-previous-revision)
+- [Table of contents](#table-of-contents)
+- [Software used](#software-used)
+- [General processing overview with example commands](#general-processing-overview-with-example-commands)
+  - [1a. Raw Data QC](#1a-raw-data-qc)
+  - [1b. Compile Raw Data QC](#1b-compile-raw-data-qc)
+  - [2a. Trim/Filter Raw Data](#2a-trimfilter-raw-data)
+  - [2b. Trimmed Data QC](#2b-trimmed-data-qc)
+  - [2c. Compile Trimmed Data QC](#2c-compile-trimmed-data-qc)
+  - [3. Build STAR Reference](#3-build-star-reference)
+  - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
+  - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
+  - [4c. Index Aligned Reads](#4c-index-aligned-reads)
+  - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
+  - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
+  - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
+  - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
+  - [7. Build RSEM Reference](#7-build-rsem-reference)
+  - [8. Count Aligned Reads with RSEM](#8-count-aligned-reads-with-rsem)
+  - [9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
+    - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
+    - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
   
 ---
 
@@ -99,7 +100,7 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
 |org.EcK12.eg.db|`packageVersion("org.EcK12.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html)|
 |org.Sc.sgd.db|`packageVersion("org.Sc.sgd.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html)|
 
->**\*** Exact versions are available along with the processing commands for each specific dataset in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory. 
+>**\*** Exact versions are available along with the processing commands for each specific dataset in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory.
 
 ---
 
@@ -111,19 +112,21 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
 
 ## 1a. Raw Data QC  
 
-```
+```bash
 fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ```
 
 **Parameter Definitions:**
 
-* `-o` – the output directory to store results
-* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+- `-o` – the output directory to store results
+- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
 
 **Input Data:**
+
 - *fastq.gz (raw reads)
 
 **Output Data:**
+
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
@@ -131,21 +134,23 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 
 ## 1b. Compile Raw Data QC  
 
-```
+```bash
 multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
 
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
 
 **Input Data:**
+
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
+
 - raw_multiqc.html (multiqc report)
 - raw_multiqc_data (directory containing multiqc data)
 
@@ -155,7 +160,7 @@ multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directo
 
 ## 2a. Trim/Filter Raw Data  
 
-```
+```bash
 trim_galore --gzip \
   --path_to_cutadapt /path/to/cutadapt \
   --phred33 \
@@ -169,18 +174,20 @@ trim_galore --gzip \
 
 **Parameter Definitions:**
 
-* `--gzip` – compress the output files with `gzip`
-* `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
-* `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
-* `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
-* `--output_dir` - the output directory to store results
-* `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
-* `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
+- `--gzip` – compress the output files with `gzip`
+- `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
+- `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
+- `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
+- `--output_dir` - the output directory to store results
+- `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
+- `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
 
 **Input Data:**
+
 - *fastq.gz (raw reads)
 
 **Output Data:**
+
 - *fastq.gz (trimmed reads)
 - *trimming_report.txt (trimming report)
 
@@ -188,19 +195,21 @@ trim_galore --gzip \
 
 ## 2b. Trimmed Data QC  
 
-```
+```bash
 fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 ```
 
 **Parameter Definitions:**
 
-* `-o` – the output directory to store results
-* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+- `-o` – the output directory to store results
+- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
 
 **Input Data:**
+
 - *fastq.gz (trimmed reads)
 
 **Output Data:**
+
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
@@ -208,21 +217,23 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 
 ## 2c. Compile Trimmed Data QC  
 
-```
+```bash
 multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
 ```
 
 **Parameter Definitions:**
 
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
 
 **Input Data:**
+
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
+
 - trimmed_multiqc.html (multiqc report)
 - trimmed_multiqc_data (directory containing multiqc data)
 
@@ -232,7 +243,7 @@ multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to
 
 ## 3. Build STAR Reference  
 
-```
+```bash
 STAR --runThreadN NumberOfThreads \
   --runMode genomeGenerate \
   --limitGenomeGenerateRAM 55000000000 \
@@ -246,16 +257,17 @@ STAR --runThreadN NumberOfThreads \
 
 **Parameter Definitions:**
 
-* `--runThreadN` – number of threads available on server node to create STAR reference
-* `--runMode` - instructs STAR to run genome indices generation job
-* `--limitGenomeGenerateRAM` - maximum RAM available (in bytes) to generate STAR reference, at least 35GB are needed for mouse and the example above shows 55GB
-* `--genomeSAindexNbases` - length (in bases) of the SA pre-indexing string, usually between 10 and 15. Longer strings require more memory but allow for faster searches. This value should be scaled down for smaller genomes (like bacteria) to min(14, log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would be 9.
-* `--genomeDir` - specifies the path to the directory where the STAR reference will be stored. At least 100GB of available disk space is required for mammalian genomes.
-* `--genomeFastaFiles` - specifies one or more fasta file(s) containing the genome reference sequences
-* `--sjdbGTFfile` – specifies the file(s) containing annotated transcripts in the standard gtf format
-* `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the maximum length of the reads.
+- `--runThreadN` – number of threads available on server node to create STAR reference
+- `--runMode` - instructs STAR to run genome indices generation job
+- `--limitGenomeGenerateRAM` - maximum RAM available (in bytes) to generate STAR reference, at least 35GB are needed for mouse and the example above shows 55GB
+- `--genomeSAindexNbases` - length (in bases) of the SA pre-indexing string, usually between 10 and 15. Longer strings require more memory but allow for faster searches. This value should be scaled down for smaller genomes (like bacteria) to min(14, log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would be 9.
+- `--genomeDir` - specifies the path to the directory where the STAR reference will be stored. At least 100GB of available disk space is required for mammalian genomes.
+- `--genomeFastaFiles` - specifies one or more fasta file(s) containing the genome reference sequences
+- `--sjdbGTFfile` – specifies the file(s) containing annotated transcripts in the standard gtf format
+- `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the maximum length of the reads.
 
 **Input Data:**
+
 - *.fasta (genome sequence\#)
 - *.gtf (genome annotation\#)
 
@@ -264,6 +276,7 @@ STAR --runThreadN NumberOfThreads \
 **Output Data:**
 
 STAR genome reference, which consists of the following files:
+
 - chrLength.txt
 - chrNameLength.txt
 - chrName.txt
@@ -286,64 +299,65 @@ STAR genome reference, which consists of the following files:
 
 ## 4a. Align Reads to Reference Genome with STAR
 
-```
+```bash
 STAR --twopassMode Basic \
-	--limitBAMsortRAM 65000000000 \
-	--genomeDir /path/to/STAR/genome/directory \
-	--outSAMunmapped Within \
-	--outFilterType BySJout \
-	--outSAMattributes NH HI AS NM MD MC \
-	--outFilterMultimapNmax 20 \
-	--outFilterMismatchNmax 999 \
-	--outFilterMismatchNoverReadLmax 0.04 \
-	--alignIntronMin 20 \
-	--alignIntronMax 1000000 \
-	--alignMatesGapMax 1000000 \ # for PE only
-	--alignSJoverhangMin 8 \
-	--alignSJDBoverhangMin 1 \
-	--sjdbScore 1 \
-	--readFilesCommand zcat \
-	--runThreadN NumberOfThreads \
-	--outSAMtype BAM SortedByCoordinate \
-	--quantMode TranscriptomeSAM \
-	--outSAMheaderHD @HD VN:1.4 SO:coordinate \
-	--outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
-	--readFilesIn /path/to/trimmed_forward_reads \
-	/path/to/trimmed_reverse_reads # only needed for PE studies
+ --limitBAMsortRAM 65000000000 \
+ --genomeDir /path/to/STAR/genome/directory \
+ --outSAMunmapped Within \
+ --outFilterType BySJout \
+ --outSAMattributes NH HI AS NM MD MC \
+ --outFilterMultimapNmax 20 \
+ --outFilterMismatchNmax 999 \
+ --outFilterMismatchNoverReadLmax 0.04 \
+ --alignIntronMin 20 \
+ --alignIntronMax 1000000 \
+ --alignMatesGapMax 1000000 \ # for PE only
+ --alignSJoverhangMin 8 \
+ --alignSJDBoverhangMin 1 \
+ --sjdbScore 1 \
+ --readFilesCommand zcat \
+ --runThreadN NumberOfThreads \
+ --outSAMtype BAM SortedByCoordinate \
+ --quantMode TranscriptomeSAM \
+ --outSAMheaderHD @HD VN:1.4 SO:coordinate \
+ --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
+ --readFilesIn /path/to/trimmed_forward_reads \
+ /path/to/trimmed_reverse_reads # only needed for PE studies
 
 ```
 
 **Parameter Definitions:**
 
-* `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
-* `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
-* `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-* `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
-* `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
-* `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
-* `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
-* `--outFilterMismatchNmax` - maximum number of mismatches allowed to be included in the alignment output
-* `--outFilterMismatchNoverReadLmax` - ratio of mismatches to read length allowed to be included in the alignment output; the `0.04` value indicates that up to 4 mismatches are allowed per 100 bases
-* `--alignIntronMin` - minimum intron size; a genomic gap is considered an intron if its length is equal to or greater than this value, otherwise it is considered a deletion
-* `--alignIntronMax` - maximum intron size
-* `--alignMatesGapMax` - maximum genomic distance (in bases) between two mates of paired-end reads; this option should be removed for single-end reads
-* `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
-* `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
-* `--sjdbScore` - additional alignment score for alignments that cross database junctions
-* `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
-* `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
-* `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
-* `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome
-* `--outSAMheaderHD` - indicates a header line for the sam/bam file
-* `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
-* `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated 
-
+- `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
+- `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
+- `--genomeDir` - specifies the path to the directory where the STAR reference is stored
+- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
+- `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
+- `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
+- `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
+- `--outFilterMismatchNmax` - maximum number of mismatches allowed to be included in the alignment output
+- `--outFilterMismatchNoverReadLmax` - ratio of mismatches to read length allowed to be included in the alignment output; the `0.04` value indicates that up to 4 mismatches are allowed per 100 bases
+- `--alignIntronMin` - minimum intron size; a genomic gap is considered an intron if its length is equal to or greater than this value, otherwise it is considered a deletion
+- `--alignIntronMax` - maximum intron size
+- `--alignMatesGapMax` - maximum genomic distance (in bases) between two mates of paired-end reads; this option should be removed for single-end reads
+- `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
+- `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
+- `--sjdbScore` - additional alignment score for alignments that cross database junctions
+- `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
+- `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
+- `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
+- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome
+- `--outSAMheaderHD` - indicates a header line for the sam/bam file
+- `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
+- `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated
 
 **Input Data:**
+
 - STAR genome reference (output from Step 3)
 - *fastq.gz (trimmed reads)
 
 **Output Data:**
+
 - *Aligned.sortedByCoord.out.bam# (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam# (sorted mapping to transcriptome)
 - *Log.final.out# (log file containing alignment info/stats such as reads mapped, etc)
@@ -359,46 +373,50 @@ STAR --twopassMode Basic \
 - *_STARtmp (directory containing the following:)
   - BAMsort (directory containing subdirectories that are empty – this was the location for temp files that were automatically removed after successful completion)
 
-\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects). 
+\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
 <br>
 
-## 4b. Compile Alignment Logs 
+## 4b. Compile Alignment Logs
 
-```
+```bash
 multiqc -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
 ```
 
 **Parameter Definitions:**
 
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
+
 - *Log.final.out (log file conting alignment info/stats such as reads mapped, etc. from step 4a)
 
 **Output Data:**
+
 - align_multiqc.html (multiqc report)
 - align_multiqc_data (directory containing multiqc data)
 
 <br>
 
-## 4c. Index Aligned Reads 
+## 4c. Index Aligned Reads
 
-```
+```bash
 samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 ```
 
 **Parameter Definitions:**
 
-* `-@` - number of threads available on server node to index alignment files
-* `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+- `-@` - number of threads available on server node to index alignment files
+- `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
+
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
+
 - *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
 
 <br>
@@ -407,7 +425,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 
 ## 5a. Convert GTF to genePred File  
 
-```
+```bash
 gtfToGenePred -geneNameAsName2 \
   /path/to/annotation/gtf/file \
   /path/to/output/genePred/file
@@ -416,37 +434,40 @@ gtfToGenePred -geneNameAsName2 \
 
 **Parameter Definitions:**
 
-* `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
-* `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
-* `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
+- `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
+- `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
+- `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
 
 **Input Data:**
+
 - *.gtf (genome annotation\#)
 
 \#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
 **Output Data:**
+
 - *.genePred (genome annotation in genePred format)
 
 <br>
 
 ## 5b. Convert genePred to BED File  
 
-```
+```bash
 genePredToBed /path/to/annotation/genePred/file \
   /path/to/output/BED/file
-
 ```
 
 **Parameter Definitions:**
 
-* `/path/to/annotation/genePred/file` – specifies the file(s) containing annotated reference transcripts in the genePred format, provided as a positional argument
-* `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
+- `/path/to/annotation/genePred/file` – specifies the file(s) containing annotated reference transcripts in the genePred format, provided as a positional argument
+- `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
 
 **Input Data:**
+
 - *.genePred (genome annotation in genePred format, from step 5a)
 
 **Output Data:**
+
 - *.bed (genome annotation in BED format)
 
 <br>
@@ -455,46 +476,50 @@ genePredToBed /path/to/annotation/genePred/file \
 
 ## 6a. Determine Read Strandedness
 
-```
+```bash
 infer_experiment.py -r /path/to/annotation/BED/file \
-	-i /path/to/*Aligned.sortedByCoord.out.bam \
-	-s 15000000 > /path/to/*infer_expt.out
+ -i /path/to/*Aligned.sortedByCoord.out.bam \
+ -s 15000000 > /path/to/*infer_expt.out
 ```
 
 **Parameter Definitions:**
 
-* `-r` – specifies the path to the reference annotation BED file
-* `-i` - specifies the path to the input bam file(s)
-* `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
-* `>` - redirects standard output to specified file
-* `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
+- `-r` – specifies the path to the reference annotation BED file
+- `-i` - specifies the path to the input bam file(s)
+- `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
+- `>` - redirects standard output to specified file
+- `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
 
 **Input Data:**
+
 - *.bed (genome annotation in BED format, output from step 5b)
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
 
 **Output Data:**
+
 - *infer_expt.out (file containing the infer_experiment standard output)
 
 <br>
 
 ## 6b. Compile Strandedness Reports
 
-```
+```basj
 multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
 ```
 
 **Parameter Definitions:**
 
-* `-n` - prefix name for output files
-* `-o` – the output directory to store results
-* `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
 
 **Input Data:**
+
 - *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
 
 **Output Data:**
+
 - infer_exp_multiqc.html (multiqc report)
 - infer_exp_multiqc_data (directory containing multiqc data)
 
@@ -504,20 +529,21 @@ multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /pat
 
 ## 7. Build RSEM Reference
 
-```
+```bash
 rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
-	/path/to/genome/fasta/file \
-	/path/to/RSEM/genome/directory/RSEM_ref_prefix
+ /path/to/genome/fasta/file \
+ /path/to/RSEM/genome/directory/RSEM_ref_prefix
 
 ```
 
 **Parameter Definitions:**
 
-* `--gtf` – specifies the file(s) containing annotated transcripts in the standard gtf format
-* `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containing the genome reference sequences, provided as a positional argument
-* `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference will be stored and the prefix desired for the RSEM reference files, provided as a positional argument 
+- `--gtf` – specifies the file(s) containing annotated transcripts in the standard gtf format
+- `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containing the genome reference sequences, provided as a positional argument
+- `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference will be stored and the prefix desired for the RSEM reference files, provided as a positional argument
 
 **Input Data:**
+
 - *.fasta (genome sequence\#)
 - *.gtf (genome annotation\#)
 
@@ -526,6 +552,7 @@ rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
 **Output Data:**
 
 RSEM genome reference, which consists of the following files:
+
 - RSEM_ref_prefix.chrlist
 - RSEM_ref_prefix.grp
 - RSEM_ref_prefix.idx.fa
@@ -540,46 +567,47 @@ RSEM genome reference, which consists of the following files:
 
 ## 8. Count Aligned Reads with RSEM
 
-```
+```bash
 rsem-calculate-expression --num-threads NumberOfThreads \
-	--alignments \
-	--bam \
-	--paired-end \
-	--seed 12345 \
-	--estimate-rspd \
-	--no-bam-output \
-	--strandedness reverse|forward|none \
-	/path/to/*Aligned.toTranscriptome.out.bam \
-	/path/to/RSEM/genome/directory/RSEM_ref_prefix \
-	/path/to/RSEM/counts/output/directory/<sample_id>
-
+ --alignments \
+ --bam \
+ --paired-end \
+ --seed 12345 \
+ --estimate-rspd \
+ --no-bam-output \
+ --strandedness reverse|forward|none \
+ /path/to/*Aligned.toTranscriptome.out.bam \
+ /path/to/RSEM/genome/directory/RSEM_ref_prefix \
+ /path/to/RSEM/counts/output/directory/<sample_id>
 ```
 
 **Parameter Definitions:**
 
-* `--num-threads` – specifies the number of threads to use
-* `--alignments` - indicates that the input file contains alignments in sam, bam, or cram format
-* `--bam` - specifies that the input alignments are in bam format
-* `--paired-end` - indicates that the input reads are paired-end reads; this option should be removed if the input reads are single-end
-* `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
-* `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data 
-* `--no-bam-output` - instructs RSEM not to output any bam file
-* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
-* `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
-* `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
-* `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
+- `--num-threads` – specifies the number of threads to use
+- `--alignments` - indicates that the input file contains alignments in sam, bam, or cram format
+- `--bam` - specifies that the input alignments are in bam format
+- `--paired-end` - indicates that the input reads are paired-end reads; this option should be removed if the input reads are single-end
+- `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
+- `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data
+- `--no-bam-output` - instructs RSEM not to output any bam file
+- `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense
+- `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
+- `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
+- `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 
 **Input Data:**
+
 - RSEM genome reference (output from Step 7)
 - *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
+
 - *genes.results (counts per gene)
 - *isoforms.results (counts per isoform)
 - *stat (directory containing the following stats files)
-	- *cnt
-	- *model
-	- *theta
+  - *cnt
+  - *model
+  - *theta
 
 <br>
 
@@ -589,9 +617,7 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 
 <br>
 
-
 ### 9a. For Datasets with ERCC Spike-In
-
 
 ```R
 ## Install R packages if not already installed
@@ -1165,13 +1191,15 @@ sessionInfo()
 ```
 
 **Input Data:**
+
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 - [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
 - *genes.results (RSEM counts per gene, output from step 6)
 
 **Output Data:**
 
-Output data without considering ERCC spike-in genes: 
+Output data without considering ERCC spike-in genes:
+
 - Unnormalized_Counts.csv\#
 - Normalized_Counts.csv\#
 - SampleTable.csv\#
@@ -1181,6 +1209,7 @@ Output data without considering ERCC spike-in genes:
 - contrasts.csv\#
 
 Output data with considering ERCC spike-in genes:
+
 - ERCC_rawCounts_unfiltered.csv (ERCC unfiltered counts table)
 - ERCC_rawCounts_filtered.csv (ERCC counts table after removing ERCC genes with low counts)
 - ERCC_Normalized_Counts.csv\#
@@ -1197,9 +1226,7 @@ Output data with considering ERCC spike-in genes:
 
 ---
 
-
 ### 9b. For Datasets without ERCC Spike-In
-
 
 ```R
 ## Install R packages if not already installed
@@ -1523,7 +1550,8 @@ sessionInfo()
 ```
 
 **Input Data:**
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
+
+- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the \*ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 - [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
 - *genes.results (RSEM counts per gene, output from step 6)
 
