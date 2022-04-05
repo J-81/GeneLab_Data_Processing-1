@@ -585,6 +585,62 @@ multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/
 
 ---
 
+## 6c. Assess GeneBody Coverage
+
+```bash
+geneBody_coverage.py -r /path/to/annotation/BED/file \
+ -i /path/to/*Aligned.sortedByCoord_sorted.out.bam \
+ -o /path/to/geneBody_coverage/output/directory/<sample_id>
+```
+
+**Parameter Definitions:**
+
+- `-r` – specifies the path to the reference annotation BED file
+- `-i` - specifies the path to the input bam file(s)
+- `-o` - specifies the path to the output directory
+- `/path/to/geneBody_coverage/output/directory/<sample_id>` - specifies the location and name of the directory containing the geneBody_coverage output files
+
+**Input Data:**
+
+- *.bed (genome annotation in BED format, output from [step 5b](#5b-convert-genepred-to-bed-file))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
+
+**Output Data:**
+
+- *.geneBodyCoverage.curves.pdf (genebody coverage line plot)
+- *.geneBodyCoverage.r (R script that generates the genebody coverage line plot)
+- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values used to generate the line plot)
+
+<br>
+
+---
+
+## 6d. Compile GeneBody Coverage Reports
+
+```bash
+multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_multiqc/output/directory /path/to/geneBody_coverage/output/directories
+```
+
+**Parameter Definitions:**
+
+- `--interactive` - force reports to use interactive plots
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/geneBody_coverage/output/directories` – the directory holding the geneBody_coverage output directories from [step 6c](#6c-assess-genebody-coverage), provided as a positional argument
+
+**Input Data:**
+
+- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values from [step 6c](#6c-assess-genebody-coverage))
+
+**Output Data:**
+
+- geneBody_cov_multiqc.html (multiqc report)
+- geneBody_cov_multiqc_data (directory containing multiqc data)
+
+<br>
+
+---
 ## 7. Build RSEM Reference
 
 ```bash
