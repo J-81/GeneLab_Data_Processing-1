@@ -321,7 +321,7 @@ STAR --twopassMode Basic \
  --readFilesCommand zcat \
  --runThreadN NumberOfThreads \
  --outSAMtype BAM SortedByCoordinate \
- --quantMode TranscriptomeSAM \
+ --quantMode TranscriptomeSAM GeneCounts \
  --outSAMheaderHD @HD VN:1.4 SO:coordinate \
  --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
  --readFilesIn /path/to/trimmed_forward_reads \
@@ -349,7 +349,7 @@ STAR --twopassMode Basic \
 - `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
-- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome
+- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab delimited file containing number reads per gene
 - `--outSAMheaderHD` - indicates a header line for the sam/bam file
 - `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 - `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated
