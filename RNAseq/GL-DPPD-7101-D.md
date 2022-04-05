@@ -5,8 +5,8 @@
 ---
 
 **Date:** September 13, 2021  
-**Revision:** D  
-**Document Number:** GL-DPPD-7101-D  
+**Revision:** E  
+**Document Number:** GL-DPPD-7101-E  
 
 **Submitted by:**  
 Amanda Saravia-Butler (GeneLab Data Processing Team)
