@@ -404,7 +404,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 <br>
 
-## 4c. Generate STAR Counts Table
+## 4c. Tablulate STAR Counts
 
 ```R
 print("Make STAR counts table")
