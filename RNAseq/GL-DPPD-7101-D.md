@@ -1488,7 +1488,7 @@ reduced_output_table_2$GOSLIM_IDS <- vapply(reduced_output_table_2$GOSLIM_IDS, p
 ### Export human- and computer/visualization- readable DGE tables
 
 write.csv(output_table_2,file.path(DGE_output_ERCC, "visualization_output_table_ERCCnorm.csv"), row.names = FALSE)
-write.csv(contrasts,file.path(DGE_output_ERCC, "ERCCnorm_contrasts.csv"))
+write.csv(contrasts_sub,file.path(DGE_output_ERCC, "ERCCnorm_contrasts.csv"))
 write.csv(reduced_output_table_2,file.path(DGE_output_ERCC, "ERCCnorm_differential_expression.csv"), row.names = FALSE)
 
 ### Generate and export PCA table for GeneLab visualization plots
