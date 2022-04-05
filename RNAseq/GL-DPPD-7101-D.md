@@ -136,11 +136,12 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ## 1b. Compile Raw Data QC  
 
 ```bash
-multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
 
+- `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
 - `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
@@ -219,11 +220,12 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 ## 2c. Compile Trimmed Data QC  
 
 ```bash
-multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
+multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
 ```
 
 **Parameter Definitions:**
 
+- `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
 - `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
@@ -381,11 +383,12 @@ STAR --twopassMode Basic \
 ## 4b. Compile Alignment Logs
 
 ```bash
-multiqc -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
+multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
 ```
 
 **Parameter Definitions:**
 
+- `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
 - `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
@@ -505,12 +508,13 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 ## 6b. Compile Strandedness Reports
 
-```basj
-multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
+```bash
+multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
 ```
 
 **Parameter Definitions:**
 
+- `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
 - `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
