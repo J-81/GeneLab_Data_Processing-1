@@ -20,26 +20,39 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous revision
 
-Two additional sub-steps were added to step 4:
+[Software used](#software-used) now specifies exact version numbers.
+All multiQC compilation steps now force interactive plots: [1b](#1b-compile-raw-data-qc),[2c](#2c-compile-trimmed-data-qc),[4b](#4b-compile-alignment-logs),[6b](#6b-compile-strandedness-reports).
 
-- A step to compile the alignment log files using multiQC, [step 4b](#4b-compile-alignment-logs)
-- A step to index the alignment files, [step 4c](#4c-index-aligned-reads), which is required to assess read strandedness
+STAR Gene Counts now generated in the [step 4a](#4a-align-reads-to-reference-genome-with-star)
 
-Two additional steps were added prior to aligned read quantitation:
+- These counts are tabulated in new [step 4c](#4c-tablulate-star-counts)
 
-- Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
-- Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
+Additional RSeQC Analyses are performed after reference genome alignment as follows:
 
-The aligned read quantitation step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
-> Note: A subset of samples from all datasets previously processed were evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
+- GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports) respectively
+- For Paired End Datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports) respectively
+- Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports) respectively
 
-The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
+RSEM Count results are additionally summarized as follows:
 
-- Perform ERCC normalization using only ERCC group B genes, since the concentration of these genes are the same in ERCC mix 1 and mix 2
-- Remove any samples that do not contain detectible ERCC group B spike-ins prior to generation and subsequent analysis of ERCC-normalized count data
-- Account for the edge case in which rescaling using ERCC size factors fails due to zero gene counts
+- MultiQC is used to compile a RSEM count report in [step 8b](#8b-compile-rsem-count-logs)
+- These counts are tabulated in new [step 8c](#8c-tablulate-rsem-counts)
 
-Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the DGE output tables for datasets both with and without ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in) and [step 9b](#9b-for-datasets-without-ercc-spike-in), respectively, which will be used for GSEA visualizations
+The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
+
+- Fixed bug where `ERCCnorm_contrasts.csv` was always the same as the non-ERCC contrasts.csv
+  - Note: In most cases, these files are the same. They will only differ when, for the ERCC-based analysis, removal of samples with no detectable Group B ERCC spike-in results in the a complete removal of a factor group.
+
+The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), and without, [step 9b](#9b-for-datasets-without-ercc-spike-in) was modified as follows:
+
+- Input file regex modified to address bug that occured when certain sample IDs were substrings of other sample IDs (e.g. Sample1, Sample13)
+- Output file: `Unnormalized_Counts.csv` renamed to `RSEM_Unnormalized_Counts.csv` for clarity
+
+ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-counts-perform-deseq2-analysis-on-ercc-counts-analysis-of-ercc-counts-deseq2-analysis) as follows:
+
+- ERCC Counts are plotted and quantified [step 10a](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
+- DESeq2 differential gene expression between Mix 1 & 2 groups is performed on ERCC Counts[step 10b](#10b-perform-deseq2-analysis-of-ercc-counts)
+- DESeq2 results are analyzed compared to expected ERCC ratios [step 10c](#10c-analyze-ercc-count-deseq2-results)
 
 ---
 
@@ -81,7 +94,7 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
     - [10a. Perform ERCC Analysis and Tabulate ERCC Counts](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
     - [10b. Perform DESeq2 Analysis of ERCC Counts](#10b-perform-deseq2-analysis-of-ercc-counts)
     - [10c. Analyze ERCC Count DESeq2 Results](#10c-analyze-ercc-count-deseq2-results)
-  
+
 ---
 
 # Software used  
