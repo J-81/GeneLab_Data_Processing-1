@@ -1509,7 +1509,7 @@ sessionInfo()
 
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 - [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
-- *genes.results (RSEM counts per gene, output from step 6)
+- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
 
 **Output Data:**
 
