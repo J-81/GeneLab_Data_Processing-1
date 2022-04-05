@@ -73,7 +73,7 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
 
 # Software used  
 
-|Program|Version*|Relevant Links|
+|Program|Version|Relevant Links|
 |:------|:------:|:-------------|
 |FastQC|0.11.9|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC|1.12|[https://multiqc.info/](https://multiqc.info/)|
