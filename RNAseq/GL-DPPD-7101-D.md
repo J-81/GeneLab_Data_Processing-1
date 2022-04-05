@@ -795,7 +795,7 @@ RSEM genome reference, which consists of the following files:
 
 ---
 
-## 8. Count Aligned Reads with RSEM
+## 8a. Count Aligned Reads with RSEM
 
 ```bash
 rsem-calculate-expression --num-threads NumberOfThreads \
@@ -838,6 +838,91 @@ rsem-calculate-expression --num-threads NumberOfThreads \
   - *cnt
   - *model
   - *theta
+
+<br>
+
+---
+
+## 8b. Compile RSEM Count Logs
+
+```bash
+multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/directories
+```
+
+**Parameter Definitions:**
+
+- `--interactive` - force reports to use interactive plots
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/*stat/directories` – the directories holding the *stat output directory from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
+
+**Input Data:**
+
+- *stat (directory containing the following stats files)
+  - *cnt
+  - *model
+  - *theta
+
+**Output Data:**
+
+- RSEM_count_multiqc.html (multiqc report)
+- RSEM_count_multiqc_data (directory containing multiqc data)
+
+<br>
+
+---
+
+## 8c. Tablulate RSEM Counts
+
+```R
+library(tximport)
+library(tidyverse)
+
+work_dir="/path/to/working/directory/where/script/is/executed/from"
+counts_dir="/path/to/directory/containing/RSEM/counts/files"
+
+setwd(file.path(work_dir))
+
+### Pull in sample names ###
+samples <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
+
+##### Import RSEM Gene Count Data
+files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
+
+### reorder the genes.results files to match the ordering of the samples in the metadata file
+files <- files[sapply(rownames(samples), function(x)grep(paste0(x,'.genes.results$'), files, value=FALSE))]
+
+names(files) <- rownames(samples)
+txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
+
+##### Export unnormalized gene counts table
+setwd(file.path(counts_dir))
+write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
+
+##### Count the number of genes with non-zero counts for each sample 
+rawCounts <- txi.rsem$counts
+NumNonZeroGenes <- (as.matrix(colSums(rawCounts > 0), row.names = 1))
+colnames(NumNonZeroGenes) <- c("Number of genes with non-zero counts")
+
+##### Export the number of genes with non-zero counts for each sample
+setwd(file.path(counts_dir))
+write.csv(NumNonZeroGenes,file='NumNonZeroGenes.csv')
+
+## print session info ##
+print("Session Info below: ")
+print("")
+sessionInfo()
+```
+
+**Input Data:**
+
+- samples.txt (A newline delimited list of sample IDs)
+- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
+
+**Output Data:**
+
+- RSEM_Unnormalized_Counts.csv (RSEM counts table)
+- NumNonZeroGenes.csv (A samplewise table of the number of genes expressed)
 
 <br>
 
