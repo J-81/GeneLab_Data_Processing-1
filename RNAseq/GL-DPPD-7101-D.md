@@ -641,6 +641,68 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 <br>
 
 ---
+
+## 6e. Assess Inner Distance (For Paired End Datasets)
+
+```bash
+inner_distance.py -r /path/to/annotation/BED/file \
+ -i /path/to/*Aligned.sortedByCoord_sorted.out.bam \
+ -k 15000000 \
+ -l -150 \
+ -u 350 \
+ -o  /path/to/inner_distance/output/directory
+```
+
+**Parameter Definitions:**
+
+- `-r` – specifies the path to the reference annotation BED file
+- `-i` - specifies the path to the input bam file(s)
+- `-k` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
+- `-l` - specifies the lower bound of inner distance (bp).
+- `-u` - specifies the upper bound of inner distance (bp)
+- `/path/to/inner_distance/output/directory` - specifies the location and name of the directory containing the inner_distance output files
+
+**Input Data:**
+
+- ... *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
+
+**Output Data:**
+
+- *.inner_distance.txt (log of read-wise inner distance results)
+- *.inner_distance_freq.txt (tab delimited table of inner distances mapped to number of reads with that distance)
+- *.inner_distance_plot.pdf (histogram plot of inner distance distribution)
+- *.inner_distance_plot.r (R script that generates the histogram plot)
+
+<br>
+
+---
+
+## 6f. Compile Inner Distance Reports
+
+```bash
+multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/directory /path/to/inner_dist/output/directories
+```
+
+**Parameter Definitions:**
+
+- `--interactive` - force reports to use interactive plots
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/inner_dist/output/directories` – the directory holding the inner_distance output directories from [step 6e](#6e-aligned-reads-inner-distance-qc-for-paired-end-datasets), provided as a positional argument
+
+**Input Data:**
+
+- *.inner_distance_freq.txt (tab delimited table of inner distances from [step 6e](#6e-assess-inner-distance-for-paired-end-datasets))
+
+**Output Data:**
+
+- inner_distance_multiqc.html (multiqc report)
+- inner_distance_multiqc_data (directory containing multiqc data)
+
+<br>
+
+---
+
 ## 7. Build RSEM Reference
 
 ```bash
