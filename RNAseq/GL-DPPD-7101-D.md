@@ -404,7 +404,60 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 <br>
 
-## 4c. Index Aligned Reads
+## 4c. Generate STAR Counts Table
+
+```R
+print("Make STAR counts table")
+print("")
+
+work_dir="/path/to/working/directory/where/script/is/executed/from"
+align_dir="/path/to/directory/containing/STAR/counts/files"
+
+setwd(file.path(work_dir))
+
+### Pull in sample names ###
+study <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
+
+##### Import Data
+ff <- list.files(file.path(align_dir), pattern = "ReadsPerGene.out.tab", recursive=TRUE, full.names = TRUE)
+
+## Reorder the *genes.results files to match the ordering of the ISA samples
+ff <- ff[sapply(rownames(study), function(x)grep(paste0(x,'_ReadsPerGene.out.tab$'), ff, value=FALSE))]
+
+# Remove the first 4 lines
+counts.files <- lapply( ff, read.table, skip = 4 )
+
+# Get counts aligned to either strand for undtranded data by selecting col 2, to the first (forward) strand by selecting col 3 or to the second (reverse) strand by selecting col 4
+counts <- as.data.frame( sapply( counts.files, function(x) x[ , 3 ] ) )
+
+# Add column and row names
+colnames(counts) <- rownames(study)
+row.names(counts) <- counts.files[[1]]$V1
+
+
+##### Export unnormalized counts table
+setwd(file.path(align_dir))
+write.csv(counts,file='STAR_Unnormalized_Counts.csv')
+
+
+## print session info ##
+print("Session Info below: ")
+print("")
+sessionInfo()
+```
+
+**Input Data:**
+
+- samples.txt (A newline delimited list of sample IDs)
+- *ReadsPerGene.out.tab (STAR counts per gene, output from step 4a)
+
+**Output Data:**
+
+- STAR_Unnormalized_Counts.csv (STAR counts table)
+
+<br>
+
+## 4d. Index Aligned Reads
 
 ```bash
 samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
