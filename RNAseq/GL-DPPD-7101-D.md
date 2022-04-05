@@ -356,7 +356,7 @@ STAR --twopassMode Basic \
 
 **Input Data:**
 
-- STAR genome reference (output from Step 3)
+- STAR genome reference (output from [Step 3](#3-build-star-reference))
 - *fastq.gz (trimmed reads)
 
 **Output Data:**
