@@ -1221,7 +1221,7 @@ Output data with considering ERCC spike-in genes:
 
 \#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://genelab-data.ndc.nasa.gov/genelab/projects?page=1&paginate_by=25&viz=true).
+\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
 <br>
 
@@ -1568,6 +1568,6 @@ sessionInfo()
 
 \#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://genelab-data.ndc.nasa.gov/genelab/projects?page=1&paginate_by=25&viz=true).
+\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
 <br>
