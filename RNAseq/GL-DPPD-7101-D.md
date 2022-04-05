@@ -1649,7 +1649,7 @@ rm(contrast.names)
 files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
 
 ## Reorder the *genes.results files to match the ordering of the ISA samples
-files <- files[sapply(rownames(study), function(x)grep(x, files, value=FALSE, fixed=TRUE))]
+files <- files[sapply(rownames(study), function(x)grep(paste0(x,".genes.results$"), files, value=FALSE))]
 
 names(files) <- rownames(study)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
@@ -1685,7 +1685,7 @@ dds_1 <- DESeq(dds)
 
 normCounts = as.data.frame(counts(dds_1, normalized=TRUE))
 setwd(file.path(norm_output))
-write.csv(txi.rsem$counts,file='Unnormalized_Counts.csv')
+write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
 write.csv(normCounts,file='Normalized_Counts.csv')
 write.csv(sampleTable,file='SampleTable.csv')
 
