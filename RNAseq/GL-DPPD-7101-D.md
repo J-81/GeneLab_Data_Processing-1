@@ -703,6 +703,60 @@ multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/d
 
 ---
 
+## 6g. Assess Read Distribution
+
+```bash
+read_distribution.py -r /path/to/annotation/BED/file \
+ -i /path/to/*Aligned.sortedByCoord_sorted.out.bam > /path/to/*read_dist.out
+```
+
+**Parameter Definitions:**
+
+- `-r` – specifies the path to the reference annotation BED file
+- `-i` - specifies the path to the input bam file(s)
+- `>` - redirects standard output to specified file
+- `/path/to/*read_dist.out` - specifies the location and name of the file containing the read_distribution standard output
+
+**Input Data:**
+
+- *.bed (genome annotation in BED format, output from step 5b)
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
+
+**Output Data:**
+
+- *read_dist.out (file containing the read distribution standard output)
+
+<br>
+
+---
+
+## 6h. Compile Read Distribution Reports
+
+```bash
+multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/directory /path/to/*read_dist.out/files
+```
+
+**Parameter Definitions:**
+
+- `--interactive` - force reports to use interactive plots
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/*read_dist.out/files` – the directory holding the *read_dist.out output files from the [step 6g](#6g-assess-read-distribution) provided as a positional argument
+
+**Input Data:**
+
+- *read_dist.out (file containing the read_distributation standard output, from [step 6g](#6g-assess-read-distribution))
+
+**Output Data:**
+
+- read_dist_multiqc.html (multiqc report)
+- read_dist_multiqc_data (directory containing multiqc data)
+
+<br>
+
+---
+
 ## 7. Build RSEM Reference
 
 ```bash
