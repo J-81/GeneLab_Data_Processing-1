@@ -1041,7 +1041,7 @@ rm(contrast.names)
 files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
 
 ## Reorder the *genes.results files to match the ordering of the ISA samples
-files <- files[sapply(rownames(study), function(x)grep(x, files, value=FALSE, fixed=TRUE))]
+files <- files[sapply(rownames(study), function(x)grep(paste0(x,".genes.results$"), files, value=FALSE))]
 
 names(files) <- rownames(study)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
