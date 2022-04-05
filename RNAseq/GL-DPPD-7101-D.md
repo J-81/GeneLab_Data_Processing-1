@@ -21,7 +21,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 ## Updates from previous revision
 
 [Software used](#software-used) now specifies exact version numbers.
-All multiQC compilation steps now force interactive plots: [1b](#1b-compile-raw-data-qc),[2c](#2c-compile-trimmed-data-qc),[4b](#4b-compile-alignment-logs),[6b](#6b-compile-strandedness-reports).
+
+The following multiQC compilation steps now force interactive plots: 
+- [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
 
 STAR Gene Counts now generated in the [step 4a](#4a-align-reads-to-reference-genome-with-star)
 
