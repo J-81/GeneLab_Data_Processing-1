@@ -72,7 +72,8 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
   - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
   - [4c. Tablulate STAR Counts](#4c-tablulate-star-counts)
-  - [4d. Index Aligned Reads](#4d-index-aligned-reads)
+  - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
+  - [4e. Index Aligned Reads](#4e-index-aligned-reads)
   - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
   - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
   - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
@@ -483,20 +484,46 @@ sessionInfo()
 
 <br>
 
-## 4d. Index Aligned Reads
+## 4d. Sort Aligned Reads
 
 ```bash
-samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
+samtools sort -m 3G \
+	--threads NumberOfThreads \
+	-o /path/to/*_Aligned.sortedByCoord_sorted.out.bam \
+  /path/to/*Aligned.sortedByCoord.out.bam
+```
+
+**Parameter Definitions:**
+
+- `--threads` - number of threads available on server node to index alignment files
+- `/path/to/*Aligned.sortedByCoord.out.bam` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+
+**Input Data:**
+
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+
+**Output Data:**
+
+- *_Aligned.sortedByCoord_sorted.out.bam (samtools resorted bam file)
+
+<br>
+
+---
+
+## 4e. Index Aligned Reads
+
+```bash
+samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.bam
 ```
 
 **Parameter Definitions:**
 
 - `-@` - number of threads available on server node to index alignment files
-- `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+- `/path/to/*_Aligned.sortedByCoord_sorted.out.bam` – the directory holding the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
 
 **Input Data:**
 
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *_Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, from [step 4d](#4d-sort-aligned-reads))
 
 **Output Data:**
 
