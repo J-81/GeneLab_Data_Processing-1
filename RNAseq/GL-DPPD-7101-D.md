@@ -21,7 +21,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 ## Updates from previous revision
 
 [Software used](#software-used) now specifies exact version numbers.
-All multiQC compilation steps now force interactive plots: [1b](#1b-compile-raw-data-qc),[2c](#2c-compile-trimmed-data-qc),[4b](#4b-compile-alignment-logs),[6b](#6b-compile-strandedness-reports).
+
+The following multiQC compilation steps now force interactive plots: 
+- [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
 
 STAR Gene Counts now generated in the [step 4a](#4a-align-reads-to-reference-genome-with-star)
 
@@ -51,7 +53,7 @@ The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [ste
 ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-counts-perform-deseq2-analysis-on-ercc-counts-analysis-of-ercc-counts-deseq2-analysis) as follows:
 
 - ERCC Counts are plotted and quantified [step 10a](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
-- DESeq2 differential gene expression between Mix 1 & 2 groups is performed on ERCC Counts[step 10b](#10b-perform-deseq2-analysis-of-ercc-counts)
+- DESeq2 differential gene expression between Mix 1 & 2 groups is performed on ERCC Counts [step 10b](#10b-perform-deseq2-analysis-of-ercc-counts)
 - DESeq2 results are analyzed compared to expected ERCC ratios [step 10c](#10c-analyze-ercc-count-deseq2-results)
 
 ---
