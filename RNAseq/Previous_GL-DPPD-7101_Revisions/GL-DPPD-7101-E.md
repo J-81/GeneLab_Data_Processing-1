@@ -40,8 +40,8 @@ Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sor
 
 Additional RSeQC analyses are performed on genome aligned reads as follows:
 
-- GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
-- For paired end datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports), respectively
+- GeneBody coverage is evaluated and reports are compiled with multiQC in [step 6c](#6c-evaluate-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
+- For paired end datasets, inner distance is determined and reports are compiled with multiQC in [step 6e](#6e-determine-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports), respectively
 - Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports), respectively
 
 RSEM Count results are additionally summarized as follows:
@@ -91,9 +91,9 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC**]()
     - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
     - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
-    - [6c. Assess GeneBody Coverage](#6c-assess-genebody-coverage)
+    - [6c. Evaluate GeneBody Coverage](#6c-evaluate-genebody-coverage)
     - [6d. Compile GeneBody Coverage Reports](#6d-compile-genebody-coverage-reports)
-    - [6e. Assess Inner Distance (For Paired End Datasets)](#6e-assess-inner-distance-for-paired-end-datasets)
+    - [6e. Determine Inner Distance (For Paired End Datasets)](#6e-determine-inner-distance-for-paired-end-datasets)
     - [6f. Compile Inner Distance Reports](#6f-compile-inner-distance-reports)
     - [6g. Assess Read Distribution](#6g-assess-read-distribution)
     - [6h. Compile Read Distribution Reports](#6h-compile-read-distribution-reports)
@@ -652,7 +652,7 @@ multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/
 
 ---
 
-## 6c. Assess GeneBody Coverage
+## 6c. Evaluate GeneBody Coverage
 
 ```bash
 geneBody_coverage.py -r /path/to/annotation/BED/file \
@@ -709,7 +709,7 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 
 ---
 
-## 6e. Assess Inner Distance (For Paired End Datasets)
+## 6e. Determine Inner Distance (For Paired End Datasets)
 
 ```bash
 inner_distance.py -r /path/to/annotation/BED/file \
