@@ -201,7 +201,7 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 **Output Data:**
 
 - raw_multiqc.html\# (multiqc report)
-- raw_multiqc_data\# (directory containing multiqc data)
+- /raw_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
