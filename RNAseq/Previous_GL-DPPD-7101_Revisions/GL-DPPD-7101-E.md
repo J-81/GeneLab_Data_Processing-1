@@ -1,6 +1,6 @@
 # GeneLab bioinformatics processing pipeline for Illumina RNA-sequencing data
 
-> **This page holds an overview and instructions for how GeneLab processes RNAseq datasets. Exact processing commands and GL-DPPD-7101 revision used for specific datasets are available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This page holds an overview and instructions for how GeneLab processes RNAseq datasets. Exact processing commands and GL-DPPD-7101 revision used for specific datasets are available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -38,7 +38,7 @@ STAR Gene Counts now generated in [step 4a](#4a-align-reads-to-reference-genome-
 Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sort-aligned-reads) 
 - Sorted aligned reads are then indexed with Samtools in new [step 4e](#4e-index-aligned-reads)
 
-Additional RSeQC analyses are performed after reference genome alignment as follows:
+Additional RSeQC analyses are performed on genome aligned reads as follows:
 
 - GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
 - For paired end datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports), respectively
