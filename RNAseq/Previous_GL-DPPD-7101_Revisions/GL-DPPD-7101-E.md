@@ -26,25 +26,33 @@ Jonathan Galazka (GeneLab Project Scientist)
 The following multiQC compilation steps now force interactive plots: 
 - [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
 
+Updated [Ensembl Reference Files]() now used:
+- Animals: Ensembl release 101
+- Plants: Ensembl plants release 48
+- Bacteria: Ensembl bacteria release 48
+
 STAR Gene Counts now generated in [step 4a](#4a-align-reads-to-reference-genome-with-star)
 
 - These counts are tabulated in new [step 4c](#4c-tablulate-star-counts-in-r)
 
-Additional RSeQC Analyses are performed after reference genome alignment as follows:
+Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sort-aligned-reads) 
+- Sorted aligned reads are then indexed with Samtools in new [step 4e](#4e-index-aligned-reads)
 
-- GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports) respectively
-- For Paired End Datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports) respectively
-- Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports) respectively
+Additional RSeQC analyses are performed after reference genome alignment as follows:
+
+- GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
+- For paired end datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports), respectively
+- Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports), respectively
 
 RSEM Count results are additionally summarized as follows:
 
-- MultiQC is used to compile a RSEM count report in [step 8b](#8b-compile-rsem-count-logs)
-- These counts are tabulated in new [step 8c](#8c-tablulate-rsem-counts)
+- MultiQC is used to compile RSEM count reports in [step 8b](#8b-compile-rsem-count-logs)
+- The total number of genes expressed per sample are tabulated in new [step 8c](#8c-tablulate-total-number-of-genes-expressed-per-sample-in-r)
 
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
 
 - Fixed bug where `ERCCnorm_contrasts.csv` was always the same as the non-ERCC contrasts.csv
-  - Note: In most cases, these files are the same. They will only differ when, for the ERCC-based analysis, removal of samples with no detectable Group B ERCC spike-in results in the a complete removal of a factor group.
+  > Note: In most cases, these files are the same. They will only differ when, for the ERCC-based analysis, removal of samples with no detectable Group B ERCC spike-in results in the a complete removal of a group.
 
 The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), and without, [step 9b](#9b-for-datasets-without-ercc-spike-in) was modified as follows:
 
@@ -93,7 +101,7 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**8. Quantitate Aligned Reads**]()
     - [8a. Count Aligned Reads with RSEM](#8a-count-aligned-reads-with-rsem)
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
-    - [8c. Tablulate RSEM Counts](#8c-tablulate-rsem-counts)
+    - [8c. Tablulate Total Number of Genes Expressed Per Sample in R](#8c-tablulate-total-number-of-genes-expressed-per-sample-in-r)
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
     - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
     - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
@@ -931,7 +939,7 @@ multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/outpu
 
 ---
 
-## 8c. Tablulate RSEM Counts
+## 8c. Tablulate Total Number of Genes Expressed Per Sample in R
 
 ```R
 library(tximport)
@@ -953,10 +961,6 @@ files <- files[sapply(rownames(samples), function(x)grep(paste0(x,'.genes.result
 
 names(files) <- rownames(samples)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
-
-##### Export unnormalized gene counts table
-setwd(file.path(counts_dir))
-write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
 
 ##### Count the number of genes with non-zero counts for each sample 
 rawCounts <- txi.rsem$counts
@@ -980,7 +984,6 @@ sessionInfo()
 
 **Output Data:**
 
-- RSEM_Unnormalized_Counts.csv (RSEM counts table)
 - NumNonZeroGenes.csv (A samplewise table of the number of genes expressed)
 
 <br>
