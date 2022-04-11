@@ -36,7 +36,7 @@ STAR Gene Counts now generated in [step 4a](#4a-align-reads-to-reference-genome-
 - These counts are tabulated in new [step 4c](#4c-tablulate-star-counts-in-r)
 
 Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sort-aligned-reads) 
-- Sorted aligned reads are then indexed with Samtools in new [step 4e](#4e-index-aligned-reads)
+- Sorted aligned reads are then indexed with Samtools in new [step 4e](#4e-index-sorted-aligned-reads)
 
 Additional RSeQC analyses are performed on genome aligned reads as follows:
 
@@ -84,7 +84,7 @@ ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-d
     - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
     - [4c. Tablulate STAR Counts in R](#4c-tablulate-star-counts-in-r)
     - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
-    - [4e. Index Aligned Reads](#4e-index-aligned-reads)
+    - [4e. Index Sorted Aligned Reads](#4e-index-sorted-aligned-reads)
   - [**5. Create Reference BED File**](#5-create-reference-bed-file)
     - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
     - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
@@ -216,6 +216,7 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 ```bash
 trim_galore --gzip \
   --path_to_cutadapt /path/to/cutadapt \
+  --cores NumberOfThreads \
   --phred33 \
   --illumina \ # if adapters are not illumina, replace with adapters used
   --output_dir /path/to/TrimGalore/output/directory \
@@ -229,6 +230,7 @@ trim_galore --gzip \
 
 - `--gzip` – compress the output files with `gzip`
 - `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
+- `--cores` - specify the number of threads available on the server node to perform trimming
 - `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
 - `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
 - `--output_dir` - the output directory to store results
@@ -241,8 +243,8 @@ trim_galore --gzip \
 
 **Output Data:**
 
-- *fastq.gz (trimmed reads)
-- *trimming_report.txt (trimming report)
+- *fastq.gz\# (trimmed reads)
+- *trimming_report.txt\# (trimming report)
 
 <br>
 
@@ -259,7 +261,7 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 
 **Input Data:**
 
-- *fastq.gz (trimmed reads)
+- *fastq.gz (trimmed reads, output from [Step 2a](#2a-trimfilter-raw-data))
 
 **Output Data:**
 
@@ -283,13 +285,12 @@ multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/dire
 
 **Input Data:**
 
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
+- *fastqc.zip (FastQC data, output from [Step 2b](#2b-trimmed-data-qc))
 
 **Output Data:**
 
-- trimmed_multiqc.html (multiqc report)
-- trimmed_multiqc_data (directory containing multiqc data)
+- trimmed_multiqc.html\# (multiqc report)
+- /trimmed_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
@@ -322,10 +323,8 @@ STAR --runThreadN NumberOfThreads \
 
 **Input Data:**
 
-- *.fasta (genome sequence\#)
-- *.gtf (genome annotation\#)
-
-\#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+- *.fasta ([genome sequence](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
+- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
 
 **Output Data:**
 
@@ -404,7 +403,7 @@ STAR --twopassMode Basic \
 - `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
-- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab delimited file containing number reads per gene
+- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab delimited file containing the number of reads per gene
 - `--outSAMheaderHD` - indicates a header line for the sam/bam file
 - `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 - `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated
@@ -412,13 +411,14 @@ STAR --twopassMode Basic \
 **Input Data:**
 
 - STAR genome reference (output from [Step 3](#3-build-star-reference))
-- *fastq.gz (trimmed reads)
+- *fastq.gz (trimmed reads, output from [Step 2a](#2a-trimfilter-raw-data))
 
 **Output Data:**
 
-- *Aligned.sortedByCoord.out.bam# (sorted mapping to genome)
-- *Aligned.toTranscriptome.out.bam# (sorted mapping to transcriptome)
-- *Log.final.out# (log file containing alignment info/stats such as reads mapped, etc)
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome)
+- *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
+- *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
+- *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
 - *Log.out
 - *Log.progress.out
 - *SJ.out.tab\#
@@ -430,8 +430,6 @@ STAR --twopassMode Basic \
   - SJ.out.tab
 - *_STARtmp (directory containing the following:)
   - BAMsort (directory containing subdirectories that are empty – this was the location for temp files that were automatically removed after successful completion)
-
-\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
 <br>
 
@@ -450,12 +448,12 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc. from step 4a)
+- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
-- align_multiqc.html (multiqc report)
-- align_multiqc_data (directory containing multiqc data)
+- align_multiqc.html\# (multiqc report)
+- /align_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
@@ -465,12 +463,12 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 print("Make STAR counts table")
 print("")
 
-work_dir="/path/to/working/directory/where/script/is/executed/from"
+work_dir="/path/to/working/directory/where/script/is/executed/from" ## Must contain samples.txt file
 align_dir="/path/to/directory/containing/STAR/counts/files"
 
 setwd(file.path(work_dir))
 
-### Pull in sample names ###
+### Pull in sample names where the "samples.txt" file is a single column list of sample names ###
 study <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
 
 ##### Import Data
@@ -482,7 +480,7 @@ ff <- ff[sapply(rownames(study), function(x)grep(paste0(x,'_ReadsPerGene.out.tab
 # Remove the first 4 lines
 counts.files <- lapply( ff, read.table, skip = 4 )
 
-# Get counts aligned to either strand for undtranded data by selecting col 2, to the first (forward) strand by selecting col 3 or to the second (reverse) strand by selecting col 4
+# Get counts aligned to either strand for unstranded data by selecting col 2, to the first (forward) strand by selecting col 3 or to the second (reverse) strand by selecting col 4
 counts <- as.data.frame( sapply( counts.files, function(x) x[ , 3 ] ) )
 
 # Add column and row names
@@ -504,11 +502,11 @@ sessionInfo()
 **Input Data:**
 
 - samples.txt (A newline delimited list of sample IDs)
-- *ReadsPerGene.out.tab (STAR counts per gene, output from step 4a)
+- *ReadsPerGene.out.tab (STAR counts per gene, output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
-- STAR_Unnormalized_Counts.csv (STAR counts table)
+- STAR_Unnormalized_Counts.csv\# (Table containing raw STAR counts for each sample)
 
 <br>
 
@@ -517,45 +515,44 @@ sessionInfo()
 ```bash
 samtools sort -m 3G \
 	--threads NumberOfThreads \
-	-o /path/to/*_Aligned.sortedByCoord_sorted.out.bam \
+	-o /path/to/*Aligned.sortedByCoord_sorted.out.bam \
   /path/to/*Aligned.sortedByCoord.out.bam
 ```
 
 **Parameter Definitions:**
 
-- `--threads` - number of threads available on server node to index alignment files
-- `/path/to/*Aligned.sortedByCoord.out.bam` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+- `-m` - memory available per thread, `3G` indicates 3 gigabytes, this can be changed based on user resources
+- `--threads` - number of threads available on server node to sort genome alignment files
+- `/path/to/*Aligned.sortedByCoord.out.bam` – path to the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
 
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
-- *_Aligned.sortedByCoord_sorted.out.bam (samtools resorted bam file)
+- *Aligned.sortedByCoord_sorted.out.bam\# (samtools sorted genome aligned bam file)
 
 <br>
 
----
-
-### 4e. Index Aligned Reads
+### 4e. Index Sorted Aligned Reads
 
 ```bash
-samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.bam
+samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 ```
 
 **Parameter Definitions:**
 
-- `-@` - number of threads available on server node to index alignment files
-- `/path/to/*_Aligned.sortedByCoord_sorted.out.bam` – the directory holding the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
+- `-@` - number of threads available on server node to index the sorted alignment files
+- `/path/to/*Aligned.sortedByCoord_sorted.out.bam` – the path to the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
 
 **Input Data:**
 
-- *_Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, from [step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, ourput from [Step 4d](#4d-sort-aligned-reads))
 
 **Output Data:**
 
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
+- *Aligned.sortedByCoord_sorted.out.bam.bai\# (index of sorted mapping to genome file)
 
 <br>
 
