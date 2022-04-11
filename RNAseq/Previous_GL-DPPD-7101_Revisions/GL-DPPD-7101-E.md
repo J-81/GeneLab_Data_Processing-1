@@ -9,9 +9,10 @@
 **Document Number:** GL-DPPD-7101-E  
 
 **Submitted by:**  
-Amanda Saravia-Butler (GeneLab Data Processing Team)
+Jonathan Oribello (GeneLab Data Processing Team)
 
 **Approved by:**  
+Amanda Saravia-Butler (GeneLab Data Processing Lead)  
 Sylvain Costes (GeneLab Project Manager)  
 Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)  
 Jonathan Galazka (GeneLab Project Scientist)
