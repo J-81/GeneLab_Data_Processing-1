@@ -152,6 +152,8 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
 
 ---
 
+## 1. Raw Data QC
+
 ## 1a. Raw Data QC  
 
 ```bash
