@@ -1954,7 +1954,7 @@ sessionInfo()
 
 ---
 
-## 10. Evaluate ERCC Spike-In Data
+## 10. Evaluate ERCC Spike-In Data 
 
 <br>
 
@@ -1962,6 +1962,7 @@ sessionInfo()
 
 ```python
 ### Setting up the notebook
+
 # import python packages
 import pandas as pd
 pd.set_option('mode.chained_assignment', None) # suppress chained indexing warnings
@@ -1974,28 +1975,79 @@ import seaborn as sns
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
 
+
+### Use GeneLab API to locate metadata
+
+GENELAB_ROOT = "https://genelab-data.ndc.nasa.gov"
+GLDS_URL_PREFIX = GENELAB_ROOT + "/genelab/data/study/data/"
+FILELISTINGS_URL_PREFIX = GENELAB_ROOT + "/genelab/data/study/filelistings/"
+ISA_ZIP_REGEX = r'.*_metadata_.*[_-]ISA\.zip$'
+
+def read_json(url):
+    with urlopen(url) as response:
+        return loads(response.read().decode())
+
+def get_isa(accession):
+    glds_json = read_json(GLDS_URL_PREFIX + accession)
+    try:
+        _id = glds_json[0]["_id"]
+    except (AssertionError, TypeError, KeyError, IndexError):
+        raise ValueError("Malformed JSON?")
+    isa_entries = [
+        entry for entry in read_json(FILELISTINGS_URL_PREFIX + _id)
+        if search(ISA_ZIP_REGEX, entry["file_name"])
+    ]
+    if len(isa_entries) == 0:
+        raise ValueError("Unexpected: no ISAs found")
+    elif len(isa_entries) > 1:
+        raise ValueError("Unexpected: multiple files match the ISA regex")
+    else:
+        entry = isa_entries[0]
+        version = entry["version"]
+        url = GENELAB_ROOT + entry["remote_url"] + "?version={}".format(version)
+        alt_url = (
+            GENELAB_ROOT + "/genelab/static/media/dataset/" +
+            quote(entry["file_name"]) + "?version={}".format(version)
+        )
+        return entry["file_name"], version, url, alt_url
+
+
 ### Get and parse data and metadata
-# Get and unzip ISA.zip, counts, and ERCC data.
-accession = 'GLDS-NNN' # Change this as necessary
-filehandle = Path("/path/to/ISA/zip") #INPUT
+
+# Get and unzip ISA.zip to extract metadata.
+
+accession = 'GLDS-NNN' # Replace Ns with GLDS number
+isaurl = get_isa(accession)[3]
+filehandle, _ = urlretrieve(isaurl)
 zip_file_object = zipfile.ZipFile(filehandle, 'r')
 zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
 
 # There are datasets that have multiple assays (including microarray), so the RNAseq ISA files from the above output must be selected. 
 # Txt files outputted above are indexed as 0, 1, 2, etc. Fill in the indexed number corresponding to the sample (s_\*txt) and assay files for RNAseq (a_\*_(RNA-Seq).txt) in the code block below.
-sample_file = zip_file_object.namelist()[1]
+
+# Extract metadata from the sample file (s_\*txt)
+sample_file = zip_file_object.namelist()[1] # replace [1] with index corresponding to the (s_\*txt) file
 file = zip_file_object.open(sample_file)
 sample_table = pd.read_csv(zip_file_object.open(sample_file), sep='\t')
 
-assay_file = zip_file_object.namelist()[0]
+# Extract metadata from the assay (a_\*_(RNA-Seq).txt) file
+assay_file = zip_file_object.namelist()[0] # replace [0] with index corresponding to the (a_\*_(RNA-Seq).txt) file
 file = zip_file_object.open(assay_file)
 assay_table = pd.read_csv(zip_file_object.open(assay_file), sep='\t')
 
-print(sample_table.head(n=3))
+# Check the sample table
 pd.set_option('max_columns', None)
+print(sample_table.head(n=3))
+
+# Check the assay table
+pd.set_option('max_columns', None)
+assay_table.head(n=3)
+
+
 
 # Get raw counts table
-raw_counts_table = pd.read_csv('/path/to/RSEM_Unnormalized_Counts.csv', index_col=0) # INPUT
+
+raw_counts_table = pd.read_csv('/path/to/RSEM_Unnormalized_Counts.csv', index_col=0) 
 raw_counts_table.index.rename('Gene_ID', inplace=True)
 print(raw_counts_table.head(n=3))
 
@@ -2003,21 +2055,27 @@ raw_counts_transcripts = raw_counts_table[raw_counts_table.index.str.contains('^
 raw_counts_transcripts = raw_counts_transcripts.sort_values(by=list(raw_counts_transcripts), ascending=False)
 print(raw_counts_transcripts)
 
+
 # Get ERCC counts
+
 ercc_counts = raw_counts_table[raw_counts_table.index.str.contains('^ERCC-')] 
 ercc_counts.reset_index(inplace=True)
 ercc_counts = ercc_counts.rename(columns={'Gene_ID':'ERCC ID'})
 ercc_counts = ercc_counts.sort_values(by=list(ercc_counts), ascending=False)
 print(ercc_counts.head())
 
-# Get ERCC files
+# Get files containing ERCC gene concentrations and metadata
+
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
 filehandle, _ = urlretrieve(ercc_url)
 ercc_table = pd.read_csv(filehandle, '\t')
 print(ercc_table.head(n=3))
 
-### Number of ERCC Detected 
-#Number of ERCC detected in each of the 4 (A, B, C and D) groups for the study. 
+
+
+### Calculate the number of ERCC genes detected 
+
+# Number of ERCC detected in each of the 4 (A, B, C and D) groups for the study. 
 
 #Filter counts > 0
 meltERCC = ercc_counts.melt(id_vars=['ERCC ID'])
