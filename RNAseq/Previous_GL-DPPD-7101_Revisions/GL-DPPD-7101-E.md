@@ -26,9 +26,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 The following multiQC compilation steps now force interactive plots: 
 - [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
 
-STAR Gene Counts now generated in the [step 4a](#4a-align-reads-to-reference-genome-with-star)
+STAR Gene Counts now generated in [step 4a](#4a-align-reads-to-reference-genome-with-star)
 
-- These counts are tabulated in new [step 4c](#4c-tablulate-star-counts)
+- These counts are tabulated in new [step 4c](#4c-tablulate-star-counts-in-r)
 
 Additional RSeQC Analyses are performed after reference genome alignment as follows:
 
@@ -74,7 +74,7 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**4. Align Reads to Reference Genome then Index**]()
     - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
     - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
-    - [4c. Tablulate STAR Counts](#4c-tablulate-star-counts)
+    - [4c. Tablulate STAR Counts in R](#4c-tablulate-star-counts-in-r)
     - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
     - [4e. Index Aligned Reads](#4e-index-aligned-reads)
   - [**5. Create Reference BED File**]()
@@ -437,7 +437,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 <br>
 
-## 4c. Tablulate STAR Counts
+## 4c. Tablulate STAR Counts in R
 
 ```R
 print("Make STAR counts table")
