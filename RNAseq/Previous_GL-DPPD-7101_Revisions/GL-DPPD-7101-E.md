@@ -2499,7 +2499,7 @@ write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
 
 <br>
 
-### 10c. Analyze ERCC Count DESeq2 Results in Python
+### 10c. Analyze ERCC DESeq2 Results in Python
 
 ```python
 import pandas as pd
