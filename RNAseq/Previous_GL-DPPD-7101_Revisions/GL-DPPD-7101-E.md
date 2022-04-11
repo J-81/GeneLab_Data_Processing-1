@@ -41,7 +41,7 @@ Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sor
 Additional RSeQC analyses are performed on genome aligned reads as follows:
 
 - GeneBody coverage is evaluated and reports are compiled with multiQC in [step 6c](#6c-evaluate-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
-- For paired end datasets, inner distance is determined and reports are compiled with multiQC in [step 6e](#6e-determine-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports), respectively
+- For paired end datasets, inner distance is determined and reports are compiled with multiQC in [step 6e](#6e-determine-inner-distance-for-paired-end-datasets-only) and [step 6f](#6f-compile-inner-distance-reports), respectively
 - Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports), respectively
 
 RSEM Count results are additionally summarized as follows:
@@ -93,7 +93,7 @@ ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-d
     - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
     - [6c. Evaluate GeneBody Coverage](#6c-evaluate-genebody-coverage)
     - [6d. Compile GeneBody Coverage Reports](#6d-compile-genebody-coverage-reports)
-    - [6e. Determine Inner Distance (For Paired End Datasets)](#6e-determine-inner-distance-for-paired-end-datasets)
+    - [6e. Determine Inner Distance (For Paired End Datasets)](#6e-determine-inner-distance-for-paired-end-datasets-only)
     - [6f. Compile Inner Distance Reports](#6f-compile-inner-distance-reports)
     - [6g. Assess Read Distribution](#6g-assess-read-distribution)
     - [6h. Compile Read Distribution Reports](#6h-compile-read-distribution-reports)
@@ -421,7 +421,7 @@ STAR --twopassMode Basic \
 - *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
 - *Log.out
 - *Log.progress.out
-- *SJ.out.tab\#
+- *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
 - *_STARgenome (directory containing the following:)
   - sjdbInfo.txt
   - sjdbList.out.tab
@@ -565,23 +565,19 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 ### 5a. Convert GTF to genePred File  
 
 ```bash
-gtfToGenePred -geneNameAsName2 \
-  /path/to/annotation/gtf/file \
+gtfToGenePred /path/to/annotation/gtf/file \
   /path/to/output/genePred/file
 
 ```
 
 **Parameter Definitions:**
 
-- `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
 - `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
 - `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
 
 **Input Data:**
 
-- *.gtf (genome annotation\#)
-
-\#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
 
 **Output Data:**
 
@@ -603,7 +599,7 @@ genePredToBed /path/to/annotation/genePred/file \
 
 **Input Data:**
 
-- *.genePred (genome annotation in genePred format, from step 5a)
+- *.genePred (genome annotation in genePred format, output from [Step 5a](#5a-convert-gtf-to-genepred-file))
 
 **Output Data:**
 
@@ -621,7 +617,7 @@ genePredToBed /path/to/annotation/genePred/file \
 
 ```bash
 infer_experiment.py -r /path/to/annotation/BED/file \
- -i /path/to/*Aligned.sortedByCoord.out.bam \
+ -i /path/to/*Aligned.sortedByCoord_sorted.out.bam \
  -s 15000000 > /path/to/*infer_expt.out
 ```
 
@@ -635,9 +631,9 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 
-- *.bed (genome annotation in BED format, output from step 5b)
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
+- *.bed (genome annotation in BED format, output from [Step 5b](#5b-convert-genepred-to-bed-file))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from [Step 4e](#4e-index-sorted-aligned-reads), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
 
 **Output Data:**
 
@@ -660,16 +656,14 @@ multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/
 
 **Input Data:**
 
-- *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
+- *infer_expt.out (file containing the infer_experiment standard output, output from [Step 6a](#6a-determine-read-strandedness))
 
 **Output Data:**
 
-- infer_exp_multiqc.html (multiqc report)
-- infer_exp_multiqc_data (directory containing multiqc data)
+- infer_exp_multiqc.html\# (multiqc report)
+- /infer_exp_multiqc_data\# (directory containing multiqc data)
 
 <br>
-
----
 
 ### 6c. Evaluate GeneBody Coverage
 
@@ -688,24 +682,22 @@ geneBody_coverage.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 
-- *.bed (genome annotation in BED format, output from [step 5b](#5b-convert-genepred-to-bed-file))
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
+- *.bed (genome annotation in BED format, output from [Step 5b](#5b-convert-genepred-to-bed-file))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from [Step 4e](#4e-index-sorted-aligned-reads), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
 
 **Output Data:**
 
 - *.geneBodyCoverage.curves.pdf (genebody coverage line plot)
 - *.geneBodyCoverage.r (R script that generates the genebody coverage line plot)
-- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values used to generate the line plot)
+- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage values used to generate the line plot)
 
 <br>
-
----
 
 ### 6d. Compile GeneBody Coverage Reports
 
 ```bash
-multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_multiqc/output/directory /path/to/geneBody_coverage/output/directories
+multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_multiqc/output/directory /path/to/geneBody_coverage/output/files
 ```
 
 **Parameter Definitions:**
@@ -713,22 +705,20 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/geneBody_coverage/output/directories` – the directory holding the geneBody_coverage output directories from [step 6c](#6c-assess-genebody-coverage), provided as a positional argument
+- `/path/to/geneBody_coverage/output/files` – the directory holding the geneBody_coverage output files from [step 6c](#6c-evaluate-genebody-coverage), provided as a positional argument
 
 **Input Data:**
 
-- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values from [step 6c](#6c-assess-genebody-coverage))
+- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage values, output from [Step 6c](#6c-evaluate-genebody-coverage))
 
 **Output Data:**
 
-- geneBody_cov_multiqc.html (multiqc report)
-- geneBody_cov_multiqc_data (directory containing multiqc data)
+- geneBody_cov_multiqc.html\# (multiqc report)
+- /geneBody_cov_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
----
-
-### 6e. Determine Inner Distance (For Paired End Datasets)
+### 6e. Determine Inner Distance (For Paired End Datasets ONLY)
 
 ```bash
 inner_distance.py -r /path/to/annotation/BED/file \
@@ -750,7 +740,9 @@ inner_distance.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 
-- ... *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
+- *.bed (genome annotation in BED format, output from [Step 5b](#5b-convert-genepred-to-bed-file))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from [Step 4e](#4e-index-sorted-aligned-reads), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
 
 **Output Data:**
 
@@ -761,12 +753,10 @@ inner_distance.py -r /path/to/annotation/BED/file \
 
 <br>
 
----
-
 ### 6f. Compile Inner Distance Reports
 
 ```bash
-multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/directory /path/to/inner_dist/output/directories
+multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/directory /path/to/inner_dist/output/files
 ```
 
 **Parameter Definitions:**
@@ -774,20 +764,18 @@ multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/d
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/inner_dist/output/directories` – the directory holding the inner_distance output directories from [step 6e](#6e-aligned-reads-inner-distance-qc-for-paired-end-datasets), provided as a positional argument
+- `/path/to/inner_dist/output/files` – the directory holding the inner_distance output files from [Step 6e](#6e-determine-inner-distance-for-paired-end-datasets-only), provided as a positional argument
 
 **Input Data:**
 
-- *.inner_distance_freq.txt (tab delimited table of inner distances from [step 6e](#6e-assess-inner-distance-for-paired-end-datasets))
+- *.inner_distance_freq.txt (tab delimited table of inner distances from [step 6e](#6e-determine-inner-distance-for-paired-end-datasets-only))
 
 **Output Data:**
 
-- inner_distance_multiqc.html (multiqc report)
-- inner_distance_multiqc_data (directory containing multiqc data)
+- inner_distance_multiqc.html\# (multiqc report)
+- /inner_distance_multiqc_data\# (directory containing multiqc data)
 
 <br>
-
----
 
 ### 6g. Assess Read Distribution
 
@@ -805,17 +793,15 @@ read_distribution.py -r /path/to/annotation/BED/file \
 
 **Input Data:**
 
-- *.bed (genome annotation in BED format, output from step 5b)
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
+- *.bed (genome annotation in BED format, output from [Step 5b](#5b-convert-genepred-to-bed-file))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from [Step 4e](#4e-index-sorted-aligned-reads), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
 
 **Output Data:**
 
 - *read_dist.out (file containing the read distribution standard output)
 
 <br>
-
----
 
 ### 6h. Compile Read Distribution Reports
 
@@ -828,16 +814,16 @@ multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/*read_dist.out/files` – the directory holding the *read_dist.out output files from the [step 6g](#6g-assess-read-distribution) provided as a positional argument
+- `/path/to/*read_dist.out/files` – the directory holding the *read_dist.out output files from [Step 6g](#6g-assess-read-distribution) provided as a positional argument
 
 **Input Data:**
 
-- *read_dist.out (file containing the read_distributation standard output, from [step 6g](#6g-assess-read-distribution))
+- *read_dist.out (files containing the read_distributation standard output, output from [Step 6g](#6g-assess-read-distribution))
 
 **Output Data:**
 
-- read_dist_multiqc.html (multiqc report)
-- read_dist_multiqc_data (directory containing multiqc data)
+- read_dist_multiqc.html\# (multiqc report)
+- /read_dist_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
