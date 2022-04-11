@@ -13,7 +13,7 @@ Amanda Saravia-Butler (GeneLab Data Processing Team)
 
 **Approved by:**  
 Sylvain Costes (GeneLab Project Manager)  
-Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)
+Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)  
 Jonathan Galazka (GeneLab Project Scientist)
 
 ---
