@@ -149,7 +149,7 @@ ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-d
 
 # General processing overview with example commands  
 
-> Exact processing commands for specific datasets are provided in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets are provided in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory.  
 
 ---
 
