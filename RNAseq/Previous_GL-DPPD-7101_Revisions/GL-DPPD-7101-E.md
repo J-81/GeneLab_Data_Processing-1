@@ -74,18 +74,18 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**1. Raw Data QC**](#1-raw-data-qc)
     - [1a. Raw Data QC](#1a-raw-data-qc)
     - [1b. Compile Raw Data QC](#1b-compile-raw-data-qc)
-  - [**2. Trim/Filter Raw Data and Trimmed Data QC**]()
+  - [**2. Trim/Filter Raw Data and Trimmed Data QC**](#2-trimfilter-raw-data-and-trimmed-data-qc)
     - [2a. Trim/Filter Raw Data](#2a-trimfilter-raw-data)
     - [2b. Trimmed Data QC](#2b-trimmed-data-qc)
     - [2c. Compile Trimmed Data QC](#2c-compile-trimmed-data-qc)
   - [**3. Build STAR Reference**](#3-build-star-reference)
-  - [**4. Align Reads to Reference Genome then Index**]()
+  - [**4. Align Reads to Reference Genome then Sort and Index**](#4-align-reads-to-reference-genome-then-sort-and-index)
     - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
     - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
     - [4c. Tablulate STAR Counts in R](#4c-tablulate-star-counts-in-r)
     - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
     - [4e. Index Aligned Reads](#4e-index-aligned-reads)
-  - [**5. Create Reference BED File**]()
+  - [**5. Create Reference BED File**](#5-create-reference-bed-file)
     - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
     - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
   - [**6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC**]()
@@ -98,7 +98,7 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
     - [6g. Assess Read Distribution](#6g-assess-read-distribution)
     - [6h. Compile Read Distribution Reports](#6h-compile-read-distribution-reports)
   - [**7. Build RSEM Reference**](#7-build-rsem-reference)
-  - [**8. Quantitate Aligned Reads**]()
+  - [**8. Quantitate Aligned Reads**](#8-quantitate-aligned-reads)
     - [8a. Count Aligned Reads with RSEM](#8a-count-aligned-reads-with-rsem)
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
     - [8c. Tablulate Total Number of Genes Expressed Per Sample in R](#8c-tablulate-total-number-of-genes-expressed-per-sample-in-r)
@@ -202,6 +202,8 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 <br>
 
 ---
+
+## 2. Trim/Filter Raw Data and Trimmed Data QC
 
 ## 2a. Trim/Filter Raw Data  
 
@@ -342,6 +344,8 @@ STAR genome reference, which consists of the following files:
 <br>
 
 ---
+
+## 4. Align Reads to Reference Genome then Sort and Index
 
 ## 4a. Align Reads to Reference Genome with STAR
 
@@ -549,6 +553,8 @@ samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.ba
 
 ---
 
+## 5. Create Reference BED File
+
 ## 5a. Convert GTF to genePred File  
 
 ```bash
@@ -599,6 +605,8 @@ genePredToBed /path/to/annotation/genePred/file \
 <br>
 
 ---
+
+## 6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC
 
 ## 6a. Determine Read Strandedness
 
@@ -863,6 +871,8 @@ RSEM genome reference, which consists of the following files:
 <br>
 
 ---
+
+## 8. Quantitate Aligned Reads
 
 ## 8a. Count Aligned Reads with RSEM
 
@@ -1952,7 +1962,7 @@ sessionInfo()
 
 ---
 
-## 10. Plot and Tabulate ERCC Counts, Perform DESeq2 Analysis on ERCC Counts, Analysis of ERCC Counts DESeq2 Analysis
+## 10. Evaluate ERCC Spike-In Data
 
 <br>
 
