@@ -47,7 +47,7 @@ Additional RSeQC analyses are performed on genome aligned reads as follows:
 RSEM Count results are additionally summarized as follows:
 
 - MultiQC is used to compile RSEM count reports in [step 8b](#8b-compile-rsem-count-logs)
-- The total number of genes expressed per sample are tabulated in new [step 8c](#8c-tablulate-total-number-of-genes-expressed-per-sample-in-r)
+- The total number of genes expressed per sample are calculated in new [step 8c](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
 
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
 
@@ -101,7 +101,7 @@ ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-d
   - [**8. Quantitate Aligned Reads**](#8-quantitate-aligned-reads)
     - [8a. Count Aligned Reads with RSEM](#8a-count-aligned-reads-with-rsem)
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
-    - [8c. Tablulate Total Number of Genes Expressed Per Sample in R](#8c-tablulate-total-number-of-genes-expressed-per-sample-in-r)
+    - [8c. Calculate Total Number of Genes Expressed Per Sample in R](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
     - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
     - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
@@ -963,7 +963,7 @@ multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/outpu
 
 ---
 
-### 8c. Tablulate Total Number of Genes Expressed Per Sample in R
+### 8c. Calculate Total Number of Genes Expressed Per Sample in R
 
 ```R
 library(tximport)
