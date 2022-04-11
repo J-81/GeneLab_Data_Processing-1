@@ -44,6 +44,9 @@ Additional RSeQC analyses are performed on genome aligned reads as follows:
 - For paired end datasets, inner distance is determined and reports are compiled with multiQC in [step 6e](#6e-determine-inner-distance-for-paired-end-datasets-only) and [step 6f](#6f-compile-inner-distance-reports), respectively
 - Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports), respectively
 
+RSEM now quantitates all reads >= 20bp
+- The `--seed-length 20` option was added in [step 8a](#8a-count-aligned-reads-with-rsem)
+
 RSEM Count results are additionally summarized as follows:
 
 - MultiQC is used to compile RSEM count reports in [step 8b](#8b-compile-rsem-count-logs)
@@ -846,10 +849,8 @@ rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
 
 **Input Data:**
 
-- *.fasta (genome sequence\#)
-- *.gtf (genome annotation\#)
-
-\#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+- *.fasta ([genome sequence](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
+- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
 
 **Output Data:**
 
@@ -879,6 +880,7 @@ rsem-calculate-expression --num-threads NumberOfThreads \
  --bam \
  --paired-end \
  --seed 12345 \
+ --seed-length 20 \
  --estimate-rspd \
  --no-bam-output \
  --strandedness reverse|forward|none \
@@ -894,6 +896,7 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 - `--bam` - specifies that the input alignments are in bam format
 - `--paired-end` - indicates that the input reads are paired-end reads; this option should be removed if the input reads are single-end
 - `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
+- `--seed-length 20` - instructs RSEM to ignore any aligned read if it or its mates' (for paired-end reads) length is less than 20bp
 - `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data
 - `--no-bam-output` - instructs RSEM not to output any bam file
 - `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense
@@ -903,13 +906,13 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 
 **Input Data:**
 
-- RSEM genome reference (output from Step 7)
-- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
+- RSEM genome reference (output from [Step 7](#7-build-rsem-reference))
+- *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
-- *genes.results (counts per gene)
-- *isoforms.results (counts per isoform)
+- *genes.results\# (counts per gene)
+- *isoforms.results\# (counts per isoform)
 - *stat (directory containing the following stats files)
   - *cnt
   - *model
@@ -917,12 +920,10 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 
 <br>
 
----
-
 ### 8b. Compile RSEM Count Logs
 
 ```bash
-multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/directories
+multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/files
 ```
 
 **Parameter Definitions:**
@@ -930,23 +931,21 @@ multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/outpu
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/*stat/directories` – the directories holding the *stat output directory from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
+- `/path/to/*stat/files` – the directories holding the *stat output files from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
 
 **Input Data:**
 
-- *stat (directory containing the following stats files)
+- *stat (directory containing the following stats files, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
   - *cnt
   - *model
   - *theta
 
 **Output Data:**
 
-- RSEM_count_multiqc.html (multiqc report)
-- RSEM_count_multiqc_data (directory containing multiqc data)
+- RSEM_count_multiqc.html\# (multiqc report)
+- /RSEM_count_multiqc_data\# (directory containing multiqc data)
 
 <br>
-
----
 
 ### 8c. Calculate Total Number of Genes Expressed Per Sample in R
 
@@ -954,12 +953,12 @@ multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/outpu
 library(tximport)
 library(tidyverse)
 
-work_dir="/path/to/working/directory/where/script/is/executed/from"
+work_dir="/path/to/working/directory/where/script/is/executed/from" ## Must contain samples.txt file
 counts_dir="/path/to/directory/containing/RSEM/counts/files"
 
 setwd(file.path(work_dir))
 
-### Pull in sample names ###
+### Pull in sample names where the "samples.txt" file is a single column list of sample names ###
 samples <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
 
 ##### Import RSEM Gene Count Data
@@ -989,7 +988,7 @@ sessionInfo()
 **Input Data:**
 
 - samples.txt (A newline delimited list of sample IDs)
-- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
+- *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 **Output Data:**
 
