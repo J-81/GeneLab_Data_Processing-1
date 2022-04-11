@@ -2669,7 +2669,7 @@ print(combined.head())
 combined.filter(items = ['ERCC ID', 'meanNormCounts', 'cleaned_pvalue','cleaned_padj']).to_csv('ERCC_analysis/ERCC_lodr_GLDS-NNN_mqc.csv') 
 
 
-#
+# Plot p-value vs. mean normalized ERCC counts
 
 fig, ax = plt.subplots(figsize=(10, 7))
 
@@ -2684,6 +2684,9 @@ sns.lineplot(data=combined, x="meanNormCounts", y="cleaned_pvalue",
 #g.set_xscale("log", base=2)
 ax.set_xscale("linear");
 ax.set_yscale("log");
+
+
+# Plot Adjp-value vs. mean normalized ERCC counts
 
 fig, ax = plt.subplots(figsize=(10, 7))
 
@@ -2702,8 +2705,10 @@ ax.set_yscale("log");
 
 **Input Data:**
 
-- ERCC_analysis/ERCC_DESeq2.csv (DESeq2 results table)
+- ERCC_analysis/ERCC_DESeq2.csv (ERCC DESeq2 results table, output from [Step 10b](#10b-perform-deseq2-analysis-of-ercc-counts-in-r))
 
 **Output Data:**
 
-- ERCC_analysis/ERCC_lodr_*.csv (ERCC Gene Table including mean counts, adjusted p-value and p-value and filtered to genes with both adj. p-value and p-value < 0.001)
+- ERCC_analysis/ERCC_lodr_*.csv (ERCC Gene Table including mean counts, adjusted p-value and p-value, and filtered to genes with both adj. p-value and p-value < 0.001)
+
+> All steps of the ERCC Spike-In Data Analysis are performed in a Jupyter Notebook (JN) and the completed JN is exported as an html file and published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) for the respective dataset.
