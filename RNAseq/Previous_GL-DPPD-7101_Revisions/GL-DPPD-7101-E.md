@@ -2575,20 +2575,31 @@ BiocManager::install("DESeq2")
 ## Import DESeq2 library
 
 library("DESeq2")
+
+## Import and format ERCC count data and metadata
+
 cts <- as.matrix(read.csv('ERCC_analysis/ERCCcounts.csv',sep=",",row.names="Gene_ID")) #INPUT
 coldata <- read.csv('ERCC_analysis/ERCCmetadata.csv', row.names=1) #INPUT
 
 coldata$Mix <- factor(coldata$Mix)
 all(rownames(coldata) == colnames(cts))
 
+
+## Make DESeqDataSet object
+
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
                               design = ~ Mix)
 dds
 
+
+## Run DESeq2 analysis and calculate results
+
 dds <- DESeq(dds)
 res <- results(dds, contrast=c("Mix","Mix 1","Mix 2"))
 res
+
+## Export DESeq2 results table and normalized ERCC counts table
 
 write.csv(res, 'ERCC_analysis/ERCC_DESeq2.csv') #OUTPUT
 normcounts = counts(dds, normalized=TRUE)
@@ -2597,8 +2608,8 @@ write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
 
 **Input Data:**
 
-- ERCC_analysis/ERCCmetadata.csv (Samplewise metadata table inlcuding ERCC mix number)
-- ERCC_analysis/ERCCcounts.csv (Samplewise ERCC counts table)
+- ERCC_analysis/ERCCmetadata.csv (Samplewise metadata table inlcuding ERCC mix number, output from [Step 10a](#10a-evaluate-ercc-count-data-in-python))
+- ERCC_analysis/ERCCcounts.csv (Samplewise ERCC counts table, output from [Step 10a](#10a-evaluate-ercc-count-data-in-python))
 
 **Output Data:**
 
@@ -2610,26 +2621,39 @@ write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
 ### 10c. Analyze ERCC DESeq2 Results in Python
 
 ```python
+
+# Import python packages
+
 import pandas as pd
 from urllib.request import urlopen, quote, urlretrieve
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+
+# Import ERCC DESeq2 results
 
 deseq2out = pd.read_csv('ERCC_analysis/ERCC_DESeq2.csv', index_col=0) # INPUT
 #deseq2out.index = deseq2out.index.str.replace('_','-')
 deseq2out.rename(columns ={'baseMean' : 'meanNormCounts'}, inplace = True)
 print(deseq2out.head())
 
-# Get ERCC files
+
+# Get files containing ERCC gene concentrations and metadata
+
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
 filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t')
+ercc_table = pd.read_csv(filehandle, '\t', index_col='ERCC ID')
 print(ercc_table.head(n=3))
+
+
+# Combine ERCC DESeq2 results and ercc_table
 
 combined = deseq2out.merge(ercc_table, left_index=True, right_index=True)
 print(combined.head())
 
-# P-value and adj. p-value cutoff at 10^-3
+
+# Filter p-value and adj. p-value cutoff at 10^-3
+
 combined['cleaned_padj'] = combined['padj']
 combined.loc[(combined.cleaned_padj < 0.001),'cleaned_padj']=0.001
 
@@ -2638,8 +2662,14 @@ combined.loc[(combined.cleaned_pvalue < 0.001),'cleaned_pvalue']=0.001
 
 print(combined.head())
 
+
+# Export the filtered combined ERCC DESeq2 results and ercc_table
 # Remember to change file name to GLDS# analyzing
-combined.filter(items = ['ERCC ID', 'meanNormCounts', 'cleaned_pvalue','cleaned_padj']).to_csv('ERCC_analysis/ERCC_lodr_*.csv') #OUTPUT
+
+combined.filter(items = ['ERCC ID', 'meanNormCounts', 'cleaned_pvalue','cleaned_padj']).to_csv('ERCC_analysis/ERCC_lodr_GLDS-NNN_mqc.csv') 
+
+
+#
 
 fig, ax = plt.subplots(figsize=(10, 7))
 
