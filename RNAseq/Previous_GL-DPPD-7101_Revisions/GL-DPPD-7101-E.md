@@ -59,11 +59,11 @@ The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [ste
 - Input file regex modified to address bug that occured when certain sample IDs were substrings of other sample IDs (e.g. Sample1, Sample13)
 - Output file: `Unnormalized_Counts.csv` renamed to `RSEM_Unnormalized_Counts.csv` for clarity
 
-ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-counts-perform-deseq2-analysis-on-ercc-counts-analysis-of-ercc-counts-deseq2-analysis) as follows:
+ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-data):
 
-- ERCC Counts are plotted and quantified [step 10a](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
-- DESeq2 differential gene expression between Mix 1 & 2 groups is performed on ERCC Counts [step 10b](#10b-perform-deseq2-analysis-of-ercc-counts)
-- DESeq2 results are analyzed compared to expected ERCC ratios [step 10c](#10c-analyze-ercc-count-deseq2-results)
+- ERCC Counts are plotted and quantified [step 10a](#10a-evaluate-ercc-count-data-in-python)
+- DESeq2 differential gene expression in Mix 1 versus Mix 2 groups is performed on ERCC counts [step 10b](#10b-perform-deseq2-analysis-of-ercc-counts-in-r)
+- DESeq2 results are analyzed for the expected Mix 1 vs Mix 2 ERCC groups A, B, C, and D ratios [step 10c](#10c-analyze-ercc-deseq2-results-in-python)
 
 ---
 
@@ -88,7 +88,7 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**5. Create Reference BED File**](#5-create-reference-bed-file)
     - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
     - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
-  - [**6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC**]()
+  - [**6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC**](#6-assess-strandedness-genebody-coverage-inner-distance-and-read-distribution-with-rseqc)
     - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
     - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
     - [6c. Evaluate GeneBody Coverage](#6c-evaluate-genebody-coverage)
@@ -105,10 +105,10 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
     - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
     - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
-  - [**10. Evaluate ERCC Spike-In Data**]()
-    - [10a. Perform ERCC Analysis and Tabulate ERCC Counts](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
-    - [10b. Perform DESeq2 Analysis of ERCC Counts](#10b-perform-deseq2-analysis-of-ercc-counts)
-    - [10c. Analyze ERCC DESeq2 Results](#10c-analyze-ercc-deseq2-results)
+  - [**10. Evaluate ERCC Spike-In Data**](#10-evaluate-ercc-spike-in-data)
+    - [10a. Evaluate ERCC Count Data in Python](#10a-evaluate-ercc-count-data-in-python)
+    - [10b. Perform DESeq2 Analysis of ERCC Counts in R](#10b-perform-deseq2-analysis-of-ercc-counts-in-r)
+    - [10c. Analyze ERCC DESeq2 Results in Python](#10c-analyze-ercc-deseq2-results-in-python)
 
 ---
 
@@ -154,7 +154,9 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
 
 ## 1. Raw Data QC
 
-## 1a. Raw Data QC  
+<br>
+
+### 1a. Raw Data QC  
 
 ```bash
 fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
@@ -176,7 +178,7 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 
 <br>
 
-## 1b. Compile Raw Data QC  
+### 1b. Compile Raw Data QC  
 
 ```bash
 multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
@@ -205,7 +207,9 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 
 ## 2. Trim/Filter Raw Data and Trimmed Data QC
 
-## 2a. Trim/Filter Raw Data  
+<br>
+
+### 2a. Trim/Filter Raw Data  
 
 ```bash
 trim_galore --gzip \
@@ -240,7 +244,7 @@ trim_galore --gzip \
 
 <br>
 
-## 2b. Trimmed Data QC  
+### 2b. Trimmed Data QC  
 
 ```bash
 fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
@@ -262,7 +266,7 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 
 <br>
 
-## 2c. Compile Trimmed Data QC  
+### 2c. Compile Trimmed Data QC  
 
 ```bash
 multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
@@ -347,7 +351,9 @@ STAR genome reference, which consists of the following files:
 
 ## 4. Align Reads to Reference Genome then Sort and Index
 
-## 4a. Align Reads to Reference Genome with STAR
+<br>
+
+### 4a. Align Reads to Reference Genome with STAR
 
 ```bash
 STAR --twopassMode Basic \
@@ -427,7 +433,7 @@ STAR --twopassMode Basic \
 
 <br>
 
-## 4b. Compile Alignment Logs
+### 4b. Compile Alignment Logs
 
 ```bash
 multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
@@ -451,7 +457,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 <br>
 
-## 4c. Tablulate STAR Counts in R
+### 4c. Tablulate STAR Counts in R
 
 ```R
 print("Make STAR counts table")
@@ -504,7 +510,7 @@ sessionInfo()
 
 <br>
 
-## 4d. Sort Aligned Reads
+### 4d. Sort Aligned Reads
 
 ```bash
 samtools sort -m 3G \
@@ -530,7 +536,7 @@ samtools sort -m 3G \
 
 ---
 
-## 4e. Index Aligned Reads
+### 4e. Index Aligned Reads
 
 ```bash
 samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.bam
@@ -555,7 +561,9 @@ samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.ba
 
 ## 5. Create Reference BED File
 
-## 5a. Convert GTF to genePred File  
+<br>
+
+### 5a. Convert GTF to genePred File  
 
 ```bash
 gtfToGenePred -geneNameAsName2 \
@@ -582,7 +590,7 @@ gtfToGenePred -geneNameAsName2 \
 
 <br>
 
-## 5b. Convert genePred to BED File  
+### 5b. Convert genePred to BED File  
 
 ```bash
 genePredToBed /path/to/annotation/genePred/file \
@@ -608,7 +616,9 @@ genePredToBed /path/to/annotation/genePred/file \
 
 ## 6. Assess Strandedness, GeneBody Coverage, Inner Distance, and Read Distribution with RSeQC
 
-## 6a. Determine Read Strandedness
+<br>
+
+### 6a. Determine Read Strandedness
 
 ```bash
 infer_experiment.py -r /path/to/annotation/BED/file \
@@ -636,7 +646,7 @@ infer_experiment.py -r /path/to/annotation/BED/file \
 
 <br>
 
-## 6b. Compile Strandedness Reports
+### 6b. Compile Strandedness Reports
 
 ```bash
 multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
@@ -662,7 +672,7 @@ multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/
 
 ---
 
-## 6c. Evaluate GeneBody Coverage
+### 6c. Evaluate GeneBody Coverage
 
 ```bash
 geneBody_coverage.py -r /path/to/annotation/BED/file \
@@ -693,7 +703,7 @@ geneBody_coverage.py -r /path/to/annotation/BED/file \
 
 ---
 
-## 6d. Compile GeneBody Coverage Reports
+### 6d. Compile GeneBody Coverage Reports
 
 ```bash
 multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_multiqc/output/directory /path/to/geneBody_coverage/output/directories
@@ -719,7 +729,7 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 
 ---
 
-## 6e. Determine Inner Distance (For Paired End Datasets)
+### 6e. Determine Inner Distance (For Paired End Datasets)
 
 ```bash
 inner_distance.py -r /path/to/annotation/BED/file \
@@ -754,7 +764,7 @@ inner_distance.py -r /path/to/annotation/BED/file \
 
 ---
 
-## 6f. Compile Inner Distance Reports
+### 6f. Compile Inner Distance Reports
 
 ```bash
 multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/directory /path/to/inner_dist/output/directories
@@ -780,7 +790,7 @@ multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/d
 
 ---
 
-## 6g. Assess Read Distribution
+### 6g. Assess Read Distribution
 
 ```bash
 read_distribution.py -r /path/to/annotation/BED/file \
@@ -808,7 +818,7 @@ read_distribution.py -r /path/to/annotation/BED/file \
 
 ---
 
-## 6h. Compile Read Distribution Reports
+### 6h. Compile Read Distribution Reports
 
 ```bash
 multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/directory /path/to/*read_dist.out/files
@@ -874,7 +884,9 @@ RSEM genome reference, which consists of the following files:
 
 ## 8. Quantitate Aligned Reads
 
-## 8a. Count Aligned Reads with RSEM
+<br>
+
+### 8a. Count Aligned Reads with RSEM
 
 ```bash
 rsem-calculate-expression --num-threads NumberOfThreads \
@@ -922,7 +934,7 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 
 ---
 
-## 8b. Compile RSEM Count Logs
+### 8b. Compile RSEM Count Logs
 
 ```bash
 multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/directories
@@ -951,7 +963,7 @@ multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/outpu
 
 ---
 
-## 8c. Tablulate Total Number of Genes Expressed Per Sample in R
+### 8c. Tablulate Total Number of Genes Expressed Per Sample in R
 
 ```R
 library(tximport)
@@ -1966,7 +1978,7 @@ sessionInfo()
 
 <br>
 
-### 10a. Perform ERCC Analysis and Tabulate ERCC Counts
+### 10a. Evaluate ERCC Count Data in Python
 
 ```python
 ### Setting up the notebook
@@ -2447,7 +2459,7 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv') # OUTPUT
 
 <br>
 
-### 10b. Perform DESeq2 Analysis of ERCC Counts
+### 10b. Perform DESeq2 Analysis of ERCC Counts in R
 
 ```R
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -2487,7 +2499,7 @@ write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
 
 <br>
 
-### 10c. Analyze ERCC Count DESeq2 Results
+### 10c. Analyze ERCC Count DESeq2 Results in Python
 
 ```python
 import pandas as pd
