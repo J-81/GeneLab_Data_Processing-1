@@ -26,7 +26,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 The following multiQC compilation steps now force interactive plots: 
 - [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
 
-Updated [Ensembl Reference Files]() now used:
+Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv) now used:
 - Animals: Ensembl release 101
 - Plants: Ensembl plants release 48
 - Bacteria: Ensembl bacteria release 48
