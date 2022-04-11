@@ -196,13 +196,12 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 
 **Input Data:**
 
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
+- *fastqc.zip (FastQC data, output from [Step 1a](#1a-raw-data-qc))
 
 **Output Data:**
 
-- raw_multiqc.html (multiqc report)
-- raw_multiqc_data (directory containing multiqc data)
+- raw_multiqc.html\# (multiqc report)
+- raw_multiqc_data\# (directory containing multiqc data)
 
 <br>
 
