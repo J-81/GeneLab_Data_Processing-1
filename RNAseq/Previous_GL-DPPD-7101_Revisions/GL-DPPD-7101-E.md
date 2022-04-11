@@ -19,7 +19,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ---
 
-## Updates from previous revision
+## Updates from previous version
 
 [Software used](#software-used) now specifies exact version numbers.
 
