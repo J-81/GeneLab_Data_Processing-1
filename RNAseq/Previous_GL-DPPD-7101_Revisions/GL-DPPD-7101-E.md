@@ -2564,10 +2564,16 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv')
 ### 10b. Perform DESeq2 Analysis of ERCC Counts in R
 
 ```R
+
+## Install R packages if not already installed
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("DESeq2")
+
+## Import DESeq2 library
+
 library("DESeq2")
 cts <- as.matrix(read.csv('ERCC_analysis/ERCCcounts.csv',sep=",",row.names="Gene_ID")) #INPUT
 coldata <- read.csv('ERCC_analysis/ERCCmetadata.csv', row.names=1) #INPUT
