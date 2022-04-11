@@ -1002,7 +1002,7 @@ sessionInfo()
 
 <br>
 
-### 9a. For Datasets with ERCC Spike-In
+### 9a. For Datasets With ERCC Spike-In
 
 ```R
 ## Install R packages if not already installed
@@ -1578,40 +1578,38 @@ sessionInfo()
 **Input Data:**
 
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
-- [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
-- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
+- [organisms.csv](../organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
+- *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 **Output Data:**
 
 Output data without considering ERCC spike-in genes:
 
-- Unnormalized_Counts.csv\#
-- Normalized_Counts.csv\#
-- SampleTable.csv\#
-- visualization_output_table.csv\#\#
-- visualization_PCA_table.csv\#\#
-- differential_expression.csv\#
-- contrasts.csv\#
+- RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
+- Normalized_Counts.csv\# (table containing normalized gene counts for each sample)
+- SampleTable.csv\# (table containing samples and their respective groups)
+- visualization_output_table.csv (file used to generate GeneLab DGE visualizations)
+- visualization_PCA_table.csv (file used to generate GeneLab PCA plots)
+- differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations) 
+- contrasts.csv\# (table containing all pairwise comparisons)
 
 Output data with considering ERCC spike-in genes:
 
-- ERCC_rawCounts_unfiltered.csv (ERCC unfiltered counts table)
+- ERCC_rawCounts_unfiltered.csv (table containing raw ERCC unfiltered counts)
 - ERCC_rawCounts_filtered.csv (ERCC counts table after removing ERCC genes with low counts)
-- ERCC_Normalized_Counts.csv\#
-- visualization_output_table_ERCCnorm.csv\#\#
-- visualization_PCA_table_ERCCnorm.csv\#\#
-- ERCCnorm_differential_expression.csv\#
-- ERCCnorm_contrasts.csv\#
+- ERCC_Normalized_Counts.csv\# (table containing ERCC-normalized gene counts for each sample)
+- visualization_output_table_ERCCnorm.csv (file used to generate GeneLab DGE visualizations for ERCC-normalized data)
+- visualization_PCA_table_ERCCnorm.csv (file used to generate GeneLab PCA plots for ERCC-normalized data)
+- ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
+- ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
 
-\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
-
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
+> Note: RNAseq processed data interactive tables and plots are found in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
 <br>
 
 ---
 
-### 9b. For Datasets without ERCC Spike-In
+### 9b. For Datasets Without ERCC Spike-In
 
 ```R
 ## Install R packages if not already installed
@@ -1942,17 +1940,15 @@ sessionInfo()
 
 **Output Data:**
 
-- Unnormalized_Counts.csv\#
-- Normalized_Counts.csv\#
-- SampleTable.csv\#
-- visualization_output_table.csv\#\#
-- visualization_PCA_table.csv\#\#
-- differential_expression.csv\#
-- contrasts.csv\#
+- RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
+- Normalized_Counts.csv\# (table containing normalized gene counts for each sample)
+- SampleTable.csv\# (table containing samples and their respective groups)
+- visualization_output_table.csv (file used to generate GeneLab DGE visualizations)
+- visualization_PCA_table.csv (file used to generate GeneLab PCA plots)
+- differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations) 
+- contrasts.csv\# (table containing all pairwise comparisons)
 
-\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
-
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
+> Note: RNAseq processed data interactive tables and plots are found in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
 <br>
 
