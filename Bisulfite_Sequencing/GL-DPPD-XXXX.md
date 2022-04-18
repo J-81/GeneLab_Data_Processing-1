@@ -665,7 +665,7 @@ dev.off()
 * percent-methylated.tsv - table of methylation levels across all cytosines and samples
 * sig-diff-meth-Cs-by-region.pdf - pie chart with percentages of differentially methylated cytosines
 
-\* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group-1_vs_Group-2_\*
+\* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group_1_vs_Group_2-\*
 
 <br>
 
