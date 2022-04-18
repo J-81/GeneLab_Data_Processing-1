@@ -38,6 +38,7 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [8. Generate combined summary report](#8-generate-combined-summary-report)
   - [9. Alignment QC](#alignment-qc)
   - [10. Generate MultiQC project report](#10-generate-multiqc-project-report)
+  - [11. Differential methylation analysis](#11-differential-methylation-analysis)
 
 ---
 
@@ -544,19 +545,127 @@ multiqc -o project_multiqc_output -n project_multiqc -z ./
 * project_multiqc_output/project_multiqc_report.html (multiqc output html summary)
 * project_multiqc_output/project_multiqc_data.zip (zipped directory containing multiqc output data)
 
+<br>
 
+---
 
 ## 11. Differential methylation analysis
-This is performed in R. Example code in the following R script:
+
+This is performed in R. Example code in the following R script is done with the example data that can be downloaded and unpacked as follows:
+
+```bash
+curl -L -o subset-test-results.tar https://figshare.com/ndownloader/files/34780726
+tar -xvf subset-test-results.tar && rm subset-test-results.tar
+```
+
+A bed-formatted annotation file is needed. We utilize gtf files from ensembl and convert them as in the following example:
+
+```bash
+curl -LO ftp://ftp.ensembl.org/pub/release-96/gtf/mus_musculus/Mus_musculus.GRCm38.96.gtf.gz
+
+gunzip -f Mus_musculus.GRCm38.96.gtf.gz
+
+gtfToGenePred Mus_musculus.GRCm38.96.gtf Mus_musculus.GRCm38.96.genePred
+
+genePredToBed Mus_musculus.GRCm38.96.genePred Mus_musculus.GRCm38.96.bed
+```
 
 ```R
+library(tidyverse)
+library(methylKit)
 
+## reading in data
+file.list <-list("subset-test-results/F-SRR12865062-sub_trimmed_bismark_bt2.bismark.cov.gz",
+                 "subset-test-results/F-SRR12865063-sub_trimmed_bismark_bt2.bismark.cov.gz",
+                 "subset-test-results/F-SRR12865064-sub_trimmed_bismark_bt2.bismark.cov.gz",
+                 "subset-test-results/G-SRR12865070-sub_trimmed_bismark_bt2.bismark.cov.gz",
+                 "subset-test-results/G-SRR12865071-sub_trimmed_bismark_bt2.bismark.cov.gz",
+                 "subset-test-results/G-SRR12865072-sub_trimmed_bismark_bt2.bismark.cov.gz")
+
+sample.list <- list("F-SRR12865062",
+                    "F-SRR12865063",
+                    "F-SRR12865064",
+                    "G-SRR12865070",
+                    "G-SRR12865071",
+                    "G-SRR12865072")
+
+# reading into memory
+myobj <- methRead(location = file.list,
+                  sample.id = sample.list,
+                  assembly = "Mmus_GRCm39",
+                  pipeline = "bismarkCoverage",
+                  header = FALSE,
+                  treatment = c(1,1,1,0,0,0),
+                  mincov = 10)
+
+# example of how to store as tables if memory requirements are too high
+# myobj_storage <- methRead(location = file.list,
+#                   sample.id = sample.list,
+#                   assembly = "Mmus_GRCm39",
+#                   dbtype = "tabix",
+#                   pipeline = "bismarkCoverage",
+#                   header = FALSE,
+#                   treatment = c(1,1,1,0,0,0),
+#                   dbdir = "methylkit-dbs/",
+#                   mincov = 10)
+
+## merging samples
+meth <- unite(myobj, destrand = FALSE)
+
+## Finding diff methylated bases
+myDiff <- calculateDiffMeth(meth, mc.cores = 4)
+
+# get hyper methylated bases
+myDiff25p.hyper <- getMethylDiff(myDiff, difference = 25, qvalue = 0.01, type = "hyper")
+# making table for writing out
+sig_hyper_out_tab <- getData(myDiff25p.hyper) %>% arrange(qvalue)
+
+# get hypo methylated bases
+myDiff25p.hypo <- getMethylDiff(myDiff, difference=25, qvalue = 0.01, type = "hypo")
+# making table for writing out
+sig_hypo_out_tab <- getData(myDiff25p.hypo) %>% arrange(qvalue)
+
+# get all differentially methylated bases
+myDiff25p <- getMethylDiff(myDiff, difference = 25, qvalue = 0.01)
+sig_all_out_tab <- getData(myDiff25p) %>% arrange(qvalue)
+
+# writing out tables
+write.table(sig_hyper_out_tab, "sig-hypermethylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(sig_hypo_out_tab, "sig-hypomethylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(sig_all_out_tab, "sig-all-methylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+## Annotating
+library(genomation)
+gene.obj <- readTranscriptFeatures("Mus_musculus.GRCm38.96.bed", up.flank = 1000, down.flank = 1000, remove.unusual = TRUE, unique.prom = TRUE)
+
+diffAnn <- annotateWithGeneParts(as(myDiff25p, "GRanges"), gene.obj)
+
+# making sig table with features 
+sig_all_out_tab_with_features <- cbind(data.frame(myDiff25p), getAssociationWithTSS(diffAnn), as.data.frame(getMembers(diffAnn))) %>% .[,-c(8)]
+write.table(sig_all_out_tab_with_features, "sig-all-methylated-out-with-features.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+# making table of percent methylated
+perc.meth <- percMethylation(meth, rowids = TRUE)
+write.table(perc.meth, "percent-methylated.tsv", sep = "\t", quote = FALSE, row.names = TRUE, col.names=NA)
+
+# making region summary plot
+pdf("sig-diff-meth-Cs-by-region.pdf")
+plotTargetAnnotation(diffAnn, precedence = TRUE, main = "% significantly differentially methylated Cs by region")
+dev.off()
 ```
 
 **Input data:**
-
+* \*.bismark.cov.gz - gzip-compressed bedGraph-formatted files generated in Step 6 above
 
 **Output data:**
+* sig-hypermethylated-out.tsv - cytosines with significantly elevated methylation levels in treatment as compared to control
+* sig-hypomethylated-out.tsv - cytosines with significantly reduced methylation levels in treatment as compared to control
+* sig-all-methylated-out.tsv - all significantly differentially methylated cytosines
+* sig-all-methylated-out-with-features.tsv - all significantly differentially methylated cytosines with gene IDs and features (promotor, exon, intron)
+* percent-methylated.tsv - table of methylation levels across all cytosines and samples
+* sig-diff-meth-Cs-by-region.pdf - pie chart with percentages of differentially methylated cytosines
+
+\* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group-1_vs_Group-2_\*
 
 <br>
 
