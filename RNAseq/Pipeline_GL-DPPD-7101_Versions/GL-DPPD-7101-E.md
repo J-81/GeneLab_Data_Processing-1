@@ -4,7 +4,7 @@
 
 ---
 
-**Date:** April XX, 2022  
+**Date:** April 26, 2022  
 **Revision:** E  
 **Document Number:** GL-DPPD-7101-E  
 
@@ -2590,6 +2590,14 @@ all(rownames(coldata) == colnames(cts))
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
                               design = ~ Mix)
+dds
+
+
+## Filter out ERCC genes with counts of less than 10 in all samples #####
+
+keepGenes <- rowSums(counts(dds)) > 10
+dds <- dds[keepGenes,]
+
 dds
 
 
