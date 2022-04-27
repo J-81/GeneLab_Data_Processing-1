@@ -1308,7 +1308,7 @@ output_table_1 <- normCounts
 for (i in 1:dim(contrasts)[2]){
 	res_1 <- results(dds_1, contrast=c("condition",contrasts[1,i],contrasts[2,i]))
 	res_1 <- as.data.frame(res_1@listData)[,c(2,4,5,6)]
-	colnames(res_1) <-c(paste0("Log2fc_",colnames(contrasts)[i]),paste0("Stat_",colnames(contrasts)[i]),paste0("P.value_",colnames(contrasts)[i]),paste0("Adj.p.value_",colnames(contrasts)[i]))
+	colnames(res_1) <-c(paste0("Log2fc_", colnames(contrasts)[i]), paste0("Stat_",colnames(contrasts)[i]), paste0("P.value_",colnames(contrasts)[i]), paste0("Adj.p.value_",colnames(contrasts)[i]))
 	output_table_1<-cbind(output_table_1,res_1)
 	reduced_output_table_1 <- cbind(reduced_output_table_1,res_1)
 	rm(res_1)
@@ -1445,7 +1445,7 @@ output_table_2 <- ERCCnormCounts
 for (i in 1:dim(contrasts_sub)[2]){
   res_2 <- results(dds_2, contrast=c("condition",contrasts_sub[1,i],contrasts_sub[2,i]))
   res_2 <- as.data.frame(res_2@listData)[,c(2,4,5,6)]
-  colnames(res_2)<-c(paste0("Log2fc_",colnames(contrasts_sub)[i]),paste0("Stat_",colnames(contrasts_sub)[i]),paste0("P.value_",colnames(contrasts_sub)[i]),paste0("Adj.p.value_",colnames(contrasts_sub)[i]))
+  colnames(res_2)<-c(paste0("Log2fc_",colnames(contrasts_sub)[i]), paste0("Stat_",colnames(contrasts_sub)[i]), paste0("P.value_",colnames(contrasts_sub)[i]), paste0("Adj.p.value_",colnames(contrasts_sub)[i]))
   output_table_2<-cbind(output_table_2,res_2)
   reduced_output_table_2 <- cbind(reduced_output_table_2,res_2)
   rm(res_2)
@@ -1803,7 +1803,7 @@ output_table_1 <- normCounts
 for (i in 1:dim(contrasts)[2]){
   res_1 <- results(dds_1, contrast=c("condition",contrasts[1,i],contrasts[2,i]))
   res_1 <- as.data.frame(res_1@listData)[,c(2,4,5,6)]
-  colnames(res_1)<-c(paste0("Log2fc_",colnames(contrasts)[i]),paste0("Stat_",colnames(contrasts)[i]),paste0("P.value_",colnames(contrasts)[i]),paste0("Adj.p.value_",colnames(contrasts)[i]))
+  colnames(res_1)<-c(paste0("Log2fc_",colnames(contrasts)[i]), paste0("Stat_",colnames(contrasts)[i]), paste0("P.value_",colnames(contrasts)[i]), paste0("Adj.p.value_",colnames(contrasts)[i]))
   output_table_1<-cbind(output_table_1,res_1)
   reduced_output_table_1 <- cbind(reduced_output_table_1,res_1)
   rm(res_1)
