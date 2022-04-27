@@ -25,20 +25,24 @@ Jonathan Galazka (GeneLab Project Scientist)
 - [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
   - [1. Raw Data QC](#1-raw-data-qc)
   - [2. Adapter trimming/quality filtering](#2-adapter-trimmingquality-filtering)
-    - [If not RRBS or if RRBS using MseI digestion](#if-not-rrbs-or-if-rrbs-using-msei-digestion)
+    - [If not RRBS or if RRBS using MseI digestion](if-not-rrbs-or-if-rrbs-using-msei-digestion)
     - [If RRBS with MspI digestion](#if-rrbs-with-mspi-digestion)
     - [If RRBS with NuGEN ovation kit](#if-rrbs-with-nugen-ovation-kit)
   - [3. Filtered/Trimmed Data QC](#3-filteredtrimmed-data-qc)
   - [4. Alignment](#4-alignment)
-    - [Generate reference](#generate-reference)
-    - [Align](#align)
+    - [4a. Generate reference](#4a-generate-reference)
+    - [4b. Align](#4b-align)
   - [5. Deduplicate (skip if data are RRBS)](#5-deduplicate-skip-if-data-are-rrbs)
   - [6. Extract methylation calls](#6-extract-methylation-calls)
   - [7. Generate individual sample report](#7-generate-individual-sample-report)
   - [8. Generate combined summary report](#8-generate-combined-summary-report)
   - [9. Alignment QC](#alignment-qc)
   - [10. Generate MultiQC project report](#10-generate-multiqc-project-report)
-  - [11. Differential methylation analysis](#11-differential-methylation-analysis)
+  - [11. Generate reference-genome annotation information](#11-generate-reference-genome-annotation-information)
+    - [11a. GTF to BED conversion](#11a-gtf-to-bed-conversion)
+    - [11b. Making a mapping file of genes to transcripts](#11b-making-a-mapping-file-of-genes-to-transcripts)
+    - [11c. Making a table of all gene annotations](#11c-making-a-table-of-all-gene-annotations)
+  - [12. Differential methylation analysis](#12-differential-methylation-analysis)
 
 ---
 
@@ -175,7 +179,9 @@ mv sample-1_raw_trimmed.fq.gz sample-1_trimmed.fastq.gz
 **Paired-end example**  
 
 ```bash
-trim_galore --cores 4 --paired -a AGATCGGAAGAGC -a2 AAATCAAAAAAAC sample-1_R1_raw.fastq.gz sample-1_R2_raw.fastq.gz
+trim_galore --cores 4 --paired \
+            -a AGATCGGAAGAGC -a2 AAATCAAAAAAAC \
+            sample-1_R1_raw.fastq.gz sample-1_R2_raw.fastq.gz
 
 # renaming output to use GeneLab standard conventions
 mv sample-1_R1_raw_val_1.fq.gz sample-1_R1_trimmed.fastq.gz
@@ -202,7 +208,9 @@ mv sample-1_trimmed.fastq_trimmed.fq.gz sample-1_trimmed.fastq.gz
 **Paired-end example**  
 
 ```bash
-python2 trimRRBSdiversityAdaptCustomers.py -1 sample-1_R1_trimmed.fastq.gz -2 sample-1_R2_trimmed.fastq.gz
+python2 trimRRBSdiversityAdaptCustomers.py \
+        -1 sample-1_R1_trimmed.fastq.gz \
+        -2 sample-1_R2_trimmed.fastq.gz
 
 # renaming outputs to use GeneLab standard suffix
 mv sample-1_R1_trimmed.fastq_trimmed.fq.gz sample-1_R1_trimmed.fastq.gz
@@ -284,7 +292,7 @@ multiqc -o trimmed_multiqc_output -n trimmed_multiqc -z trimmed_fastqc_output/
 
 ## 4. Alignment
 
-### Generate reference
+### 4a. Generate reference
 The reference will need to be specific to what was sequenced. Bismark operates on a directory holding the target reference genome in fasta format.
 
 ```bash
@@ -311,7 +319,7 @@ bismark_genome_preparation --parallel 4 reference-genome/
 > **NOTE**  
 > If using RNA, need to add the `--hisat` flag.
 
-### Align
+### 4b. Align
 
 Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end). 
 
@@ -324,7 +332,9 @@ bismark --bam -p 4 --genome reference-genome/ sample-1_trimmed.fastq.gz
 **Paired-end example**  
 
 ```bash
-bismark --bam -p 4 --genome reference-genome/ -1 sample-1_R1_trimmed.fastq.gz -2 sample-1_R2_trimmed.fastq.gz
+bismark --bam -p 4 --genome reference-genome/ \
+        -1 sample-1_R1_trimmed.fastq.gz \
+        -2 sample-1_R2_trimmed.fastq.gz
 ```
 
 **Parameter Definitions:**
@@ -484,10 +494,14 @@ bismark2summary
 
 ```bash
 # sorting bam file
-samtools sort -@ 4 -o sample-1_trimmed_bismark_bt2.sorted.bam sample-1_trimmed_bismark_bt2.bam
-    # note, input should be the deduplicated version produced in step 5 above if not working with RRBS data
+samtools sort -@ 4 -o sample-1_trimmed_bismark_bt2.sorted.bam \
+         sample-1_trimmed_bismark_bt2.bam
+    # note, input should be the deduplicated version produced 
+    # in step 5 above if not working with RRBS data
 
-qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam -outdir sample-1_trimmed_bismark_bt2_qualimap --collect-overlap-pairs --java-mem-size=6G -nt 4
+qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam \
+         -outdir sample-1_trimmed_bismark_bt2_qualimap \
+         --collect-overlap-pairs --java-mem-size=6G -nt 4
 ```
 
 **Parameter Definitions for `samtools`:**
@@ -549,26 +563,209 @@ multiqc -o project_multiqc_output -n project_multiqc -z ./
 
 ---
 
+## 11. Generate reference genome annotation information
+
+### 11a. GTF to BED conversion
+A bed-formatted annotation file is needed for adding annotation information to the output from the differential methylation analysis. We utilize gtf files from [Ensembl](https://www.ensembl.org/) and convert them as in the following example:
+
+```bash
+# downloading mouse reference gtf for this example
+curl -LO http://ftp.ensembl.org/pub/release-101/gtf/mus_musculus/Mus_musculus.GRCm38.101.gtf.gz
+
+gunzip Mus_musculus.GRCm38.101.gtf.gz
+
+gtfToGenePred Mus_musculus.GRCm38.101.gtf Mus_musculus.GRCm38.101.genePred
+
+genePredToBed Mus_musculus.GRCm38.101.genePred Mus_musculus.GRCm38.101.bed
+
+# removing intermediate file
+rm Mus_musculus.GRCm38.101.genePred
+```
+
+**Input data:**
+
+* a reference gtf file ("Mus_musculus.GRCm38.101.gtf" in the above example)
+
+**Output data:**
+
+* the generated bed file ("Mus_musculus.GRCm38.101.bed" in the above example)
+
+### 11b. Making a mapping file of genes to transcripts
+Making a mapping file of gene names to transcript names, which we generate from the gtf file like so:
+
+```bash
+awk ' $3 == "transcript" ' Mus_musculus.GRCm38.101.gtf | cut -f 9 | tr -s ";" "\t" | \
+    cut -f 1,3 | tr -s " " "\t" | cut -f 2,4 | tr -d '"' \
+    > Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv
+```
+
+**Input data:**
+
+* a reference gtf file ("Mus_musculus.GRCm38.101.gtf" in the above example)
+
+**Output data:**
+
+* the generated file with gene IDs in the first column and transcript IDs in the second ("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv" in the above example)
+
+
+### 11c. Making a table of all gene annotations
+And here we generate a table of all gene annotations. The following is performed in R:
+
+```R
+library(tidyverse)
+library(STRINGdb) # for adding String database annotations
+library(PANTHER.db) # for adding GOSLIM annotations
+
+# getting all unique gene IDs from initial gtf file
+map_tab <- read.table("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv", 
+                      sep = "\t",
+                      header = FALSE, 
+                      col.names = c("gene_ID", "transcript_ID"),
+                      stringsAsFactors = FALSE)
+
+unique_gene_IDs <- map_tab %>% pull(gene_ID) %>% unique %>% sort
+
+# reading in organisms.csv file
+organism_table <- read.csv("organisms.csv")
+
+# setting organism (should match "name" column in 'organisms.csv'
+target_organism <- "MOUSE"
+
+# getting organism taxid
+target_taxid <- organism_table %>% 
+           filter(name == target_organism) %>%
+           pull(taxon)
+
+
+# building annotation table
+ann.dbi <- organism_table %>% 
+           filter(name == target_organism) %>%
+           pull(annotations)
+
+# loading organism db package (and installing if needed)
+if( ! require(ann.dbi, character.only = TRUE) ) {
+	BiocManager::install(ann.dbi, ask = FALSE)
+	library(ann.dbi, character.only = TRUE)
+}
+
+
+keytype <- "ENSEMBL"
+
+
+annot <- data.frame(unique_gene_IDs, stringsAsFactors = FALSE)
+colnames(annot)[1] <- keytype
+
+# adding gene symbols if available
+if ( "SYMBOL" %in% columns(eval(parse(text = ann.dbi), env=.GlobalEnv)) ) {
+	annot$SYMBOL <- mapIds(eval(parse(text = ann.dbi), env=.GlobalEnv),
+                           keys = unique_gene_IDs,
+                           keytype = keytype, 
+                           column = "SYMBOL", 
+                           multiVals = "first")
+}
+
+# adding gene names if available
+if ( "GENENAME" %in% columns(eval(parse(text = ann.dbi), env=.GlobalEnv)) ) {
+        annot$GENENAME <- mapIds(eval(parse(text = ann.dbi), env=.GlobalEnv), 
+                                 keys = unique_gene_IDs, 
+                                 keytype = keytype, 
+                                 column = "GENENAME", 
+                                 multiVals = "first")
+}
+
+# adding refseq accessions if available
+if ( "REFSEQ" %in% columns(eval(parse(text = ann.dbi), env=.GlobalEnv)) ) {
+        annot$REFSEQ <- mapIds(eval(parse(text = ann.dbi), env=.GlobalEnv), 
+                               keys = unique_gene_IDs, 
+                               keytype = keytype, 
+                               column = "REFSEQ", 
+                               multiVals = "first")
+}
+
+
+# adding entrez IDs if available
+if ( "ENTREZID" %in% columns(eval(parse(text = ann.dbi), env=.GlobalEnv)) ) {
+        annot$ENTREZID <- mapIds(eval(parse(text = ann.dbi), env=.GlobalEnv), 
+                                 keys = unique_gene_IDs, 
+                                 keytype = keytype, 
+                                 column = "ENTREZID", 
+                                 multiVals = "first")
+}
+
+
+
+# adding STRINGdb annotations if available
+string_db <- STRINGdb$new(version = "11", species = target_taxid, score_threshold = 0)
+string_map <- string_db$map(annot, "SYMBOL", 
+                            removeUnmappedRows = FALSE, 
+                            takeFirst = TRUE)[,c(keytype, "STRING_id")]
+
+# removing duplicates
+string_map <- string_map[!duplicated(string_map %>% pull(keytype)), ]
+# combining with annotation table
+annot <- dplyr::left_join(annot, string_map, by = keytype)
+
+# adding GO slim annotations if available
+pthOrganisms(PANTHER.db) <- target_organism
+
+panther <- mapIds(PANTHER.db, 
+                  keys = annot$ENTREZID, 
+                  keytype = "ENTREZ", 
+                  column = "GOSLIM_ID", 
+                  multiVals = "list")
+
+# the NAs in this come in as NULL, so changing that here to match the 
+# other columns which have "<NA>" as a string
+panther[which(is.na(names(panther)))] <- "<NA>"
+
+annot$GOSLIM_IDS <- panther
+
+
+# adding on all transcript IDs associated with each gene ID
+transcript_df <- data.frame(row.names = annot %>% pull(keytype), 
+                            stringsAsFactors = FALSE)
+
+for ( ID in annot %>% pull(keytype) ) {
+    
+    # getting current gene's transcript IDs
+    curr_transcript_IDs <- map_tab %>% 
+                           filter(gene_ID == ID) %>% 
+                           pull(transcript_ID) %>% 
+                           paste(collapse = "|")
+    
+    # adding to table
+    transcript_df[ID, "transcript_IDs"] <- curr_transcript_IDs
+
+}
+
+transcript_df <- transcript_df %>% 
+                 rownames_to_column("ENSEMBL")
+
+# annot <- dplyr::left_join(annot, transcript_df, by = keytype)
+
+# writing out genome annotation table
+# write.table(annot, "Mus_musculus.GRCm38.101-gene-annotations.tsv", sep = "\t", quote = FALSE)
+```
+
+**Input data:**
+
+* a gene to transcript map generated in a previous component B of this step ("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv" in the above example)
+* organisms.csv (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
+
+**Output data:**
+
+* a tab-delimited (tsv) file holding gene annotations ("Mus_musculus.GRCm38.101-gene-annotations.tsv" in the above example)
+
 ## 11. Differential methylation analysis
 
-This is performed in R. Example code in the following R script is done with the example data that can be downloaded and unpacked as follows:
+Example data for the R code below can be downloaded and unpacked with the following:
 
 ```bash
 curl -L -o subset-test-results.tar https://figshare.com/ndownloader/files/34780726
 tar -xvf subset-test-results.tar && rm subset-test-results.tar
 ```
 
-A bed-formatted annotation file is needed. We utilize gtf files from ensembl and convert them as in the following example:
-
-```bash
-curl -LO ftp://ftp.ensembl.org/pub/release-96/gtf/mus_musculus/Mus_musculus.GRCm38.96.gtf.gz
-
-gunzip -f Mus_musculus.GRCm38.96.gtf.gz
-
-gtfToGenePred Mus_musculus.GRCm38.96.gtf Mus_musculus.GRCm38.96.genePred
-
-genePredToBed Mus_musculus.GRCm38.96.genePred Mus_musculus.GRCm38.96.bed
-```
+The remainder of this section is performed in R. 
 
 ```R
 library(tidyverse)
