@@ -739,12 +739,12 @@ for ( ID in annot %>% pull(keytype) ) {
 }
 
 transcript_df <- transcript_df %>% 
-                 rownames_to_column("ENSEMBL")
+                 rownames_to_column(keytype)
 
-# annot <- dplyr::left_join(annot, transcript_df, by = keytype)
+annot <- dplyr::left_join(annot, transcript_df, by = keytype)
 
 # writing out genome annotation table
-# write.table(annot, "Mus_musculus.GRCm38.101-gene-annotations.tsv", sep = "\t", quote = FALSE)
+write.table(annot, "Mus_musculus.GRCm38.101-gene-annotations.tsv", sep = "\t", quote = FALSE)
 ```
 
 **Input data:**
