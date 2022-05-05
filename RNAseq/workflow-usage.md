@@ -1,14 +1,17 @@
-# Workflow information and usage instructions
+# Workflow Information and Usage Instructions
 
+## General Workflow Info
 
-## General workflow info
 ### Implemenation Tools
+
 The current processing protocol is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow and utilizes [conda](https://docs.conda.io/en/latest/) environments. This workflow is run using the CLI of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow. An introduction to conda with installation help and links to other resources can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro).  
 
 ### Workflow & Subworkflows
+
 ---
 
-**Click image to expand**
+- **Click image to expand**
+
 <p align="center">
 <a href="images/rnaseq_pipeline.png"><img src="images/rnaseq_pipeline.png"></a>
 </p>
@@ -16,28 +19,31 @@ The current processing protocol is implemented as a [Nextflow](https://nextflow.
 ---
 This workflow is composed of three subworkflows as shown in the image above.
 Below is a description of each subworkflow as well as the output files if not listed in the processing protocol:
+
 1. Analysis Staging Subworkflow
-  - Description: 
-    - This subworkflow extracts the processing parameters (e.g. organism, library layout) from the GLDS ISA archive as well as retrieves the raw reads files hosted on the GeneLab Data Repository.
 
-2. RNASeq Concensus Pipeline Subworkflow
-  - Description:
+   - Description:
+     - This subworkflow extracts the processing parameters (e.g. organism, library layout) from the GLDS ISA archive as well as retrieves the raw reads files hosted on the GeneLab Data Repository.
+
+2. RNASeq Consensus Pipeline Subworkflow
+
+   - Description:
      - This subworkflow uses the staged raw data and processing parameters to generate processed data.
-3. V&V Pipeline Subworkflow 
-  - Description:
-    - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
+
+3. V&V Pipeline Subworkflow
+
+   - Description:
+     - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
+
 ---
-| Flag ID | Severity              |
-|---------|-----------------------|
-| 20      | Info-Only             |
-| 30      | Passed-Green          |
-| 50      | Warning-Yellow        |
-| 60      | Warning-Red           |
-| 90      | Issue-Halt_Processing |
+| Flag Codes | Flag Name             |Interpretation                  |
+|------------|-----------------------|-------------------------|
+| 20-29      | GREEN                 |Indicates the check passed all validation conditions                         |  
+| 30-39      | YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
+| 50-59      | RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
+| 80-89      | HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
 
-
-
-## Utilizing the workflow
+## Utilizing the Workflow
 
 1. [Install conda and Nextflow](#1-install-conda-and-nextflow)  
 2. [Download the workflow files](#2-download-the-workflow-files)  
@@ -46,9 +52,8 @@ Below is a description of each subworkflow as well as the output files if not li
 5. [Additional Output Files](#5-additional-output-files)
 6. [Known Issues](#6-known-issues)
 
+### 1. Install Conda and Nextflow
 
-
-### 1. Install conda and Nextflow
 We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the above link](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
 
 Once conda is installed on your system, you can install the latest version of Nextflow by running the following commands:
@@ -58,21 +63,23 @@ conda install -c bioconda nextflow
 nextflow self-update
 ```
 
-### 2. Download the workflow files
+### 2. Download the Workflow Files
+
 All files required for utilizing the GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a copy of that directory on to your system, copy the github web address of that directory, paste it into [GitZip here](http://kinolien.github.io/gitzip/), and then click download:
 
 <p align="center">
 <a href="images/gitzip_rnaseq.png"><img src="images/gitzip_rnaseq.png"></a>
 </p>
 
-### 3. Setup execution permission for bin scripts
+### 3. Setup Execution Permission for Bin Scripts
+
 Once you've downloaded the workflow template, you need to set the execution permission for the scripts in the bin folder.  The scripts may be made executable using the following command inside the unzipped workflow_code directory.
 
 ```bash
 chmod -R u+x bin
 ```
 
-### 4. Run the workflow
+### 4. Run the Workflow
 
 #### Approach 1: Running the workflow with automatic retrieval of Ensembl reference fasta and gtf
 
@@ -80,7 +87,7 @@ Here is one example command of how to run the workflow in using Approach 1.  Not
 
 > **Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument**  
 
-```
+``` text
 Usage example 1:
    Fetches ensembl reference files via ftp and GeneLab raw data via https before running processing pipeline
    > nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 96
@@ -92,7 +99,7 @@ Usage example 2:
 
 required arguments:
   --gldsAccession GLDS-000
-                        the GLDS accession id to process through the RNASeq Concensus Pipeline.
+                        the GLDS accession id to process through the RNASeq consensus Pipeline.
   --ensemblVersion n    the ensembl Version to use for the reference genome.
 optional arguments:
   --help                show this help message and exit
@@ -112,38 +119,40 @@ optional arguments:
   -stub-run             runs the workflow forcing 'unstranded' RSEM settings and using dummy gene counts in the differential gene expression (DGE) analysis. Useful when combined with the --truncateTo parameter this often leads to low gene counts and errors in the DGE analysis
 ```
 
-
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
-
-
 
 ---
 
 ### 5. Additional Output Files
 
 The output from the Analysis Staging subworkflow and V&V Pipeline subworkflow are described here.
-Note: the output from the RNASeq Concensus Pipeline are documented in the current processing protocol, (GL-DPPD-7101-C.md)](GL-DPPD-7101-C.md),
+Note: the output from the RNASeq Consensus Pipeline are documented in the current processing protocol, [GL-DPPD-7101-E.md](Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-E.md),
 
 1. Analysis Staging Subworkflow
-  - Output:
-    - \*_runsheet.csv (a table that include processing parameters and raw reads files location)
-    - \*-ISA.zip (the ISA archive fetched from the GeneLab Data Repository)
-    - \*_metadata_table.txt (a table that includes additional information about the GLDS entry, not used for processing)
 
-2. V&V Pipeline Subworkflow 
-  - Output:
-    - VV_Log/VV_FULL_OUT.tsv (A tab-separated values file that includes all V&V flags levels logged)
-    - VV_Log/only-issues__VV_FULL_OUT.tsv (A tab-separated values file that includes V&V flags levels logged with severities greater than 30)
-    - VV_Log/Summary.tsv (A tab-separated values file that summarizes the percent of samples that have Warnings for each step)
-    - VV_Log/all-by-sample.txt (A text file that lists, by sample, all flags with severities greater than 30)
-    - VV_Log/bySample/{sample_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by sample)
-    - VV_Log/byStep/{step_name}__VV_FULL_OUT.tsv (A series of tab-separated values files that subset the full flag log by processing step)
+   - Output:
+     - \*_bulkRNASeq_v1_runsheet.csv (a table that include processing parameters and raw reads files location)
+     - \*-ISA.zip (the ISA archive fetched from the GeneLab Data Repository)
+     - \*_metadata_table.txt (a table that includes additional information about the GLDS entry, not used for processing)
+
+1. V&V Pipeline Subworkflow
+
+   - Output:
+     - VV_Logs/VV_log_final.tsv (A tab-separated values file that includes all V&V flags levels logged)
+     - VV_Logs/VV_log_final_only_issues.tsv (A tab-separated values file that includes V&V flags levels logged with maximum flag codes greater than 20)
+     - VV_Logs/VV_log_verbose_through_VV_RAW_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RAW_READS)
+     - VV_Logs/VV_log_verbose_through_VV_TRIMMED_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after TRIMMED_READS)
+     - VV_Logs/VV_log_verbose_through_VV_STAR_ALIGNMENTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after STAR_ALIGNMENTS)
+     - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEQC)
+     - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEM_COUNTS)
 
 ---
 
 ### 6. Known Issues
 
-## Truncated raw read files
-- This is a known issue for Nextflow file staging from URL.  If the Nextflow process is interrupted while staging a file (most notably raw read files for this pipeline), the truncated file will **NOT** be re-downloaded, resulting in a pipeline trying to process with the truncated file.
-- This is most common when an unexpected error occurs for a process that uses raw read files.
+#### Truncated Raw Read Files
+
+- This is a known issue for Nextflow file staging from URL.  
+- If the Nextflow process is forcefully interrupted while staging a file (most notably raw read files for this pipeline), the truncated file will **NOT** be re-downloaded, resulting in a pipeline trying to process with the truncated file.
+- This is most commonly manifests as an unexpected error related to truncation occuring for processes that use the raw read files.
 - The advised workaround is to purge the staged files, located in your Nextflow "work" directory under the "stage" sub-directory, and relaunch the pipeline.
