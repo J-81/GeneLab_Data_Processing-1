@@ -6,34 +6,46 @@ The current processing protocol is implemented as a [Snakemake](https://snakemak
 
 ## Utilizing the workflow
 
-1. [Install conda and snakemake](#1-install-conda-and-snakemake)  
+1. [Install conda and `genelab-utils` package](#1-install-conda-and-genelab-utils-package)  
 2. [Download the workflow template files](#2-download-the-workflow-template-files)  
 3. [Modify the variables in the config.yaml file](#3-modify-the-variables-in-the-configyaml-file)  
 4. [Run the workflow](#4-run-the-workflow)   
 
-### 1. Install conda and snakemake
+### 1. Install conda and `genelab-utils` package
 We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the above link](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
 
-Once conda is installed on your system, you can install the latest version of snakemake by running the following command:
+Once conda is installed on your system, you can install the genelab-utils conda package in a new environment with the following:
 
 ```bash
-conda install -c conda-forge -c bioconda -c defaults snakemake
+conda create -n genelab-utils -c conda-forge -c bioconda -c defaults -c astrobiomike genelab-utils
+```
+
+The environment then needs to be activated:
+
+```bash
+conda activate genelab-utils
 ```
 
 ### 2. Download the workflow template files
-All files required for utilizing the GeneLab workflow for removing human reads from metagenomics data are in the [workflow-template](workflow-template) directory. To get a copy of that directory on to your system, copy the github web address of that directory, paste it into [GitZip here](http://kinolien.github.io/gitzip/), and then click download.
+All files required for utilizing the GeneLab workflow for removing human reads from metagenomics data are in the [workflow-template](workflow-template) directory. To get a copy of that directory on to your system, run the following command:
+
+```bash
+GL-get-kraken2-human-read-removal-wf
+```
+
+This downloaded the workflow into a directory called `remove-human-reads-workflow/`.
 
 ### 3. Modify the variables in the config.yaml file
-Once you've downlonaded the workflow template, you can modify the variables in the [config.yaml](workflow-template/config.yaml) file as needed. For example, you will have to provide a text file containing a single-column list of unique sample identifiers (see an example of how to set this up below - if you are running the example dataset, this file is provided in the [workflow-template](workflow-template) directory [here](workflow-template/unique-sample-names.txt)). You will also need to indicate the path to your input data (raw reads) and the root directory for where the kraken2 reference database should be stored (it will be setup automatically). Additionally, if necessary, you'll need to modify each variable in the [config.yaml](workflow-template/config.yaml) file to be consistent with the study you want to process and the machine you're using. 
+Once you've downloaded the workflow template, you can modify the variables in the [config.yaml](workflow-template/config.yaml) file as needed. For example, you will have to provide a text file containing a single-column list of unique sample identifiers (see an example of how to set this up below - if you are running the example dataset, this file is provided in the [workflow-template](workflow-template) directory [here](workflow-template/unique-sample-IDs.txt)). You will also need to indicate the path to your input data (raw reads) and the root directory for where the kraken2 reference database should be stored (it will be setup automatically). Additionally, if necessary, you'll need to modify each variable in the [config.yaml](workflow-template/config.yaml) file to be consistent with the study you want to process and the machine you're using. 
 
 > Note: If you are unfamiliar with how to specify paths, one place you can learn more is [here](https://astrobiomike.github.io/unix/getting-started#the-unix-file-system-structure).  
 
 **Example for how to create a single-column list of unique sample identifiers from your raw data file names**
 
-For example, if you have paired-end read data for 2 samples located in `../Raw_Data/` relative to your workflow directory, that look like this:
+For example, if you have paired-end read data for 2 samples located in `../Raw_Sequence_Data/` relative to your workflow directory, that look like this:
 
 ```bash
-ls ../Raw_Data/
+ls ../Raw_Sequence_Data/
 ```
 
 ```
@@ -74,47 +86,6 @@ A quick example can be run with the files included in the [workflow-template](wo
 ---
 
 ## Reference database info
-The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be downloaded to run with this workflow (it's ~4.3 GB uncompressed). 
-
----
-
-### Kraken2 human database build
-
-> The following was performed on 29-Nov-2020 with kraken v2.1.1.
-
-**Download human reference (takes ~2 minutes as run here):**
-
-```bash
-kraken2-build --download-library human --db kraken2-human-db --threads 30 --no-masking
-```
-
-**Download NCBI taxonomy info needed (takes ~10 minutes):**
-
-```bash
-kraken2-build --download-taxonomy --db kraken2-human-db/
-```
-
-**Build the database (takes ~20 minutes as run here):**
-
-```bash
-kraken2-build --build --db kraken2-human-db/ --threads 30
-```
-
-**Remove intermediate files:**
-
-```bash
-kraken2-build --clean --db kraken2-human-db/
-```
-
----
-
-### Download database as built on 29-Nov-2020
-The reference database is 3GB compressed and ~4.3GB uncompressed. If using the accompanying Snakemake workflow, it will download and use this reference database. It can also be downloaded and unpacked independently by running the following commands:
-
-```bash
-curl -L -o kraken2-human-db.tar.gz https://ndownloader.figshare.com/files/25627058
-
-tar -xzvf kraken2-human-db.tar.gz
-```
+The database we use was built with kraken2 v2.1.1 as detailed below, and by default will be automatically downloaded to run with this workflow (it's ~4.3 GB uncompressed). The steps for building it are described on the [reference database info page](reference-database-info.md).
 
 ---

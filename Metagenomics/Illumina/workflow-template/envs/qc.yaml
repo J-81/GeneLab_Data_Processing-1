@@ -4,5 +4,6 @@ channels:
     - defaults
 dependencies:
     - fastqc=0.11.9
-    - multiqc=1.9
+    - multiqc=1.11
     - bbmap=38.86
+    - zip=3.0

@@ -4,4 +4,4 @@ channels:
     - defaults
     - biobakery
 dependencies:
-    - humann=3.0.0.alpha.3
+    - humann=3.0.0

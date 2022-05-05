@@ -23,6 +23,7 @@ Anushree Sonic (Genelab Configuration Manager)
 # Table of contents  
 
 - [**Software used**](#software-used)
+- [**Reference databases used**](#reference-databases-used)
 - [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
   - [**1. Raw Data QC**](#1-raw-data-qc)
     - [Compile Raw Data QC](#compile-raw-data-qc)
@@ -53,6 +54,13 @@ Anushree Sonic (Genelab Configuration Manager)
 |biomformat|`packageVersion("biomformat")`|[https://github.com/joey711/biomformat](https://github.com/joey711/biomformat)|
 
 >**\*** Exact versions are available along with the processing commands for each specific dataset.
+
+# Reference databases used
+
+|Program used| Database| Relevant Links|
+|:-----|:-----:|--------:|
+|DECIPHER| SILVA SSU r138 | [http://www2.decipher.codes/Classification/TrainingSets/SILVA_SSU_r138_2019.RData](http://www2.decipher.codes/Classification/TrainingSets/)|
+|DECIPHER| UNITE v2020 | [http://www2.decipher.codes/Classification/TrainingSets/UNITE_v2020_February2020.RData](http://www2.decipher.codes/Classification/TrainingSets/)|
 
 ---
 

@@ -5,56 +5,38 @@
 ---
 
 **Date:** September 13, 2021  
-**Revision:** E  
-**Document Number:** GL-DPPD-7101-E  
+**Revision:** D  
+**Document Number:** GL-DPPD-7101-D  
 
 **Submitted by:**  
 Amanda Saravia-Butler (GeneLab Data Processing Team)
 
 **Approved by:**  
 Sylvain Costes (GeneLab Project Manager)  
-Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)
+Samrawit Gebre (GeneLab Deputy Project Manager and Interim GeneLab Configuration Manager)   
 Jonathan Galazka (GeneLab Project Scientist)
 
 ---
 
 ## Updates from previous revision
 
-[Software used](#software-used) now specifies exact version numbers.
+Two additional sub-steps were added to step 4:
+- A step to compile the alignment log files using multiQC, [step 4b](#4b-compile-alignment-logs)
+- A step to index the alignment files, [step 4c](#4c-index-aligned-reads), which is required to assess read strandedness
 
-The following multiQC compilation steps now force interactive plots: 
-- [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
+Two additional steps were added prior to aligned read quantitation:
+- Step 5, [5a](#5a-convert-gtf-to-genepred-file) and [5b](#5b-convert-genepred-to-bed-file), was added to create a reference annotation BED file required to assess read strandedness
+- Step 6 was added to [determine read strandedness](#6a-determine-read-strandedness) and [compile read strandedness reports](#6b-compile-strandedness-reports), to determine which RSEM `--strandedness` setting to use during aligned read quantitation
 
-STAR Gene Counts now generated in the [step 4a](#4a-align-reads-to-reference-genome-with-star)
+The aligned read quantitation step, now [step 8](#8-count-aligned-reads-with-rsem), was modified to use the results of the read strandedness step to inform the correct RSEM `--strandedness` setting
+> Note: A subset of samples from all datasets previously processed were evaluated for strandedness, and those datasets identified to have been processed with the incorrect RSEM `--strandedness` setting were reprocessed with the correct setting
 
-- These counts are tabulated in new [step 4c](#4c-tablulate-star-counts)
+The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
+- Perform ERCC normalization using only ERCC group B genes, since the concentration of these genes are the same in ERCC mix 1 and mix 2
+- Remove any samples that do not contain detectible ERCC group B spike-ins prior to generation and subsequent analysis of ERCC-normalized count data
+- Account for the edge case in which rescaling using ERCC size factors fails due to zero gene counts
 
-Additional RSeQC Analyses are performed after reference genome alignment as follows:
-
-- GeneBody coverage is assessed and reports are compiled with multiQC in [step 6c](#6c-assess-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports) respectively
-- For Paired End Datasets, inner distance is assessed and reports are compiled with multiQC in [step 6e](#6e-assess-inner-distance-for-paired-end-datasets) and [step 6f](#6f-compile-inner-distance-reports) respectively
-- Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports) respectively
-
-RSEM Count results are additionally summarized as follows:
-
-- MultiQC is used to compile a RSEM count report in [step 8b](#8b-compile-rsem-count-logs)
-- These counts are tabulated in new [step 8c](#8c-tablulate-rsem-counts)
-
-The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
-
-- Fixed bug where `ERCCnorm_contrasts.csv` was always the same as the non-ERCC contrasts.csv
-  - Note: In most cases, these files are the same. They will only differ when, for the ERCC-based analysis, removal of samples with no detectable Group B ERCC spike-in results in the a complete removal of a factor group.
-
-The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), and without, [step 9b](#9b-for-datasets-without-ercc-spike-in) was modified as follows:
-
-- Input file regex modified to address bug that occured when certain sample IDs were substrings of other sample IDs (e.g. Sample1, Sample13)
-- Output file: `Unnormalized_Counts.csv` renamed to `RSEM_Unnormalized_Counts.csv` for clarity
-
-ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-counts-perform-deseq2-analysis-on-ercc-counts-analysis-of-ercc-counts-deseq2-analysis) as follows:
-
-- ERCC Counts are plotted and quantified [step 10a](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
-- DESeq2 differential gene expression between Mix 1 & 2 groups is performed on ERCC Counts [step 10b](#10b-perform-deseq2-analysis-of-ercc-counts)
-- DESeq2 results are analyzed compared to expected ERCC ratios [step 10c](#10c-analyze-ercc-count-deseq2-results)
+Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the DGE output tables for datasets both with and without ERCC spike-in, now [step 9a](#9a-for-datasets-with-ercc-spike-in) and [step 9b](#9b-for-datasets-without-ercc-spike-in), respectively, which will be used for GSEA visualizations
 
 ---
 
@@ -73,64 +55,49 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
   - [3. Build STAR Reference](#3-build-star-reference)
   - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
   - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
-  - [4c. Tablulate STAR Counts](#4c-tablulate-star-counts)
-  - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
-  - [4e. Index Aligned Reads](#4e-index-aligned-reads)
+  - [4c. Index Aligned Reads](#4c-index-aligned-reads)
   - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
   - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
   - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
   - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
-  - [6c. Assess GeneBody Coverage](#6c-assess-genebody-coverage)
-  - [6d. Compile GeneBody Coverage Reports](#6d-compile-genebody-coverage-reports)
-  - [6e. Assess Inner Distance (For Paired End Datasets)](#6e-assess-inner-distance-for-paired-end-datasets)
-  - [6f. Compile Inner Distance Reports](#6f-compile-inner-distance-reports)
-  - [6g. Assess Read Distribution](#6g-assess-read-distribution)
-  - [6h. Compile Read Distribution Reports](#6h-compile-read-distribution-reports)
   - [7. Build RSEM Reference](#7-build-rsem-reference)
-  - [8a. Count Aligned Reads with RSEM](#8a-count-aligned-reads-with-rsem)
-  - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
-  - [8c. Tablulate RSEM Counts](#8c-tablulate-rsem-counts)
+  - [8. Count Aligned Reads with RSEM](#8-count-aligned-reads-with-rsem)
   - [9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
     - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
     - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
-  - [10. Plot and Tabulate ERCC Counts, Perform DESeq2 Analysis on ERCC Counts, Analysis of ERCC Counts DESeq2 Analysis](#10-plot-and-tabulate-ercc-counts-perform-deseq2-analysis-on-ercc-counts-analysis-of-ercc-counts-deseq2-analysis)
-    - [10a. Perform ERCC Analysis and Tabulate ERCC Counts](#10a-perform-ercc-analysis-and-tabulate-ercc-counts)
-    - [10b. Perform DESeq2 Analysis of ERCC Counts](#10b-perform-deseq2-analysis-of-ercc-counts)
-    - [10c. Analyze ERCC Count DESeq2 Results](#10c-analyze-ercc-count-deseq2-results)
-
+  
 ---
 
 # Software used  
 
-|Program|Version|Relevant Links|
+|Program|Version*|Relevant Links|
 |:------|:------:|:-------------|
-|FastQC|0.11.9|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
-|MultiQC|1.12|[https://multiqc.info/](https://multiqc.info/)|
-|Cutadapt|3.7|[https://cutadapt.readthedocs.io/en/stable/](https://cutadapt.readthedocs.io/en/stable/)|
-|TrimGalore!|0.6.7|[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
-|STAR|2.7.10a|[https://github.com/alexdobin/STAR](https://github.com/alexdobin/STAR)|
-|RSEM|1.3.1|[https://github.com/deweylab/RSEM](https://github.com/deweylab/RSEM)|
-|Samtools|1.15|[http://www.htslib.org/](http://www.htslib.org/)|
+|FastQC|`fastqc -v`|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
+|MultiQC|`multiqc -v`|[https://multiqc.info/](https://multiqc.info/)|
+|Cutadapt|`cutadapt --version`|[https://cutadapt.readthedocs.io/en/stable/](https://cutadapt.readthedocs.io/en/stable/)|
+|TrimGalore!|`trim_galore -v`|[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
+|STAR|`STAR --version`|[https://github.com/alexdobin/STAR](https://github.com/alexdobin/STAR)|
+|RSEM|`rsem-calculate-expression --version`|[https://github.com/deweylab/RSEM](https://github.com/deweylab/RSEM)|
+|Samtools|`samtools --version`|[http://www.htslib.org/](http://www.htslib.org/)|
 |gtfToGenePred|N/A|[http://hgdownload.cse.ucsc.edu/admin/exe/](http://hgdownload.cse.ucsc.edu/admin/exe/)|
 |genePredToBed|N/A|[http://hgdownload.cse.ucsc.edu/admin/exe/](http://hgdownload.cse.ucsc.edu/admin/exe/)|
-|infer_experiment|4.0.0|[http://rseqc.sourceforge.net/#infer-experiment-py](http://rseqc.sourceforge.net/#infer-experiment-py)|
-|geneBody_coverage|4.0.0|[http://rseqc.sourceforge.net/#genebody-coverage-py](http://rseqc.sourceforge.net/#genebody-coverage-py)|
-|inner_distance|4.0.0|[http://rseqc.sourceforge.net/#inner-distance-py](http://rseqc.sourceforge.net/#inner-distance-py)|
-|read_distribution|4.0.0|[http://rseqc.sourceforge.net/#read-distribution-py](http://rseqc.sourceforge.net/#read-distribution-py)|
-|Bioconductor|3.14.0|[https://bioconductor.org](https://bioconductor.org)|
-|DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
-|tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
-|tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
-|Risa|1.36|[https://www.bioconductor.org/packages/release/bioc/html/Risa.html](https://www.bioconductor.org/packages/release/bioc/html/Risa.html)|
-|STRINGdb|2.6.0|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
-|PANTHER.db|1.0.11|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
-|org.Hs.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html)|
-|org.Mm.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html)|
-|org.Dm.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html)|
-|org.Ce.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html)|
-|org.At.tair.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html)|
-|org.EcK12.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html)|
-|org.Sc.sgd.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html)|
+|infer_experiment|`infer_experiment.py --version`|[http://rseqc.sourceforge.net/#infer-experiment-py](http://rseqc.sourceforge.net/#infer-experiment-py)|
+|Bioconductor|`BiocManager::version()`|[https://bioconductor.org](https://bioconductor.org)|
+|DESeq2|`packageVersion("DESeq2")`|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
+|tximport|`packageVersion("tximport")`|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
+|tidyverse|`packageVersion("tidyverse")`|[https://www.tidyverse.org](https://www.tidyverse.org)|
+|Risa|`packageVersion("Risa")`|[https://www.bioconductor.org/packages/release/bioc/html/Risa.html](https://www.bioconductor.org/packages/release/bioc/html/Risa.html)|
+|STRINGdb|`packageVersion("STRINGdb")`|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
+|PANTHER.db|`packageVersion("PANTHER.db")`|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
+|org.Hs.eg.db|`packageVersion("org.Hs.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html)|
+|org.Mm.eg.db|`packageVersion("org.Mm.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html)|
+|org.Dm.eg.db|`packageVersion("org.Dm.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html)|
+|org.Ce.eg.db|`packageVersion("org.Ce.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html)|
+|org.At.tair.db|`packageVersion("org.At.tair.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html)|
+|org.EcK12.eg.db|`packageVersion("org.EcK12.eg.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html)|
+|org.Sc.sgd.db|`packageVersion("org.Sc.sgd.db")`|[https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html)|
+
+>**\*** Exact versions are available along with the processing commands for each specific dataset in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory. 
 
 ---
 
@@ -142,21 +109,19 @@ ERCC Analysis is performed as described in [step 10](#10-plot-and-tabulate-ercc-
 
 ## 1a. Raw Data QC  
 
-```bash
+```
 fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ```
 
 **Parameter Definitions:**
 
-- `-o` – the output directory to store results
-- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+* `-o` – the output directory to store results
+* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
 
 **Input Data:**
-
 - *fastq.gz (raw reads)
 
 **Output Data:**
-
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
@@ -164,24 +129,21 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 
 ## 1b. Compile Raw Data QC  
 
-```bash
-multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+```
+multiqc -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
 
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/directory/containing/raw_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
 
 **Input Data:**
-
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
-
 - raw_multiqc.html (multiqc report)
 - raw_multiqc_data (directory containing multiqc data)
 
@@ -191,7 +153,7 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 
 ## 2a. Trim/Filter Raw Data  
 
-```bash
+```
 trim_galore --gzip \
   --path_to_cutadapt /path/to/cutadapt \
   --phred33 \
@@ -205,20 +167,18 @@ trim_galore --gzip \
 
 **Parameter Definitions:**
 
-- `--gzip` – compress the output files with `gzip`
-- `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
-- `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
-- `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
-- `--output_dir` - the output directory to store results
-- `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
-- `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
+* `--gzip` – compress the output files with `gzip`
+* `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
+* `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
+* `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
+* `--output_dir` - the output directory to store results
+* `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
+* `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
 
 **Input Data:**
-
 - *fastq.gz (raw reads)
 
 **Output Data:**
-
 - *fastq.gz (trimmed reads)
 - *trimming_report.txt (trimming report)
 
@@ -226,21 +186,19 @@ trim_galore --gzip \
 
 ## 2b. Trimmed Data QC  
 
-```bash
+```
 fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 ```
 
 **Parameter Definitions:**
 
-- `-o` – the output directory to store results
-- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+* `-o` – the output directory to store results
+* `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
 
 **Input Data:**
-
 - *fastq.gz (trimmed reads)
 
 **Output Data:**
-
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
@@ -248,24 +206,21 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 
 ## 2c. Compile Trimmed Data QC  
 
-```bash
-multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
+```
+multiqc -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
 ```
 
 **Parameter Definitions:**
 
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
 
 **Input Data:**
-
 - *fastqc.html (FastQC report)
 - *fastqc.zip (FastQC data)
 
 **Output Data:**
-
 - trimmed_multiqc.html (multiqc report)
 - trimmed_multiqc_data (directory containing multiqc data)
 
@@ -275,7 +230,7 @@ multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/dire
 
 ## 3. Build STAR Reference  
 
-```bash
+```
 STAR --runThreadN NumberOfThreads \
   --runMode genomeGenerate \
   --limitGenomeGenerateRAM 55000000000 \
@@ -289,17 +244,16 @@ STAR --runThreadN NumberOfThreads \
 
 **Parameter Definitions:**
 
-- `--runThreadN` – number of threads available on server node to create STAR reference
-- `--runMode` - instructs STAR to run genome indices generation job
-- `--limitGenomeGenerateRAM` - maximum RAM available (in bytes) to generate STAR reference, at least 35GB are needed for mouse and the example above shows 55GB
-- `--genomeSAindexNbases` - length (in bases) of the SA pre-indexing string, usually between 10 and 15. Longer strings require more memory but allow for faster searches. This value should be scaled down for smaller genomes (like bacteria) to min(14, log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would be 9.
-- `--genomeDir` - specifies the path to the directory where the STAR reference will be stored. At least 100GB of available disk space is required for mammalian genomes.
-- `--genomeFastaFiles` - specifies one or more fasta file(s) containing the genome reference sequences
-- `--sjdbGTFfile` – specifies the file(s) containing annotated transcripts in the standard gtf format
-- `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the maximum length of the reads.
+* `--runThreadN` – number of threads available on server node to create STAR reference
+* `--runMode` - instructs STAR to run genome indices generation job
+* `--limitGenomeGenerateRAM` - maximum RAM available (in bytes) to generate STAR reference, at least 35GB are needed for mouse and the example above shows 55GB
+* `--genomeSAindexNbases` - length (in bases) of the SA pre-indexing string, usually between 10 and 15. Longer strings require more memory but allow for faster searches. This value should be scaled down for smaller genomes (like bacteria) to min(14, log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would be 9.
+* `--genomeDir` - specifies the path to the directory where the STAR reference will be stored. At least 100GB of available disk space is required for mammalian genomes.
+* `--genomeFastaFiles` - specifies one or more fasta file(s) containing the genome reference sequences
+* `--sjdbGTFfile` – specifies the file(s) containing annotated transcripts in the standard gtf format
+* `--sjdbOverhang` - indicates the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. The length should be one less than the maximum length of the reads.
 
 **Input Data:**
-
 - *.fasta (genome sequence\#)
 - *.gtf (genome annotation\#)
 
@@ -308,7 +262,6 @@ STAR --runThreadN NumberOfThreads \
 **Output Data:**
 
 STAR genome reference, which consists of the following files:
-
 - chrLength.txt
 - chrNameLength.txt
 - chrName.txt
@@ -331,65 +284,64 @@ STAR genome reference, which consists of the following files:
 
 ## 4a. Align Reads to Reference Genome with STAR
 
-```bash
+```
 STAR --twopassMode Basic \
- --limitBAMsortRAM 65000000000 \
- --genomeDir /path/to/STAR/genome/directory \
- --outSAMunmapped Within \
- --outFilterType BySJout \
- --outSAMattributes NH HI AS NM MD MC \
- --outFilterMultimapNmax 20 \
- --outFilterMismatchNmax 999 \
- --outFilterMismatchNoverReadLmax 0.04 \
- --alignIntronMin 20 \
- --alignIntronMax 1000000 \
- --alignMatesGapMax 1000000 \ # for PE only
- --alignSJoverhangMin 8 \
- --alignSJDBoverhangMin 1 \
- --sjdbScore 1 \
- --readFilesCommand zcat \
- --runThreadN NumberOfThreads \
- --outSAMtype BAM SortedByCoordinate \
- --quantMode TranscriptomeSAM GeneCounts \
- --outSAMheaderHD @HD VN:1.4 SO:coordinate \
- --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
- --readFilesIn /path/to/trimmed_forward_reads \
- /path/to/trimmed_reverse_reads # only needed for PE studies
+	--limitBAMsortRAM 65000000000 \
+	--genomeDir /path/to/STAR/genome/directory \
+	--outSAMunmapped Within \
+	--outFilterType BySJout \
+	--outSAMattributes NH HI AS NM MD MC \
+	--outFilterMultimapNmax 20 \
+	--outFilterMismatchNmax 999 \
+	--outFilterMismatchNoverReadLmax 0.04 \
+	--alignIntronMin 20 \
+	--alignIntronMax 1000000 \
+	--alignMatesGapMax 1000000 \ # for PE only
+	--alignSJoverhangMin 8 \
+	--alignSJDBoverhangMin 1 \
+	--sjdbScore 1 \
+	--readFilesCommand zcat \
+	--runThreadN NumberOfThreads \
+	--outSAMtype BAM SortedByCoordinate \
+	--quantMode TranscriptomeSAM \
+	--outSAMheaderHD @HD VN:1.4 SO:coordinate \
+	--outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
+	--readFilesIn /path/to/trimmed_forward_reads \
+	/path/to/trimmed_reverse_reads # only needed for PE studies
 
 ```
 
 **Parameter Definitions:**
 
-- `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
-- `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
-- `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
-- `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
-- `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
-- `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
-- `--outFilterMismatchNmax` - maximum number of mismatches allowed to be included in the alignment output
-- `--outFilterMismatchNoverReadLmax` - ratio of mismatches to read length allowed to be included in the alignment output; the `0.04` value indicates that up to 4 mismatches are allowed per 100 bases
-- `--alignIntronMin` - minimum intron size; a genomic gap is considered an intron if its length is equal to or greater than this value, otherwise it is considered a deletion
-- `--alignIntronMax` - maximum intron size
-- `--alignMatesGapMax` - maximum genomic distance (in bases) between two mates of paired-end reads; this option should be removed for single-end reads
-- `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
-- `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
-- `--sjdbScore` - additional alignment score for alignments that cross database junctions
-- `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
-- `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
-- `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
-- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab delimited file containing number reads per gene
-- `--outSAMheaderHD` - indicates a header line for the sam/bam file
-- `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
-- `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated
+* `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
+* `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
+* `--genomeDir` - specifies the path to the directory where the STAR reference is stored
+* `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
+* `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
+* `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
+* `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
+* `--outFilterMismatchNmax` - maximum number of mismatches allowed to be included in the alignment output
+* `--outFilterMismatchNoverReadLmax` - ratio of mismatches to read length allowed to be included in the alignment output; the `0.04` value indicates that up to 4 mismatches are allowed per 100 bases
+* `--alignIntronMin` - minimum intron size; a genomic gap is considered an intron if its length is equal to or greater than this value, otherwise it is considered a deletion
+* `--alignIntronMax` - maximum intron size
+* `--alignMatesGapMax` - maximum genomic distance (in bases) between two mates of paired-end reads; this option should be removed for single-end reads
+* `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
+* `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
+* `--sjdbScore` - additional alignment score for alignments that cross database junctions
+* `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
+* `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
+* `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
+* `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome
+* `--outSAMheaderHD` - indicates a header line for the sam/bam file
+* `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
+* `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated 
+
 
 **Input Data:**
-
-- STAR genome reference (output from [Step 3](#3-build-star-reference))
+- STAR genome reference (output from Step 3)
 - *fastq.gz (trimmed reads)
 
 **Output Data:**
-
 - *Aligned.sortedByCoord.out.bam# (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam# (sorted mapping to transcriptome)
 - *Log.final.out# (log file containing alignment info/stats such as reads mapped, etc)
@@ -405,130 +357,46 @@ STAR --twopassMode Basic \
 - *_STARtmp (directory containing the following:)
   - BAMsort (directory containing subdirectories that are empty – this was the location for temp files that were automatically removed after successful completion)
 
-\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+\#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects). 
 
 <br>
 
-## 4b. Compile Alignment Logs
+## 4b. Compile Alignment Logs 
 
-```bash
-multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
+```
+multiqc -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
 ```
 
 **Parameter Definitions:**
 
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
-
 - *Log.final.out (log file conting alignment info/stats such as reads mapped, etc. from step 4a)
 
 **Output Data:**
-
 - align_multiqc.html (multiqc report)
 - align_multiqc_data (directory containing multiqc data)
 
 <br>
 
-## 4c. Tablulate STAR Counts
+## 4c. Index Aligned Reads 
 
-```R
-print("Make STAR counts table")
-print("")
-
-work_dir="/path/to/working/directory/where/script/is/executed/from"
-align_dir="/path/to/directory/containing/STAR/counts/files"
-
-setwd(file.path(work_dir))
-
-### Pull in sample names ###
-study <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
-
-##### Import Data
-ff <- list.files(file.path(align_dir), pattern = "ReadsPerGene.out.tab", recursive=TRUE, full.names = TRUE)
-
-## Reorder the *genes.results files to match the ordering of the ISA samples
-ff <- ff[sapply(rownames(study), function(x)grep(paste0(x,'_ReadsPerGene.out.tab$'), ff, value=FALSE))]
-
-# Remove the first 4 lines
-counts.files <- lapply( ff, read.table, skip = 4 )
-
-# Get counts aligned to either strand for undtranded data by selecting col 2, to the first (forward) strand by selecting col 3 or to the second (reverse) strand by selecting col 4
-counts <- as.data.frame( sapply( counts.files, function(x) x[ , 3 ] ) )
-
-# Add column and row names
-colnames(counts) <- rownames(study)
-row.names(counts) <- counts.files[[1]]$V1
-
-
-##### Export unnormalized counts table
-setwd(file.path(align_dir))
-write.csv(counts,file='STAR_Unnormalized_Counts.csv')
-
-
-## print session info ##
-print("Session Info below: ")
-print("")
-sessionInfo()
 ```
-
-**Input Data:**
-
-- samples.txt (A newline delimited list of sample IDs)
-- *ReadsPerGene.out.tab (STAR counts per gene, output from step 4a)
-
-**Output Data:**
-
-- STAR_Unnormalized_Counts.csv (STAR counts table)
-
-<br>
-
-## 4d. Sort Aligned Reads
-
-```bash
-samtools sort -m 3G \
-	--threads NumberOfThreads \
-	-o /path/to/*_Aligned.sortedByCoord_sorted.out.bam \
-  /path/to/*Aligned.sortedByCoord.out.bam
+samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord.out.bam/files
 ```
 
 **Parameter Definitions:**
 
-- `--threads` - number of threads available on server node to index alignment files
-- `/path/to/*Aligned.sortedByCoord.out.bam` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+* `-@` - number of threads available on server node to index alignment files
+* `/path/to/*Aligned.sortedByCoord.out.bam/files` – the directory holding the *Aligned.sortedByCoord.out.bam output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
 
 **Input Data:**
-
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
-
-- *_Aligned.sortedByCoord_sorted.out.bam (samtools resorted bam file)
-
-<br>
-
----
-
-## 4e. Index Aligned Reads
-
-```bash
-samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.bam
-```
-
-**Parameter Definitions:**
-
-- `-@` - number of threads available on server node to index alignment files
-- `/path/to/*_Aligned.sortedByCoord_sorted.out.bam` – the directory holding the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
-
-**Input Data:**
-
-- *_Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, from [step 4d](#4d-sort-aligned-reads))
-
-**Output Data:**
-
 - *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file)
 
 <br>
@@ -537,7 +405,7 @@ samtools index -@ NumberOfThreads /path/to/*_Aligned.sortedByCoord_sorted.out.ba
 
 ## 5a. Convert GTF to genePred File  
 
-```bash
+```
 gtfToGenePred -geneNameAsName2 \
   /path/to/annotation/gtf/file \
   /path/to/output/genePred/file
@@ -546,40 +414,37 @@ gtfToGenePred -geneNameAsName2 \
 
 **Parameter Definitions:**
 
-- `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
-- `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
-- `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
+* `-geneNameAsName2` – instructs gtfToGenePred to use gene_name for the name2 field, instead of the default gene_id
+* `/path/to/annotation/gtf/file` – specifies the file(s) containing annotated reference transcripts in the standard gtf format, provided as a positional argument
+* `/path/to/output/genePred/file` – specifies the location and name of the output genePred file(s), provided as a positional argument
 
 **Input Data:**
-
 - *.gtf (genome annotation\#)
 
 \#See document(s) in the [GeneLab_Reference_and_Annotation_Files](GeneLab_Reference_and_Annotation_Files) sub-directory for a list of the ensembl fasta genome sequences and associated gtf annotation files used to generate the RNAseq processed data available in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
 **Output Data:**
-
 - *.genePred (genome annotation in genePred format)
 
 <br>
 
 ## 5b. Convert genePred to BED File  
 
-```bash
+```
 genePredToBed /path/to/annotation/genePred/file \
   /path/to/output/BED/file
+
 ```
 
 **Parameter Definitions:**
 
-- `/path/to/annotation/genePred/file` – specifies the file(s) containing annotated reference transcripts in the genePred format, provided as a positional argument
-- `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
+* `/path/to/annotation/genePred/file` – specifies the file(s) containing annotated reference transcripts in the genePred format, provided as a positional argument
+* `/path/to/output/BED/file` – specifies the location and name of the output BED file(s), provided as a positional argument
 
 **Input Data:**
-
 - *.genePred (genome annotation in genePred format, from step 5a)
 
 **Output Data:**
-
 - *.bed (genome annotation in BED format)
 
 <br>
@@ -588,51 +453,46 @@ genePredToBed /path/to/annotation/genePred/file \
 
 ## 6a. Determine Read Strandedness
 
-```bash
+```
 infer_experiment.py -r /path/to/annotation/BED/file \
- -i /path/to/*Aligned.sortedByCoord.out.bam \
- -s 15000000 > /path/to/*infer_expt.out
+	-i /path/to/*Aligned.sortedByCoord.out.bam \
+	-s 15000000 > /path/to/*infer_expt.out
 ```
 
 **Parameter Definitions:**
 
-- `-r` – specifies the path to the reference annotation BED file
-- `-i` - specifies the path to the input bam file(s)
-- `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
-- `>` - redirects standard output to specified file
-- `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
+* `-r` – specifies the path to the reference annotation BED file
+* `-i` - specifies the path to the input bam file(s)
+* `-s` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
+* `>` - redirects standard output to specified file
+* `/path/to/*infer_expt.out` - specifies the location and name of the file containing the infer_experiment standard output
 
 **Input Data:**
-
 - *.bed (genome annotation in BED format, output from step 5b)
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
+- *Aligned.sortedByCoord.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective *Aligned.sortedByCoord.out.bam file)
 
 **Output Data:**
-
 - *infer_expt.out (file containing the infer_experiment standard output)
 
 <br>
 
 ## 6b. Compile Strandedness Reports
 
-```bash
-multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
+```
+multiqc -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/directory /path/to/*infer_expt.out/files
 ```
 
 **Parameter Definitions:**
 
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
+* `-n` - prefix name for output files
+* `-o` – the output directory to store results
+* `/path/to/*infer_expt.out/files` – the directory holding the *infer_expt.out output files from the [read strandedness step](#6a-determine-read-strandedness), provided as a positional argument
 
 **Input Data:**
-
 - *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
 
 **Output Data:**
-
 - infer_exp_multiqc.html (multiqc report)
 - infer_exp_multiqc_data (directory containing multiqc data)
 
@@ -640,195 +500,22 @@ multiqc --interactive -n infer_exp_multiqc -o /path/to/infer_exp_multiqc/output/
 
 ---
 
-## 6c. Assess GeneBody Coverage
-
-```bash
-geneBody_coverage.py -r /path/to/annotation/BED/file \
- -i /path/to/*Aligned.sortedByCoord_sorted.out.bam \
- -o /path/to/geneBody_coverage/output/directory/<sample_id>
-```
-
-**Parameter Definitions:**
-
-- `-r` – specifies the path to the reference annotation BED file
-- `-i` - specifies the path to the input bam file(s)
-- `-o` - specifies the path to the output directory
-- `/path/to/geneBody_coverage/output/directory/<sample_id>` - specifies the location and name of the directory containing the geneBody_coverage output files
-
-**Input Data:**
-
-- *.bed (genome annotation in BED format, output from [step 5b](#5b-convert-genepred-to-bed-file))
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord_sorted.out.bam file)
-
-**Output Data:**
-
-- *.geneBodyCoverage.curves.pdf (genebody coverage line plot)
-- *.geneBodyCoverage.r (R script that generates the genebody coverage line plot)
-- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values used to generate the line plot)
-
-<br>
-
----
-
-## 6d. Compile GeneBody Coverage Reports
-
-```bash
-multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_multiqc/output/directory /path/to/geneBody_coverage/output/directories
-```
-
-**Parameter Definitions:**
-
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/geneBody_coverage/output/directories` – the directory holding the geneBody_coverage output directories from [step 6c](#6c-assess-genebody-coverage), provided as a positional argument
-
-**Input Data:**
-
-- *.geneBodyCoverage.txt (tab delimited file containing genebody coverage  values from [step 6c](#6c-assess-genebody-coverage))
-
-**Output Data:**
-
-- geneBody_cov_multiqc.html (multiqc report)
-- geneBody_cov_multiqc_data (directory containing multiqc data)
-
-<br>
-
----
-
-## 6e. Assess Inner Distance (For Paired End Datasets)
-
-```bash
-inner_distance.py -r /path/to/annotation/BED/file \
- -i /path/to/*Aligned.sortedByCoord_sorted.out.bam \
- -k 15000000 \
- -l -150 \
- -u 350 \
- -o  /path/to/inner_distance/output/directory
-```
-
-**Parameter Definitions:**
-
-- `-r` – specifies the path to the reference annotation BED file
-- `-i` - specifies the path to the input bam file(s)
-- `-k` - specifies the number of reads to be sampled from the input bam file(s), 15M reads are sampled
-- `-l` - specifies the lower bound of inner distance (bp).
-- `-u` - specifies the upper bound of inner distance (bp)
-- `/path/to/inner_distance/output/directory` - specifies the location and name of the directory containing the inner_distance output files
-
-**Input Data:**
-
-- ... *infer_expt.out (file containing the infer_experiment standard output, from step 6a)
-
-**Output Data:**
-
-- *.inner_distance.txt (log of read-wise inner distance results)
-- *.inner_distance_freq.txt (tab delimited table of inner distances mapped to number of reads with that distance)
-- *.inner_distance_plot.pdf (histogram plot of inner distance distribution)
-- *.inner_distance_plot.r (R script that generates the histogram plot)
-
-<br>
-
----
-
-## 6f. Compile Inner Distance Reports
-
-```bash
-multiqc --interactive -n inner_dist_multiqc /path/to/inner_dist_multiqc/output/directory /path/to/inner_dist/output/directories
-```
-
-**Parameter Definitions:**
-
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/inner_dist/output/directories` – the directory holding the inner_distance output directories from [step 6e](#6e-aligned-reads-inner-distance-qc-for-paired-end-datasets), provided as a positional argument
-
-**Input Data:**
-
-- *.inner_distance_freq.txt (tab delimited table of inner distances from [step 6e](#6e-assess-inner-distance-for-paired-end-datasets))
-
-**Output Data:**
-
-- inner_distance_multiqc.html (multiqc report)
-- inner_distance_multiqc_data (directory containing multiqc data)
-
-<br>
-
----
-
-## 6g. Assess Read Distribution
-
-```bash
-read_distribution.py -r /path/to/annotation/BED/file \
- -i /path/to/*Aligned.sortedByCoord_sorted.out.bam > /path/to/*read_dist.out
-```
-
-**Parameter Definitions:**
-
-- `-r` – specifies the path to the reference annotation BED file
-- `-i` - specifies the path to the input bam file(s)
-- `>` - redirects standard output to specified file
-- `/path/to/*read_dist.out` - specifies the location and name of the file containing the read_distribution standard output
-
-**Input Data:**
-
-- *.bed (genome annotation in BED format, output from step 5b)
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
-- *Aligned.sortedByCoord_sorted.out.bam.bai (index of sorted mapping to genome file, output from step [4c](#4c-index-aligned-read), although not indicated in the command, this file must be present in the same directory as the respective \*Aligned.sortedByCoord.out.bam file)
-
-**Output Data:**
-
-- *read_dist.out (file containing the read distribution standard output)
-
-<br>
-
----
-
-## 6h. Compile Read Distribution Reports
-
-```bash
-multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/directory /path/to/*read_dist.out/files
-```
-
-**Parameter Definitions:**
-
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/*read_dist.out/files` – the directory holding the *read_dist.out output files from the [step 6g](#6g-assess-read-distribution) provided as a positional argument
-
-**Input Data:**
-
-- *read_dist.out (file containing the read_distributation standard output, from [step 6g](#6g-assess-read-distribution))
-
-**Output Data:**
-
-- read_dist_multiqc.html (multiqc report)
-- read_dist_multiqc_data (directory containing multiqc data)
-
-<br>
-
----
-
 ## 7. Build RSEM Reference
 
-```bash
+```
 rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
- /path/to/genome/fasta/file \
- /path/to/RSEM/genome/directory/RSEM_ref_prefix
+	/path/to/genome/fasta/file \
+	/path/to/RSEM/genome/directory/RSEM_ref_prefix
 
 ```
 
 **Parameter Definitions:**
 
-- `--gtf` – specifies the file(s) containing annotated transcripts in the standard gtf format
-- `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containing the genome reference sequences, provided as a positional argument
-- `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference will be stored and the prefix desired for the RSEM reference files, provided as a positional argument
+* `--gtf` – specifies the file(s) containing annotated transcripts in the standard gtf format
+* `/path/to/genome/fasta/file` – specifies one or more fasta file(s) containing the genome reference sequences, provided as a positional argument
+* `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference will be stored and the prefix desired for the RSEM reference files, provided as a positional argument 
 
 **Input Data:**
-
 - *.fasta (genome sequence\#)
 - *.gtf (genome annotation\#)
 
@@ -837,7 +524,6 @@ rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
 **Output Data:**
 
 RSEM genome reference, which consists of the following files:
-
 - RSEM_ref_prefix.chrlist
 - RSEM_ref_prefix.grp
 - RSEM_ref_prefix.idx.fa
@@ -850,134 +536,48 @@ RSEM genome reference, which consists of the following files:
 
 ---
 
-## 8a. Count Aligned Reads with RSEM
+## 8. Count Aligned Reads with RSEM
 
-```bash
+```
 rsem-calculate-expression --num-threads NumberOfThreads \
- --alignments \
- --bam \
- --paired-end \
- --seed 12345 \
- --estimate-rspd \
- --no-bam-output \
- --strandedness reverse|forward|none \
- /path/to/*Aligned.toTranscriptome.out.bam \
- /path/to/RSEM/genome/directory/RSEM_ref_prefix \
- /path/to/RSEM/counts/output/directory/<sample_id>
+	--alignments \
+	--bam \
+	--paired-end \
+	--seed 12345 \
+	--estimate-rspd \
+	--no-bam-output \
+	--strandedness reverse|forward|none \
+	/path/to/*Aligned.toTranscriptome.out.bam \
+	/path/to/RSEM/genome/directory/RSEM_ref_prefix \
+	/path/to/RSEM/counts/output/directory/<sample_id>
+
 ```
 
 **Parameter Definitions:**
 
-- `--num-threads` – specifies the number of threads to use
-- `--alignments` - indicates that the input file contains alignments in sam, bam, or cram format
-- `--bam` - specifies that the input alignments are in bam format
-- `--paired-end` - indicates that the input reads are paired-end reads; this option should be removed if the input reads are single-end
-- `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
-- `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data
-- `--no-bam-output` - instructs RSEM not to output any bam file
-- `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense
-- `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
-- `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
-- `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
+* `--num-threads` – specifies the number of threads to use
+* `--alignments` - indicates that the input file contains alignments in sam, bam, or cram format
+* `--bam` - specifies that the input alignments are in bam format
+* `--paired-end` - indicates that the input reads are paired-end reads; this option should be removed if the input reads are single-end
+* `--seed` - the seed for the random number generators used in calculating posterior mean estimates and credibility intervals; must be a non-negative 32-bit integer
+* `--estimate-rspd` - instructs RSEM to estimate the read start position distribution (rspd) from the data 
+* `--no-bam-output` - instructs RSEM not to output any bam file
+* `--strandedness` - defines the strandedness of the RNAseq reads; the `reverse` option is used if read strandedness (output from [step 6](#6a-determine-read-strandedness)) is antisense, `forward` is used with sense strandedness, and `none` is used if strandedness is half sense half antisense 
+* `/path/to/*Aligned.toTranscriptome.out.bam` - specifies path to input bam files, provided as a positional argument
+* `/path/to/RSEM/genome/directory/RSEM_ref_prefix` - specifies the path to the directory where the RSEM reference is stored and its prefix, provided as a positional argument
+* `/path/to/RSEM/counts/output/directory` – specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
 
 **Input Data:**
-
 - RSEM genome reference (output from Step 7)
 - *Aligned.toTranscriptome.out.bam (sorted mapping to transcriptome, output from [step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
-
 - *genes.results (counts per gene)
 - *isoforms.results (counts per isoform)
 - *stat (directory containing the following stats files)
-  - *cnt
-  - *model
-  - *theta
-
-<br>
-
----
-
-## 8b. Compile RSEM Count Logs
-
-```bash
-multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/directories
-```
-
-**Parameter Definitions:**
-
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/*stat/directories` – the directories holding the *stat output directory from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
-
-**Input Data:**
-
-- *stat (directory containing the following stats files)
-  - *cnt
-  - *model
-  - *theta
-
-**Output Data:**
-
-- RSEM_count_multiqc.html (multiqc report)
-- RSEM_count_multiqc_data (directory containing multiqc data)
-
-<br>
-
----
-
-## 8c. Tablulate RSEM Counts
-
-```R
-library(tximport)
-library(tidyverse)
-
-work_dir="/path/to/working/directory/where/script/is/executed/from"
-counts_dir="/path/to/directory/containing/RSEM/counts/files"
-
-setwd(file.path(work_dir))
-
-### Pull in sample names ###
-samples <- read.csv(Sys.glob(file.path(work_dir,"samples.txt")), header = FALSE, row.names = 1, stringsAsFactors = TRUE)
-
-##### Import RSEM Gene Count Data
-files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
-
-### reorder the genes.results files to match the ordering of the samples in the metadata file
-files <- files[sapply(rownames(samples), function(x)grep(paste0(x,'.genes.results$'), files, value=FALSE))]
-
-names(files) <- rownames(samples)
-txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
-
-##### Export unnormalized gene counts table
-setwd(file.path(counts_dir))
-write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
-
-##### Count the number of genes with non-zero counts for each sample 
-rawCounts <- txi.rsem$counts
-NumNonZeroGenes <- (as.matrix(colSums(rawCounts > 0), row.names = 1))
-colnames(NumNonZeroGenes) <- c("Number of genes with non-zero counts")
-
-##### Export the number of genes with non-zero counts for each sample
-setwd(file.path(counts_dir))
-write.csv(NumNonZeroGenes,file='NumNonZeroGenes.csv')
-
-## print session info ##
-print("Session Info below: ")
-print("")
-sessionInfo()
-```
-
-**Input Data:**
-
-- samples.txt (A newline delimited list of sample IDs)
-- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
-
-**Output Data:**
-
-- RSEM_Unnormalized_Counts.csv (RSEM counts table)
-- NumNonZeroGenes.csv (A samplewise table of the number of genes expressed)
+	- *cnt
+	- *model
+	- *theta
 
 <br>
 
@@ -987,7 +587,9 @@ sessionInfo()
 
 <br>
 
+
 ### 9a. For Datasets with ERCC Spike-In
+
 
 ```R
 ## Install R packages if not already installed
@@ -1096,7 +698,7 @@ rm(contrast.names)
 files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
 
 ## Reorder the *genes.results files to match the ordering of the ISA samples
-files <- files[sapply(rownames(study), function(x)grep(paste0(x,".genes.results$"), files, value=FALSE))]
+files <- files[sapply(rownames(study), function(x)grep(x, files, value=FALSE, fixed=TRUE))]
 
 names(files) <- rownames(study)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
@@ -1236,7 +838,7 @@ dds_1 <- DESeq(dds_1)
 normCounts = as.data.frame(counts(dds_1, normalized=TRUE))
 ERCCnormCounts = as.data.frame(counts(dds_2, normalized=TRUE))
 setwd(file.path(norm_output))
-write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
+write.csv(txi.rsem$counts,file='Unnormalized_Counts.csv')
 write.csv(normCounts,file='Normalized_Counts.csv')
 write.csv(ERCCnormCounts,file='ERCC_Normalized_Counts.csv')
 write.csv(sampleTable,file='SampleTable.csv')
@@ -1543,7 +1145,7 @@ reduced_output_table_2$GOSLIM_IDS <- vapply(reduced_output_table_2$GOSLIM_IDS, p
 ### Export human- and computer/visualization- readable DGE tables
 
 write.csv(output_table_2,file.path(DGE_output_ERCC, "visualization_output_table_ERCCnorm.csv"), row.names = FALSE)
-write.csv(contrasts_sub,file.path(DGE_output_ERCC, "ERCCnorm_contrasts.csv"))
+write.csv(contrasts,file.path(DGE_output_ERCC, "ERCCnorm_contrasts.csv"))
 write.csv(reduced_output_table_2,file.path(DGE_output_ERCC, "ERCCnorm_differential_expression.csv"), row.names = FALSE)
 
 ### Generate and export PCA table for GeneLab visualization plots
@@ -1561,15 +1163,13 @@ sessionInfo()
 ```
 
 **Input Data:**
-
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 - [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
-- *genes.results (RSEM counts per gene, output from [step 8a](#8a-count-aligned-reads-with-rsem))
+- *genes.results (RSEM counts per gene, output from step 6)
 
 **Output Data:**
 
-Output data without considering ERCC spike-in genes:
-
+Output data without considering ERCC spike-in genes: 
 - Unnormalized_Counts.csv\#
 - Normalized_Counts.csv\#
 - SampleTable.csv\#
@@ -1579,7 +1179,6 @@ Output data without considering ERCC spike-in genes:
 - contrasts.csv\#
 
 Output data with considering ERCC spike-in genes:
-
 - ERCC_rawCounts_unfiltered.csv (ERCC unfiltered counts table)
 - ERCC_rawCounts_filtered.csv (ERCC counts table after removing ERCC genes with low counts)
 - ERCC_Normalized_Counts.csv\#
@@ -1590,13 +1189,15 @@ Output data with considering ERCC spike-in genes:
 
 \#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
+\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://genelab-data.ndc.nasa.gov/genelab/projects?page=1&paginate_by=25&viz=true).
 
 <br>
 
 ---
 
+
 ### 9b. For Datasets without ERCC Spike-In
+
 
 ```R
 ## Install R packages if not already installed
@@ -1704,7 +1305,7 @@ rm(contrast.names)
 files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
 
 ## Reorder the *genes.results files to match the ordering of the ISA samples
-files <- files[sapply(rownames(study), function(x)grep(paste0(x,".genes.results$"), files, value=FALSE))]
+files <- files[sapply(rownames(study), function(x)grep(x, files, value=FALSE, fixed=TRUE))]
 
 names(files) <- rownames(study)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
@@ -1740,7 +1341,7 @@ dds_1 <- DESeq(dds)
 
 normCounts = as.data.frame(counts(dds_1, normalized=TRUE))
 setwd(file.path(norm_output))
-write.csv(txi.rsem$counts,file='RSEM_Unnormalized_Counts.csv')
+write.csv(txi.rsem$counts,file='Unnormalized_Counts.csv')
 write.csv(normCounts,file='Normalized_Counts.csv')
 write.csv(sampleTable,file='SampleTable.csv')
 
@@ -1920,8 +1521,7 @@ sessionInfo()
 ```
 
 **Input Data:**
-
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the \*ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
+- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 - [organisms.csv](organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
 - *genes.results (RSEM counts per gene, output from step 6)
 
@@ -1937,604 +1537,6 @@ sessionInfo()
 
 \#Output files available with RNAseq processed data in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
 
-\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
+\#\#Output files used to generate interactive plots from RNAseq processed data in the [GLDS visualization portal](https://genelab-data.ndc.nasa.gov/genelab/projects?page=1&paginate_by=25&viz=true).
 
 <br>
-
----
-
-## 10. Plot and Tabulate ERCC Counts, Perform DESeq2 Analysis on ERCC Counts, Analysis of ERCC Counts DESeq2 Analysis
-
-<br>
-
-### 10a. Perform ERCC Analysis and Tabulate ERCC Counts
-
-```python
-### Setting up the notebook
-# import python packages
-import pandas as pd
-pd.set_option('mode.chained_assignment', None) # suppress chained indexing warnings
-import numpy as np
-from urllib.request import urlopen, quote, urlretrieve
-from json import loads
-from re import search
-import zipfile
-import seaborn as sns
-from scipy.stats import linregress
-import matplotlib.pyplot as plt
-
-### Get and parse data and metadata
-# Get and unzip ISA.zip, counts, and ERCC data.
-accession = 'GLDS-NNN' # Change this as necessary
-filehandle = Path("/path/to/ISA/zip") #INPUT
-zip_file_object = zipfile.ZipFile(filehandle, 'r')
-zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
-
-# There are datasets that have multiple assays (including microarray), so the RNAseq ISA files from the above output must be selected. 
-# Txt files outputted above are indexed as 0, 1, 2, etc. Fill in the indexed number corresponding to the sample (s_\*txt) and assay files for RNAseq (a_\*_(RNA-Seq).txt) in the code block below.
-sample_file = zip_file_object.namelist()[1]
-file = zip_file_object.open(sample_file)
-sample_table = pd.read_csv(zip_file_object.open(sample_file), sep='\t')
-
-assay_file = zip_file_object.namelist()[0]
-file = zip_file_object.open(assay_file)
-assay_table = pd.read_csv(zip_file_object.open(assay_file), sep='\t')
-
-print(sample_table.head(n=3))
-pd.set_option('max_columns', None)
-
-# Get raw counts table
-raw_counts_table = pd.read_csv('/path/to/RSEM_Unnormalized_Counts.csv', index_col=0) # INPUT
-raw_counts_table.index.rename('Gene_ID', inplace=True)
-print(raw_counts_table.head(n=3))
-
-raw_counts_transcripts = raw_counts_table[raw_counts_table.index.str.contains('^ENSMUSG')] # Change according to organism of interest
-raw_counts_transcripts = raw_counts_transcripts.sort_values(by=list(raw_counts_transcripts), ascending=False)
-print(raw_counts_transcripts)
-
-# Get ERCC counts
-ercc_counts = raw_counts_table[raw_counts_table.index.str.contains('^ERCC-')] 
-ercc_counts.reset_index(inplace=True)
-ercc_counts = ercc_counts.rename(columns={'Gene_ID':'ERCC ID'})
-ercc_counts = ercc_counts.sort_values(by=list(ercc_counts), ascending=False)
-print(ercc_counts.head())
-
-# Get ERCC files
-ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t')
-print(ercc_table.head(n=3))
-
-### Number of ERCC Detected 
-#Number of ERCC detected in each of the 4 (A, B, C and D) groups for the study. 
-
-#Filter counts > 0
-meltERCC = ercc_counts.melt(id_vars=['ERCC ID'])
-meltERCC['log2 Count'] = meltERCC['value']+1
-meltERCC['log2 Count'] = np.log2(meltERCC['log2 Count'])
-meltERCC = meltERCC.rename(columns={'variable':'Sample Name', 'value':'Count'})
-print(meltERCC.head(n=3))
-
-# Build Mix dictionary to link sample name to mix added using assay table
-mix_dict = assay_table.filter(['Sample Name','Parameter Value[Spike-in Mix Number]', 
-                       'Parameter Value[Read Depth]'])
-mix_dict = mix_dict.rename(columns={'Parameter Value[Spike-in Mix Number]':'Mix',
-                                    'Parameter Value[Read Depth]':
-                                    'Total Reads'})
-print(mix_dict.head(n=3))
-
-# Make combined ercc counts and assay table
-merged_ercc = meltERCC.merge(mix_dict, on='Sample Name')
-print(merged_ercc)
-
-# Read ERCC info including concentrations from merged_ercc table
-groupA = ercc_table.loc[ercc_table['subgroup'] == 'A']['ERCC ID']
-groupB = ercc_table.loc[ercc_table['subgroup'] == 'B']['ERCC ID']
-groupC = ercc_table.loc[ercc_table['subgroup'] == 'C']['ERCC ID']
-groupD = ercc_table.loc[ercc_table['subgroup'] == 'D']['ERCC ID']
-
-# Make a dictionary for ERCC group
-group_dict = dict(zip(ercc_table['ERCC ID'], ercc_table['subgroup']))
-
-# Calculate Count per million and log2 Count per million
-merged_ercc['Count per million'] = merged_ercc['Count'] / (merged_ercc['Total Reads'] / 1000000.0)
-merged_ercc['log2 Count per million'] = np.log2(merged_ercc['Count per million']+1)
-
-# Add ERCC group
-merged_ercc['ERCC group'] = merged_ercc['ERCC ID'].map(group_dict)
-merged_ercc = merged_ercc.sort_values(by=['Mix'], ascending=True)
-print(merged_ercc)
-
-### Filter and calculate mean Count per million of Mix1 and Mix2 in each of the 4 groups
-# Filter Mix1 CPM and Mix2 CPM in group A 
-# Mean values of Mix1 CPM and Mix2 CPM
-Adf = merged_ercc.loc[merged_ercc['ERCC group'] == 'A']
-Amix1df = Adf.loc[Adf['Mix']=='Mix 1']
-Amix1df['Mix1 CPM'] = Amix1df[Amix1df['Count per million'] > 0]['Count per million'].dropna()
-Amix1df = Amix1df.groupby('ERCC ID')['Mix1 CPM'].agg(np.mean).rename('Avg Mix1 CPM')
-Amix1df = Amix1df.to_frame()
-Amix2df = Adf.loc[Adf['Mix']=='Mix 2']
-Amix2df['Mix2 CPM'] = Amix2df[Amix2df['Count per million'] > 0]['Count per million'].dropna()
-Amix2df = Amix2df.groupby('ERCC ID')['Mix2 CPM'].agg(np.mean).rename('Avg Mix2 CPM')
-Amix2df = Amix2df.to_frame()
-
-adf = Amix1df.merge(Amix2df, on='ERCC ID', suffixes=('', '_2'))
-adf = adf.reset_index()
-adf['Avg Mix1 CPM/ Avg Mix2 CPM'] = (adf['Avg Mix1 CPM'] / adf['Avg Mix2 CPM'])
-
-Bdf = merged_ercc.loc[merged_ercc['ERCC group'] == 'B']
-Bmix1df = Bdf.loc[Bdf['Mix']=='Mix 1']
-Bmix1df['Mix1 CPM'] = Bmix1df[Bmix1df['Count per million'] > 0]['Count per million'].dropna()
-Bmix1df = Bmix1df.groupby('ERCC ID')['Mix1 CPM'].agg(np.mean).rename('Avg Mix1 CPM')
-Bmix1df = Bmix1df.to_frame()
-Bmix2df = Bdf.loc[Bdf['Mix']=='Mix 2']
-Bmix2df['Mix2 CPM'] = Bmix2df[Bmix2df['Count per million'] > 0]['Count per million'].dropna()
-Bmix2df = Bmix2df.groupby('ERCC ID')['Mix2 CPM'].agg(np.mean).rename('Avg Mix2 CPM')
-Bmix2df = Bmix2df.to_frame()
-
-bdf = Bmix1df.merge(Bmix2df, on='ERCC ID')
-bdf = bdf.reset_index()
-bdf['Avg Mix1 CPM/ Avg Mix2 CPM'] = (bdf['Avg Mix1 CPM'] / bdf['Avg Mix2 CPM'])
-
-Cdf = merged_ercc.loc[merged_ercc['ERCC group'] == 'C']
-Cmix1df = Cdf.loc[Cdf['Mix']=='Mix 1']
-Cmix1df['Mix1 CPM'] = Cmix1df[Cmix1df['Count per million'] > 0]['Count per million'].dropna()
-Cmix1df = Cmix1df.groupby('ERCC ID')['Mix1 CPM'].agg(np.mean).rename('Avg Mix1 CPM')
-Cmix1df = Cmix1df.to_frame()
-Cmix2df = Cdf.loc[Cdf['Mix']=='Mix 2']
-Cmix2df['Mix2 CPM'] = Cmix2df[Cmix2df['Count per million'] > 0]['Count per million'].dropna()
-Cmix2df = Cmix2df.groupby('ERCC ID')['Mix2 CPM'].agg(np.mean).rename('Avg Mix2 CPM')
-Cmix2df = Cmix2df.to_frame()
-
-cdf = Cmix1df.merge(Cmix2df, on='ERCC ID')
-cdf = cdf.reset_index()
-cdf['Avg Mix1 CPM/ Avg Mix2 CPM'] = (cdf['Avg Mix1 CPM'] / cdf['Avg Mix2 CPM'])
-
-Ddf = merged_ercc.loc[merged_ercc['ERCC group'] == 'D']
-Dmix1df = Ddf.loc[Ddf['Mix']=='Mix 1']
-Dmix1df['Mix1 CPM'] = Dmix1df[Dmix1df['Count per million'] > 0]['Count per million'].dropna()
-Dmix1df = Dmix1df.groupby('ERCC ID')['Mix1 CPM'].agg(np.mean).rename('Avg Mix1 CPM')
-Dmix1df = Dmix1df.to_frame()
-Dmix2df = Ddf.loc[Ddf['Mix']=='Mix 2']
-Dmix2df['Mix2 CPM'] = Dmix2df[Dmix2df['Count per million'] > 0]['Count per million'].dropna()
-Dmix2df = Dmix2df.groupby('ERCC ID')['Mix2 CPM'].agg(np.mean).rename('Avg Mix2 CPM')
-Dmix2df = Dmix2df.to_frame()
-
-ddf = Dmix1df.merge(Dmix2df, on='ERCC ID')
-ddf = ddf.reset_index()
-ddf['Avg Mix1 CPM/ Avg Mix2 CPM'] = (ddf['Avg Mix1 CPM'] / ddf['Avg Mix2 CPM'])
-
-### Box plots of number of ERCC detected in group A, and bar plot of the average Mix1 CPM / average Mix 2 CPM (for group A we expect Mix 1 CPM / Mix 2 CPM = 4).
-a = sns.catplot(x="ERCC ID", y="log2 Count per million", order=groupA, hue="Mix",data=merged_ercc[merged_ercc['ERCC ID'].isin(groupA)], kind="box", col="ERCC group", height=5, aspect=1, palette=sns.color_palette(['blue', 'orange']))
-a.set_xticklabels(rotation=90)
-plt.text(23,2.5,"Mix1/ Mix2 = 4")
-
-a1 = sns.catplot(x="ERCC ID", y="Avg Mix1 CPM/ Avg Mix2 CPM", palette="rocket_r", data=adf, kind="bar", height=5, aspect=1, linewidth=0.5)
-a1.set_xticklabels(rotation=90)
-plt.title("ERCC Group A")
-a1.set(ylim=(0, 5))
-print('Number of ERCC detected in group A (out of 23) =', adf['Avg Mix1 CPM/ Avg Mix2 CPM'].count())
-
-### Box plots of number of ERCC detected in group B, and bar plot of the average Mix1 CPM / average Mix 2 CPM (for group B we expect Mix 1 CPM / Mix 2 CPM = 1).
-b = sns.catplot(x="ERCC ID", y="log2 Count per million", order=groupB, hue="Mix", data=merged_ercc[merged_ercc['ERCC ID'].isin(groupB)], kind="box", col="ERCC group", height=5, aspect=1, palette=sns.color_palette(['blue', 'orange']))
-b.set_xticklabels(rotation=90)
-plt.text(23,2,"Mix1/ Mix2 = 1")
-
-b = sns.catplot(x="ERCC ID", y="Avg Mix1 CPM/ Avg Mix2 CPM", palette="rocket_r", data=bdf, kind="bar", 
-               height=5, aspect=1, linewidth=0.5)
-b.set_xticklabels(rotation=90)
-plt.title("ERCC Group B")
-b.set(ylim=(0, 2))
-print('Number of ERCC detected in group B (out of 23) =', bdf['Avg Mix1 CPM/ Avg Mix2 CPM'].count())
-
-### Box plots of number of ERCC detected in group C, and bar plot of the average Mix1 CPM / average Mix 2 CPM (for group C we expect Mix 1 CPM / Mix 2 CPM = 0.67).
-c = sns.catplot(x="ERCC ID", y="log2 Count per million", order=groupC, hue="Mix", data=merged_ercc[merged_ercc['ERCC ID'].isin(groupC)], kind="box", col="ERCC group", height=5, aspect=1, palette=sns.color_palette(['blue', 'orange']))
-c.set_xticklabels(rotation=90)
-plt.text(23,2.5,"Mix1/ Mix2 = 0.67")
-
-c = sns.catplot(x="ERCC ID", y="Avg Mix1 CPM/ Avg Mix2 CPM", palette="rocket_r", data=cdf, kind="bar", 
-               height=5, aspect=1, linewidth=0.5)
-c.set_xticklabels(rotation=90)
-plt.title("ERCC Group C")
-c.set(ylim=(0, 2.6))
-print('Number of ERCC detected in group C (out of 23) =', cdf['Avg Mix1 CPM/ Avg Mix2 CPM'].count())
-
-### Box plots of number of ERCC detected in group D, and bar plot of the average Mix1 CPM / average Mix 2 CPM (for group D we expect Mix 1 CPM / Mix 2 CPM = 0.5).
-d = sns.catplot(x="ERCC ID", y="log2 Count per million", order=groupD, hue="Mix", data=merged_ercc[merged_ercc['ERCC ID'].isin(groupD)], col="ERCC group", kind="box", height=5, aspect=1, palette=sns.color_palette(['blue', 'orange']))
-d.set_xticklabels(rotation=90)
-plt.text(23,2.5,"Mix1/ Mix2 = 0.5")
-
-d = sns.catplot(x="ERCC ID", y="Avg Mix1 CPM/ Avg Mix2 CPM", palette="rocket_r", data=ddf, kind="bar", 
-               height=5, aspect=1, linewidth=0.5)
-d.set_xticklabels(rotation=90)
-plt.title("ERCC Group D")
-d.set(ylim=(0, 2))
-print('Number of ERCC detected in group D (out of 23) =', ddf['Avg Mix1 CPM/ Avg Mix2 CPM'].count())
-
-### Single Sample ERCC Analysis
-#Calculate and plot ERCC metrics from single samples, including limit of detection, dynamic range, and R^2 of counts vs. concentration.
-print(ercc_table.head(n=3))
-
-# Make a dictionary for ERCC concentrations for each mix
-mix1_conc_dict = dict(zip(ercc_table['ERCC ID'], ercc_table['concentration in Mix 1 (attomoles/ul)']))
-mix2_conc_dict = dict(zip(ercc_table['ERCC ID'], ercc_table['concentration in Mix 2 (attomoles/ul)']))
-
-# Check assay_table header to identify the 'Sample Name' column and the column title indicating the 'Spike-in Mix Nmber' if it's indicated in the metadata.
-pd.set_option('max_columns', None)
-assay_table = assay_table.reset_index()
-print(assay_table)
-
-# get samples that use mix 1 and mix 2
-mix1_samples = assay_table[assay_table['Parameter Value[Spike-in Mix Number]'] == 'Mix 1']['Sample Name']
-mix2_samples = assay_table[assay_table['Parameter Value[Spike-in Mix Number]'] == 'Mix 2']['Sample Name']
-
-# Get ERCC counts
-ercc_counts = raw_counts_table[raw_counts_table.index.str.contains('^ERCC-')] 
-ercc_counts = ercc_counts.sort_values(by=list(ercc_counts), ascending=False)
-print(ercc_counts.head())
-
-ercc_counts_mix_1 = ercc_counts[mix1_samples]
-ercc_counts_mix_1['ERCC conc (attomoles/ul)'] = ercc_counts_mix_1.index.map(mix1_conc_dict)
-print(ercc_counts_mix_1)
-
-ercc_counts_mix_2 = ercc_counts[mix2_samples]
-ercc_counts_mix_2['ERCC conc (attomoles/ul)'] = ercc_counts_mix_2.index.map(mix2_conc_dict)
-print(ercc_counts_mix_2)
-
-# Each sample, either Mix 1 or Mix 2, plotted using scatter plot with x = log2 ERCC conc (attomoles/ ul) and y = log2 Counts.
-columns_mix_1 = ercc_counts_mix_1.columns.drop(['ERCC conc (attomoles/ul)'])
-columns_mix_2 = ercc_counts_mix_2.columns.drop(['ERCC conc (attomoles/ul)'])
-all_columns = columns_mix_1.to_list() + columns_mix_2.to_list()
-total_columns = len(columns_mix_1) + len(columns_mix_2) 
-side_size = np.int32(np.ceil(np.sqrt(total_columns)))# calculate grid side size. take sqrt of total plots and round up.
-fig, axs = plt.subplots(side_size+12, side_size-6, figsize=(22,66), sharex='all', sharey='all'); #change figsize x,y labels if needed.
-fig.tight_layout(pad=1, w_pad=3.5, h_pad=3.5)
-
-counter = 0
-for ax in axs.flat:
-    
-    if(counter < len(columns_mix_1)):
-      ax.scatter(x=np.log2(ercc_counts_mix_1['ERCC conc (attomoles/ul)']), y=np.log2(ercc_counts_mix_1[all_columns[counter]]+1), s=7);
-      ax.set_title(all_columns[counter][-45:], fontsize=9);
-      ax.set_xlabel('log2 ERCC conc (attomoles/ ul)', fontsize=8.5);
-      ax.set_ylabel('log2 Counts per million', fontsize=9);
-      ax.tick_params(direction='in', axis='both', labelsize=8, labelleft=True, labelbottom=True);
-      
-    elif(counter >= len(columns_mix_1) and counter < total_columns):
-      ax.scatter(x=np.log2(ercc_counts_mix_2['ERCC conc (attomoles/ul)']), y=np.log2(ercc_counts_mix_2[all_columns[counter]]+1), s=7);
-      ax.set_title(all_columns[counter][-45:], fontsize=9);
-      ax.set_xlabel('log2 ERCC conc (attomoles/ ul)', fontsize=8.5);
-      ax.set_ylabel('log2 Counts per million', fontsize=9);
-      ax.tick_params(direction='in', axis='both', labelsize=8, labelleft=True, labelbottom=True);
-       
-    else:
-      pass
-
-    counter = counter + 1
-
-# Filter counts > 0
-nonzero_counts_list_1 = []
-for i in range(0, len(ercc_counts_mix_1.columns)-1):
-  counts = ercc_counts_mix_1[columns_mix_1[i]]
-  counts.index.rename('Gene_ID', inplace=True)
-  countsdf = pd.DataFrame(counts)
-  nonzero_counts = countsdf[ercc_counts_mix_1[columns_mix_1[i]] > 0.0]
-  nonzero_counts['Conc'] = nonzero_counts.index.map(mix1_conc_dict)
-  nonzero_counts.columns = ['Counts','Conc']
-  nonzero_counts_sorted = nonzero_counts.sort_values('Conc')
-  nonzero_counts_list_1.append(nonzero_counts_sorted)
-
-nonzero_counts_list_2 = []
-for i in range(0, len(ercc_counts_mix_2.columns)-1):
-  counts = ercc_counts_mix_2[columns_mix_2[i]]
-  counts.index.rename('Gene_ID', inplace=True)
-  countsdf = pd.DataFrame(counts)
-  nonzero_counts = countsdf[ercc_counts_mix_2[columns_mix_2[i]] > 0.0]
-  nonzero_counts['Conc'] = nonzero_counts.index.map(mix2_conc_dict)
-  nonzero_counts.columns = ['Counts','Conc']
-  nonzero_counts_sorted = nonzero_counts.sort_values('Conc')
-  nonzero_counts_list_2.append(nonzero_counts_sorted)
-
-# Each sample plotted using linear regression of scatter plot with x = log2 Conc and y = log2 Counts.  Return min, max, R^2 and dynamic range (max / min) values.
-samples = []
-mins = []
-maxs = []
-dyranges = []
-rs = []
-
-fig, axs = plt.subplots(side_size+12, side_size-6, figsize=(22,66), sharex='all', sharey='all');
-fig.tight_layout(pad=1, w_pad=3.5, h_pad=3.5)
-
-counter = 0
-list2counter = 0
-for ax in axs.flat:
-    
-    if(counter < len(columns_mix_1)):
-
-      nonzero_counts = nonzero_counts_list_1[counter]
-      xvalues = nonzero_counts['Conc']
-      yvalues = nonzero_counts['Counts']
-
-      sns.regplot(x=np.log2(xvalues), y=np.log2(yvalues), ax=ax);
-      ax.set_title(all_columns[counter][-47:], fontsize=9);
-      ax.set_xlabel('log2 Conc (attomoles/ul)', fontsize=8.5);
-      ax.set_ylabel('log2 Counts per million', fontsize=9);
-      ax.tick_params(direction='in', axis='both', labelsize=9, labelleft=True, labelbottom=True)
-      samples.append(all_columns[counter])
-
-      if(len(xvalues) == 0):
-        mins.append('NaN')
-        maxs.append('NaN')
-        dyranges.append('NaN')
-        rs.append('NaN')
-
-    
-      else:
-        min = xvalues[0];
-        mins.append(min)
-        minimum = f'Min:{min:.1f}';
-        max = xvalues[-1];
-        maxs.append(max)
-        maximum = f'Max:{max:.1f}';
-        dynamic_range = max / min;
-        dyranges.append(dynamic_range)
-        dyn_str = f'Dyn:{dynamic_range:.1f}';
-
-        ax.text(0.02, 0.98, minimum,
-        verticalalignment='top', horizontalalignment='left',
-        transform=ax.transAxes,
-        color='black', fontsize=10);
-      
-        ax.text(0.02, 0.88, maximum,
-        verticalalignment='top', horizontalalignment='left',
-        transform=ax.transAxes,
-        color='black', fontsize=10);
-      
-        ax.text(0.02, 0.78, dyn_str,verticalalignment='top',
-                horizontalalignment='left',transform=ax.transAxes,
-                color='black', fontsize=10);
-      
-        if(len(xvalues) == 1):
-          rs.append('NaN')
-
-        else:
-          slope, intercept, r, p, se = linregress(np.log2(xvalues), y=np.log2(yvalues))
-          r_str = f'R:{r:.2f}'
-          rs.append(r)
-
-          ax.text(0.02, 0.68, r_str, verticalalignment='top',
-                  horizontalalignment='left',transform=ax.transAxes,
-                  color='black', fontsize=10);
-    
-    elif(counter >= len(columns_mix_1) and counter < total_columns):
-      
-      nonzero_counts = nonzero_counts_list_2[list2counter]
-      xvalues = nonzero_counts['Conc']
-      yvalues = nonzero_counts['Counts']
-
-      sns.regplot(x=np.log2(xvalues), y=np.log2(yvalues), ax=ax);
-      ax.set_title(all_columns[counter][-47:], fontsize=9);
-      ax.set_xlabel('log2 Conc (attomoles/ul)', fontsize=8.5);
-      ax.set_ylabel('log2 Counts per million', fontsize=9);
-      ax.tick_params(direction='in', axis='both', labelsize=9, labelleft=True, labelbottom=True);
-      samples.append(all_columns[counter])
-
-
-      if(len(xvalues) == 0):
-        mins.append('NaN')
-        maxs.append('NaN')
-        dyranges.append('NaN')
-        rs.append('NaN')
-    
-      else:
-        min = xvalues[0];
-        mins.append(min)
-        minimum = f'Min:{min:.1f}';
-        max = xvalues[-1];
-        maxs.append(max)
-        maximum = f'Max:{max:.1f}';
-        dynamic_range = max / min;
-        dyranges.append(dynamic_range)
-        dyn_str = f'Dyn:{dynamic_range:.1f}';
-
-        ax.text(0.02, 0.98, minimum,
-        verticalalignment='top', horizontalalignment='left',
-        transform=ax.transAxes,
-        color='black', fontsize=10);
-      
-        ax.text(0.02, 0.88, maximum,
-        verticalalignment='top', horizontalalignment='left',
-        transform=ax.transAxes,
-        color='black', fontsize=10);
-      
-        ax.text(0.02, 0.78, dyn_str,verticalalignment='top',
-                horizontalalignment='left',transform=ax.transAxes,
-                color='black', fontsize=10);
-      
-        if(len(xvalues) == 1):
-          rs.append('NaN')
-          
-        else:
-          slope, intercept, r, p, se = linregress(np.log2(xvalues), y=np.log2(yvalues));
-          r_str = f'R:{r:.2f}';
-          rs.append(r)
-
-          ax.text(0.02, 0.68, r_str, verticalalignment='top',
-                  horizontalalignment='left',transform=ax.transAxes,
-                  color='black', fontsize=10);
-
-      list2counter = list2counter + 1
-    
-    else:
-      pass
-
-    counter = counter + 1
-
-# Directory for saved files
-import os
-os.makedirs(name="ERCC_analysis", exist_ok=True)
-
-# Print tables containing the dynamic range and R^2 values for each sample.
-# Remember to change file names to GLDS# analyzing
-# Select files w/ suffix _mqc* for MultiQC report 
-stats = pd.DataFrame(list(zip(samples, mins, maxs, dyranges, rs)))
-stats.columns = ['Samples', 'Min', 'Max', 'Dynamic range', 'R']
-stats.to_csv('ERCC_analysis/ERCC_stats_GLDS-379_LVR.csv', index = False)  # OUTPUT
-stats.filter(items = ['Samples', 'Dynamic range']).to_csv('ERCC_analysis/ERCC_dynrange_GLDS-379_LVR_mqc.csv', index = False) # OUTPUT
-stats.filter(items = ['Samples', 'R']).to_csv('ERCC_analysis/ERCC_rsq_GLDS-379_LVR_mqc.csv', index = False) # OUTPUT
-
-### GeneLab Study Level ERCC 
-# This section shows an example of how the ERCC spike-ins can be used to assess the power of comparisons within a single study.
-
-# ERCC Mix 1 and Mix 2 are distributed so that half the samples receive Mix 1 spike-in and half receive Mix 2 spike-in. Transcripts in Mix 1 and Mix 2 are present at a known ratio, so we can determine how well these patterns are revealed in the dataset.
-# Get sample table
-combined = sample_table.merge(assay_table, on='Sample Name')
-combined = combined.set_index(combined['Sample Name'])
-pd.set_option('max_columns', None)
-print(combined)
-
-# Create metadata table containing samples and their respective ERCC spike-in Mix number
-# Sometimes Number in [Spike-in Mix Number] is spelled 'number' and this could cause error in mismatch search 
-ERCCmetadata = combined[['Parameter Value[Spike-in Mix Number]']]
-ERCCmetadata.index = ERCCmetadata.index.str.replace('-','_')
-ERCCmetadata.columns = ['Mix']
-#ERCCmetadata = ERCCmetadata.rename(columns={'Parameter Value[Spike-in Mix Number]':'Mix'})
-print(ERCCmetadata)
-
-# Export ERCC sample metadata.
-ERCCmetadata.to_csv('ERCC_analysis/ERCCmetadata.csv') # OUTPUT
-
-# Export ERCC count data.
-ercc_counts.columns = ercc_counts.columns.str.replace('-','_')
-ERCCcounts = ercc_counts.loc[:,ERCCmetadata.index]
-ERCCcounts.head()
-
-ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv') # OUTPUT
-```
-
-
-**Input Data:**
-
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the \*ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
-- RSEM_Unnormalized_Counts.csv (RSEM counts table)
-
-**Output Data:**
-
-- ERCC_analysis/ERCC_stats_GLDS-*.csv (Samplewise counts statistics table containing 'Min', 'Max', 'Dynamic range', 'R')
-- ERCC_analysis/ERCC_dynrange_GLDS-*.csv (Samplewise counts statistics subset table containing 'Dynamic range')
-- ERCC_analysis/ERCC_rsq_GLDS-*.csv (Samplewise counts statistics subset table containing 'R')
-- ERCC_analysis/ERCCmetadata.csv (Samplewise metadata table inlcuding ERCC mix number)
-- ERCC_analysis/ERCCcounts.csv (Samplewise ERCC counts table)
-
-<br>
-
-### 10b. Perform DESeq2 Analysis of ERCC Counts
-
-```R
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("DESeq2")
-library("DESeq2")
-cts <- as.matrix(read.csv('ERCC_analysis/ERCCcounts.csv',sep=",",row.names="Gene_ID")) #INPUT
-coldata <- read.csv('ERCC_analysis/ERCCmetadata.csv', row.names=1) #INPUT
-
-coldata$Mix <- factor(coldata$Mix)
-all(rownames(coldata) == colnames(cts))
-
-dds <- DESeqDataSetFromMatrix(countData = cts,
-                              colData = coldata,
-                              design = ~ Mix)
-dds
-
-dds <- DESeq(dds)
-res <- results(dds, contrast=c("Mix","Mix 1","Mix 2"))
-res
-
-write.csv(res, 'ERCC_analysis/ERCC_DESeq2.csv') #OUTPUT
-normcounts = counts(dds, normalized=TRUE)
-write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
-```
-
-**Input Data:**
-
-- ERCC_analysis/ERCCmetadata.csv (Samplewise metadata table inlcuding ERCC mix number)
-- ERCC_analysis/ERCCcounts.csv (Samplewise ERCC counts table)
-
-**Output Data:**
-
-- ERCC_analysis/ERCC_DESeq2.csv (DESeq2 results table)
-- ERCC_analysis/ERCC_normcounts.csv (Normalized ERCC Counts table)
-
-<br>
-
-### 10c. Analyze ERCC Count DESeq2 Results
-
-```python
-import pandas as pd
-from urllib.request import urlopen, quote, urlretrieve
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-deseq2out = pd.read_csv('ERCC_analysis/ERCC_DESeq2.csv', index_col=0) # INPUT
-#deseq2out.index = deseq2out.index.str.replace('_','-')
-deseq2out.rename(columns ={'baseMean' : 'meanNormCounts'}, inplace = True)
-print(deseq2out.head())
-
-# Get ERCC files
-ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t')
-print(ercc_table.head(n=3))
-
-combined = deseq2out.merge(ercc_table, left_index=True, right_index=True)
-print(combined.head())
-
-# P-value and adj. p-value cutoff at 10^-3
-combined['cleaned_padj'] = combined['padj']
-combined.loc[(combined.cleaned_padj < 0.001),'cleaned_padj']=0.001
-
-combined['cleaned_pvalue'] = combined['pvalue']
-combined.loc[(combined.cleaned_pvalue < 0.001),'cleaned_pvalue']=0.001
-
-print(combined.head())
-
-# Remember to change file name to GLDS# analyzing
-combined.filter(items = ['ERCC ID', 'meanNormCounts', 'cleaned_pvalue','cleaned_padj']).to_csv('ERCC_analysis/ERCC_lodr_*.csv') #OUTPUT
-
-fig, ax = plt.subplots(figsize=(10, 7))
-
-sns.scatterplot(data=combined, x="meanNormCounts", y="cleaned_pvalue",
-            hue="expected fold-change ratio",
-                palette=['red','green','black','blue'], ax=ax)
-
-sns.lineplot(data=combined, x="meanNormCounts", y="cleaned_pvalue",
-            hue="expected fold-change ratio",
-                palette=['red','green','black','blue'], ax=ax)
-
-#g.set_xscale("log", base=2)
-ax.set_xscale("linear");
-ax.set_yscale("log");
-
-fig, ax = plt.subplots(figsize=(10, 7))
-
-sns.scatterplot(data=combined, x="meanNormCounts", y="cleaned_padj",
-            hue="expected fold-change ratio",
-                palette=['red','green','black','blue'], ax=ax)
-
-sns.lineplot(data=combined, x="meanNormCounts", y="cleaned_padj",
-            hue="expected fold-change ratio",
-                palette=['red','green','black','blue'], ax=ax)
-
-#g.set_xscale("log", base=2)
-ax.set_xscale("linear");
-ax.set_yscale("log");
-```
-
-**Input Data:**
-
-- ERCC_analysis/ERCC_DESeq2.csv (DESeq2 results table)
-
-**Output Data:**
-
-- ERCC_analysis/ERCC_lodr_*.csv (ERCC Gene Table including mean counts, adjusted p-value and p-value and filtered to genes with both adj. p-value and p-value < 0.001)

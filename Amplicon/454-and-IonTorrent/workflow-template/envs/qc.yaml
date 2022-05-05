@@ -3,5 +3,6 @@ channels:
     - bioconda
     - defaults
 dependencies:
-    - fastqc=0.11.8
-    - multiqc=1.7
+    - fastqc=0.11.9
+    - multiqc=1.9
+    - zip=3.0

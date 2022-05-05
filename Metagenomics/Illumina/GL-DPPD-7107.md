@@ -4,7 +4,7 @@
 
 ---
 
-**Date:** January 13, 2021  
+**Date:** September 15, 2021  
 **Revision:** -  
 **Document Number:** GL-DPPD-7107  
 
@@ -39,8 +39,9 @@ Jonathan Galazka (GeneLab Project Scientist)
     - [12. Combining contig-level coverage and taxonomy into one table for each sample](#12-combining-contig-level-coverage-and-taxonomy-into-one-table-for-each-sample)
     - [13. Generating normalized, gene-level-coverage summary tables of KO-annotations and taxonomy across samples](#13-generating-normalized-gene-level-coverage-summary-tables-of-ko-annotations-and-taxonomy-across-samples)
     - [14. **M**etagenome-**A**ssembled **G**enome (MAG) recovery](#14-metagenome-assembled-genome-mag-recovery)
+    - [15. Generating MAG-level functional summary overview](#15-generating-mag-level-functional-summary-overview)
   - [**Read-based processing**](#read-based-processing)
-    - [15. Taxonomic and functional profiling](#15-taxonomic-and-functional-profiling)
+    - [16. Taxonomic and functional profiling](#16-taxonomic-and-functional-profiling)
 
 ---
 
@@ -61,6 +62,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |Metabat2|`metabat2 -h`|[https://bitbucket.org/berkeleylab/metabat/src/master/](https://bitbucket.org/berkeleylab/metabat/src/master/)|
 |checkm|`checkm -h`|[https://github.com/Ecogenomics/CheckM](https://github.com/Ecogenomics/CheckM)|
 |gtdbtk|`gtdbtk -v`|[https://github.com/Ecogenomics/GTDBTk](https://github.com/Ecogenomics/GTDBTk)|
+|KEGGDecoder|`pip show keggdecoder`|[https://github.com/bjtully/BioData/tree/master/KEGGDecoder#kegg-decoder](https://github.com/bjtully/BioData/tree/master/KEGGDecoder#kegg-decoder)
 |HUMAnN3|`humann --version`|[https://huttenhower.sph.harvard.edu/humann3/](https://huttenhower.sph.harvard.edu/humann3/)|
 |MetaPhlAn3|`metaphlan --version`|[https://github.com/biobakery/MetaPhlAn/tree/3.0](https://github.com/biobakery/MetaPhlAn/tree/3.0)|
 
@@ -126,6 +128,12 @@ multiqc -o raw_multiqc_output -n raw_multiqc -z raw_fastqc_output/
 bbduk.sh in=sample-1-R1-raw.fastq.gz in2=sample-1-R2-raw.fastq.gz out1=sample-1-R1-trimmed.fastq.gz \
          out2=sample-1-R2-trimmed.fastq.gz ref=ref-adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
          trimq=10 mlf=0.5 maxns=0 > bbduk.log 2>&1
+         
+# if libraries were prepared with the Swift1S kit
+# bbduk.sh in=sample-1-R1-raw.fastq.gz in2=sample-1-R2-raw.fastq.gz out1=sample-1-R1-trimmed.fastq.gz \
+         out2=sample-1-R2-trimmed.fastq.gz ref=ref-adapters.fa ktrim=l k=17 ftm=5 qtrim=rl \
+         trimq=10 mlf=0.5 maxns=0 swift=t > bbduk.log 2>&1
+
 ```
 
 **Parameter Definitions:**
@@ -149,6 +157,8 @@ bbduk.sh in=sample-1-R1-raw.fastq.gz in2=sample-1-R2-raw.fastq.gz out1=sample-1-
 *	`mlf` – sets the minimum length of reads retained based on their initial length
 
 *	`maxns` – sets the maximum number of Ns allowed in a read before it will be filtered out
+
+*  `swift` – tells the program to look for and trim low-complexity adaptase reminants from the Swift1S kit
 
 *	`> bbduk.log 2>&1` – redirects the stderr and stdout to a log file for saving
 
@@ -418,7 +428,7 @@ tar -xvzf CAT_prepare_20200618.tar.gz
 ```
 CAT contigs -c sample-1-assembly.fasta -d CAT_prepare_20200618/2020-06-18_database/ \
             -t CAT_prepare_20200618/2020-06-18_taxonomy/ -p sample-1-genes.faa \
-            -o sample-1-tax-out.tmp -n 15 -r 3 --top 3 --I_know_what_Im_doing
+            -o sample-1-tax-out.tmp -n 15 -r 3 --top 4 --I_know_what_Im_doing
 ```
 
 **Parameter Definitions:**  
@@ -864,8 +874,78 @@ gtdbtk classify_wf --genome_dir MAGs/ -x fa --out_dir gtdbtk-output-dir
 
 ---
 
+### 15. Generating MAG-level functional summary overview
+
+#### 15a. Getting KO annotations per MAG
+This utilizes the helper script [`parse-MAG-annots.py`](workflow-template/scripts/parse-MAG-annots.py).
+
+```bash
+for file in $( ls MAGs/*.fasta )
+do
+
+    MAG_ID=$( echo ${file} | cut -f 2 -d "/" | sed 's/.fasta//' )
+    sample_ID=$( echo ${MAG_ID} | sed 's/-MAG-[0-9]*$//' )
+
+    grep "^>" ${file} | tr -d ">" > ${MAG_ID}-contigs.tmp
+
+    python parse-MAG-annots.py -i annotations-and-taxonomy/${sample_ID}-gene-coverage-annotation-and-tax.tsv \
+                               -w ${MAG_ID}-contigs.tmp -M ${MAG_ID} \
+                               -o MAG-level-KO-annotations.tsv
+
+    rm ${MAG_ID}-contigs.tmp
+
+done
+```
+
+**Parameter Definitions:**  
+
+*	`-i` – specifies the input sample gene-coverage-annotation-and-tax.tsv file generated in step 11 above
+
+*  `-w` – specifies the appropriate temporary file holding all the contigs in the current MAG
+
+*	`-M` – specifies the current MAG unique identifier
+
+*	`-o` – specifies the output file
+
+**Input data:**
+
+* \*-gene-coverage-annotation-and-tax.tsv (sample gene-coverage-annotation-and-tax.tsv file generated in step 11 above)
+
+**Output data:**
+
+* MAG-level-KO-annotations.tsv (tab-delimited table holding MAGs and their KO annotations)
+
+
+#### 15b. Summarizing KO annotations with KEGG-Decoder
+
+```bash
+KEGG-decoder -v interactive -i MAG-level-KO-annotations.tsv -o MAG-KEGG-Decoder-out.tsv
+```
+
+**Parameter Definitions:**  
+
+*  `-v interactive` – specifies to create an interactive html output
+ 
+*	`-i` – specifies the input MAG-level-KO-annotations.tsv file generated in step 15a above
+
+*	`-o` – specifies the output table
+
+**Input data:**
+
+* MAG-level-KO-annotations.tsv (tab-delimited table holding MAGs and their KO annotations, generated in step 15a above)
+
+**Output data:**
+
+* MAG-KEGG-Decoder-out.tsv (tab-delimited table holding MAGs and their proportions of genes held known to be required for specific pathways/metabolisms)
+
+* MAG-KEGG-Decoder-out.html (interactive heatmap html file of the above output table)
+
+<br>
+
+---
+
 ## Read-based processing
-### 15. Taxonomic and functional profiling
+### 16. Taxonomic and functional profiling
 The following uses the `humann3` and `metaphlan3` reference databases downloaded on 26-Sept-2020 as follows:
 
 ```bash
@@ -875,7 +955,7 @@ humann_databases --download utility_mapping full
 metaphlan --install
 ```
 
-#### 15a. Running humann3 (which also runs metaphlan3)
+#### 16a. Running humann3 (which also runs metaphlan3)
 ```bash
   # forward and reverse reads need to be provided combined if paired-end (if not paired-end, single-end reads are provided to the --input argument next)
 cat sample-1-R1-trimmed.fastq.gz sample-1-R2-trimmed.fastq.gz > sample-1-combined.fastq.gz
@@ -901,7 +981,7 @@ humann --input sample-1-combined.fastq.gz --output sample-1-humann3-out-dir --th
 	* `--sample_id` – specifies the sample identifier we want in the table (rather than full filename)
 
 
-#### 15b. Merging multiple sample functional profiles into one table
+#### 16b. Merging multiple sample functional profiles into one table
 ```bash
   # they need to be in their own directories
 mkdir genefamily-results/ pathabundance-results/ pathcoverage-results/
@@ -923,7 +1003,7 @@ humann_join_tables -i pathcoverage-results/ -o path-coverages.tsv
 *	`-o` – the name of the output combined table
 
 
-#### 15c. Splitting results tables
+#### 16c. Splitting results tables
 The read-based functional annotation tables have taxonomic info and non-taxonomic info mixed together initially. `humann` comes with a helper script to split these. Here we are using that to generate both non-taxonomically grouped functional info files and taxonomically grouped ones.
 
 ```bash
@@ -947,7 +1027,7 @@ mv path-coverages_unstratified.tsv path-coverages.tsv
 *	`-o` – output directory (here specifying current directory)
 
 
-#### 15d. Normalizing gene families and pathway abundance tables
+#### 16d. Normalizing gene families and pathway abundance tables
 This generates some normalized tables of the read-based functional outputs from humann that are more readily suitable for across sample comparisons.
 
 ```bash
@@ -964,7 +1044,7 @@ humann_renorm_table -i path-abundances.tsv -o path-abundances-cpm.tsv --update-s
 *	`--update-snames` – change suffix of column names in tables to "-CPM"
 
 
-#### 15e. Generating a normalized gene-family table that is grouped by Kegg Orthologs (KOs)
+#### 16e. Generating a normalized gene-family table that is grouped by Kegg Orthologs (KOs)
 
 ```bash
 humann_regroup_table -i gene-families.tsv -g uniref90_ko | humann_rename_table -n kegg-orthology | \
@@ -987,7 +1067,7 @@ humann_regroup_table -i gene-families.tsv -g uniref90_ko | humann_rename_table -
 
 *  `--update-snames` – change suffix of column names in tables to "-CPM"
 
-#### 15f. Combining taxonomy tables
+#### 16f. Combining taxonomy tables
 
 ```bash
 merge_metaphlan_tables.py *-humann3-out-dir/*_humann_temp/*_metaphlan_bugs_list.tsv > metaphlan-taxonomy.tsv
