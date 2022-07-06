@@ -730,7 +730,8 @@ gene_transcript_map <-
     read.table("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv", sep = "\t", 
                col.names = c("gene_ID", "feature.name"))
 
-# for each transcript ID in the sig_all_out_tab_with_features table, getting its corresponding gene ID and adding that to the table
+# for each transcript ID in the sig_all_out_tab_with_features table, getting 
+# its corresponding gene ID and adding that to the table
 sig_all_out_tab_with_features_and_gene_IDs <- 
     left_join(sig_all_out_tab_with_features, gene_transcript_map)
 
@@ -760,9 +761,5 @@ write.table(sig_all_out_tab_with_features_and_annots,
 
 \* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group_1_vs_Group_2-\*
 
-<br>
-
 ---
 ---
-
-
