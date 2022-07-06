@@ -21,14 +21,20 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # Table of contents
 
-- [**Software used**](#software-used)
-- [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
+- [Bioinformatics pipeline for bisulfite sequencing (methylseq) data](#bioinformatics-pipeline-for-bisulfite-sequencing-methylseq-data)
+- [Table of contents](#table-of-contents)
+- [Software used](#software-used)
+- [General processing overview with example commands](#general-processing-overview-with-example-commands)
   - [1. Raw Data QC](#1-raw-data-qc)
+    - [1a. Compile Raw Data QC](#1a-compile-raw-data-qc)
   - [2. Adapter trimming/quality filtering](#2-adapter-trimmingquality-filtering)
-    - [If not RRBS or if RRBS using MseI digestion](if-not-rrbs-or-if-rrbs-using-msei-digestion)
+    - [If not RRBS or if RRBS using MseI digestion](#if-not-rrbs-or-if-rrbs-using-msei-digestion)
     - [If RRBS with MspI digestion](#if-rrbs-with-mspi-digestion)
     - [If RRBS with NuGEN ovation kit](#if-rrbs-with-nugen-ovation-kit)
+      - [First adapter-trimming/quality-filtering with trimgalore](#first-adapter-trimmingquality-filtering-with-trimgalore)
+      - [Now running NuGEN-specific script](#now-running-nugen-specific-script)
   - [3. Filtered/Trimmed Data QC](#3-filteredtrimmed-data-qc)
+    - [3a. Compile Trimmed Data QC](#3a-compile-trimmed-data-qc)
   - [4. Alignment](#4-alignment)
     - [4a. Generate reference](#4a-generate-reference)
     - [4b. Align](#4b-align)
@@ -36,9 +42,9 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [6. Extract methylation calls](#6-extract-methylation-calls)
   - [7. Generate individual sample report](#7-generate-individual-sample-report)
   - [8. Generate combined summary report](#8-generate-combined-summary-report)
-  - [9. Alignment QC](#alignment-qc)
+  - [9. Alignment QC](#9-alignment-qc)
   - [10. Generate MultiQC project report](#10-generate-multiqc-project-report)
-  - [11. Generate reference-genome annotation information](#11-generate-reference-genome-annotation-information)
+  - [11. Generate reference genome annotation information](#11-generate-reference-genome-annotation-information)
     - [11a. GTF to BED conversion](#11a-gtf-to-bed-conversion)
     - [11b. Making a mapping file of genes to transcripts](#11b-making-a-mapping-file-of-genes-to-transcripts)
     - [11c. Making a table of all gene annotations](#11c-making-a-table-of-all-gene-annotations)
@@ -570,7 +576,7 @@ A bed-formatted annotation file is needed for adding annotation information to t
 
 ```bash
 # downloading mouse reference gtf for this example
-curl -LO http://ftp.ensembl.org/pub/release-101/gtf/mus_musculus/Mus_musculus.GRCm38.101.gtf.gz
+curl -LO https://ftp.ensembl.org/pub/release-101/gtf/mus_musculus/Mus_musculus.GRCm38.101.gtf.gz
 
 gunzip Mus_musculus.GRCm38.101.gtf.gz
 
@@ -591,7 +597,7 @@ rm Mus_musculus.GRCm38.101.genePred
 * the generated bed file ("Mus_musculus.GRCm38.101.bed" in the above example)
 
 ### 11b. Making a mapping file of genes to transcripts
-Making a mapping file of gene names to transcript names, which we generate from the gtf file like so:
+Making a mapping file of gene names to transcript names, which we need to link functional annotations in a primary output table. We can generate this map from the gtf file like so:
 
 ```bash
 awk ' $3 == "transcript" ' Mus_musculus.GRCm38.101.gtf | cut -f 9 | tr -s ";" "\t" | \
@@ -663,7 +669,7 @@ myobj <- methRead(location = file.list,
 #                   mincov = 10)
 
 ## merging samples
-meth <- unite(myobj, destrand = FALSE)
+meth <- unite(myobj)
 
 ## Finding diff methylated bases
 myDiff <- calculateDiffMeth(meth, mc.cores = 4)
@@ -683,38 +689,72 @@ myDiff25p <- getMethylDiff(myDiff, difference = 25, qvalue = 0.01)
 sig_all_out_tab <- getData(myDiff25p) %>% arrange(qvalue)
 
 # writing out tables
-write.table(sig_hyper_out_tab, "sig-hypermethylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(sig_hypo_out_tab, "sig-hypomethylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(sig_all_out_tab, "sig-all-methylated-out.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(sig_hyper_out_tab, "sig-hypermethylated-out.tsv", 
+            sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(sig_hypo_out_tab, "sig-hypomethylated-out.tsv", 
+            sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(sig_all_out_tab, "sig-all-methylated-out.tsv", 
+            sep = "\t", quote = FALSE, row.names = FALSE)
 
 ## Annotating
 library(genomation)
-gene.obj <- readTranscriptFeatures("Mus_musculus.GRCm38.96.bed", up.flank = 1000, down.flank = 1000, remove.unusual = TRUE, unique.prom = TRUE)
+gene.obj <- readTranscriptFeatures("Mus_musculus.GRCm38.96.bed", up.flank = 1000, 
+                                   down.flank = 1000, remove.unusual = TRUE, 
+                                   unique.prom = TRUE)
 
 diffAnn <- annotateWithGeneParts(as(myDiff25p, "GRanges"), gene.obj)
 
 # making sig table with features 
-sig_all_out_tab_with_features <- cbind(data.frame(myDiff25p), getAssociationWithTSS(diffAnn), as.data.frame(getMembers(diffAnn))) %>% .[,-c(8)]
-write.table(sig_all_out_tab_with_features, "sig-all-methylated-out-with-features.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+sig_all_out_tab_with_features <- cbind(data.frame(myDiff25p), 
+                                       getAssociationWithTSS(diffAnn), 
+                                       as.data.frame(getMembers(diffAnn))) %>% .[,-c(8)]
+write.table(sig_all_out_tab_with_features, "sig-all-methylated-out-with-features.tsv", 
+            sep = "\t", quote = FALSE, row.names = FALSE)
 
 # making table of percent methylated
 perc.meth <- percMethylation(meth, rowids = TRUE)
-write.table(perc.meth, "percent-methylated.tsv", sep = "\t", quote = FALSE, row.names = TRUE, col.names=NA)
+write.table(perc.meth, "percent-methylated.tsv", sep = "\t", 
+            quote = FALSE, row.names = TRUE, col.names=NA)
 
-# making region summary plot
-pdf("sig-diff-meth-Cs-by-region.pdf")
-plotTargetAnnotation(diffAnn, precedence = TRUE, main = "% significantly differentially methylated Cs by region")
-dev.off()
+# making sig table with features and functional annotations
+## reading in annotation table appropriate for current organism
+    ## when we have the final location for this information, this will
+    ## need to be updated to pull a table with the links, rather than
+    ## the link being hard-coded here in this example
+functional_annots_tab <- 
+    read.table("https://figshare.com/ndownloader/files/35939642", sep = "\t", 
+               quote = "", header = TRUE)
+
+# reading in gene to transcript mapping file
+gene_transcript_map <- 
+    read.table("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv", sep = "\t", 
+               col.names = c("gene_ID", "feature.name"))
+
+# for each transcript ID in the sig_all_out_tab_with_features table, getting its corresponding gene ID and adding that to the table
+sig_all_out_tab_with_features_and_gene_IDs <- 
+    left_join(sig_all_out_tab_with_features, gene_transcript_map)
+
+# now adding full annotations
+sig_all_out_tab_with_features_and_annots <- 
+    left_join(sig_all_out_tab_with_features_and_gene_IDs, 
+              functional_annots_tab, by = c("gene_ID" = "ENSEMBL"))
+
+# and writing out
+write.table(sig_all_out_tab_with_features_and_annots, 
+            "sig-all-methylated-out-with-features-and-annots.tsv", 
+            sep = "\t", quote = FALSE, col.names=NA)
 ```
 
 **Input data:**
 * \*.bismark.cov.gz - gzip-compressed bedGraph-formatted files generated in Step 6 above
+* Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv - gene-to-transcript mapping file generated in Step 11b above
 
 **Output data:**
 * sig-hypermethylated-out.tsv - cytosines with significantly elevated methylation levels in treatment as compared to control
 * sig-hypomethylated-out.tsv - cytosines with significantly reduced methylation levels in treatment as compared to control
 * sig-all-methylated-out.tsv - all significantly differentially methylated cytosines
-* sig-all-methylated-out-with-features.tsv - all significantly differentially methylated cytosines with gene IDs and features (promotor, exon, intron)
+* sig-all-methylated-out-with-features.tsv - all significantly differentially methylated cytosines with features (promotor, exon, intron)
+* sig-all-methylated-out-with-features-and-annots.tsv - all significantly differentially methylated cytosines with gene IDs, features (promotor, exon, intron), and functional annotations
 * percent-methylated.tsv - table of methylation levels across all cytosines and samples
 * sig-diff-meth-Cs-by-region.pdf - pie chart with percentages of differentially methylated cytosines
 
