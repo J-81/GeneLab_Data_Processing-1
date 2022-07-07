@@ -417,8 +417,8 @@ bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --
 
 **Parameter Definitions:**
 
-* `--bedGraph` - specifies to generate a bedGraph-formatted file of methylated CpGs (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
-* `--gzip` - specifies to gzip-compress teh larger output files
+* `--bedGraph` - specifies to generate a bedGraph-formatted file of methylated CpGs (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/)Docs#optional-bedgraph-output)
+* `--gzip` - specifies to gzip-compress the larger output files
 * `--comprehensive` - specifies to merge all four possible strand-specific methylation outputs into context-dependent output files
 * `--ignore_r2` - allows specifying how many bases to ignore from the 5' end of the reverse reads (bismark docs recommend 2, see [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#appendix-iii-bismark-methylation-extractor))
 * `--ignore_3prime_r2` - allows specifying how many bases to ignore from the 3' end of the reverse reads (this is utilized in the [nf-core methylseq workflow](https://nf-co.re/methylseq), set at [this line](https://github.com/nf-core/methylseq/blob/03972a686bedeb2920803cd575f4d671e9135af0/main.nf#L643)) 
@@ -434,8 +434,8 @@ bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --
 
 **Output data:**
 
-* *\.txt.gz - bismark methylation call files for CpG, CHG, and CHH contexts (where H is A, T, or C) that were detected; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs), namely [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#methylation-call) for symbols, and [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#iv-bismark-methylation-extractor) for file format
-* \*.bedGraph.gz - gzip-compressed bedGraph-formatted file of methylation percentages of each CpG site (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
+* *\.txt.gz - bismark methylation call files for CpG and non-CpG contexts that were detected; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs), namely [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#methylation-call) for symbols, and [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#iv-bismark-methylation-extractor) for file format
+* \*.bedGraph.gz - gzip-compressed bedGraph-formatted file of methylation percentages of each CpG site (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output))
 * \*.bismark.cov.gz - gzip-compressed bedGraph-formatted file like above "\*.bedGraph.gz", but also including 2 more columns of methylated and unmethylated counts at the specified position (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
 * \*_splitting_report.txt - text file of general detected methylation information
 * \*.M-bias.txt - text file with methylation information in the context of the position in reads, helpful for investigating bias as a function of base position in the read
