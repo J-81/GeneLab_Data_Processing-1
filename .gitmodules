@@ -1,0 +1,4 @@
+[submodule "RNAseq/workflow_code/Nextflow_RCP"]
+	path = RNAseq/workflow_code/Nextflow_RCP
+	url = https://github.com/J-81/Nextflow_RCP.git
+	branch = f15086e4f83520204606039bfa69d5ae634cf7db
