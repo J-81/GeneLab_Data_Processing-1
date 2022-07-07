@@ -417,7 +417,7 @@ bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --
 
 **Parameter Definitions:**
 
-* `--bedGraph` - specifies to generate a bedGraph-formatted file of methylated CpGs (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/)Docs#optional-bedgraph-output)
+* `--bedGraph` - specifies to generate a bedGraph-formatted file of methylated CpGs (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output))
 * `--gzip` - specifies to gzip-compress the larger output files
 * `--comprehensive` - specifies to merge all four possible strand-specific methylation outputs into context-dependent output files
 * `--ignore_r2` - allows specifying how many bases to ignore from the 5' end of the reverse reads (bismark docs recommend 2, see [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#appendix-iii-bismark-methylation-extractor))
