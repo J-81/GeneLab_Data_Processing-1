@@ -47,7 +47,6 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [11. Generate reference genome annotation information](#11-generate-reference-genome-annotation-information)
     - [11a. GTF to BED conversion](#11a-gtf-to-bed-conversion)
     - [11b. Making a mapping file of genes to transcripts](#11b-making-a-mapping-file-of-genes-to-transcripts)
-    - [11c. Making a table of all gene annotations](#11c-making-a-table-of-all-gene-annotations)
   - [12. Differential methylation analysis](#12-differential-methylation-analysis)
 
 ---
@@ -303,10 +302,10 @@ The reference will need to be specific to what was sequenced. Bismark operates o
 
 ```bash
 # creating directory to hold reference and moving it into there
-mkdir bismark-reference-genome
-mv ref-genome.fasta bismark-reference-genome/
+mkdir bismark_reference_genome
+mv ref-genome.fasta bismark_reference_genome/
 
-bismark_genome_preparation --parallel 4 bismark-reference-genome/
+bismark_genome_preparation --parallel 4 bismark_reference_genome/
 ```
 
 **Parameter Definitions:**
@@ -332,13 +331,13 @@ Note that if the library preparation was non-directional, the `--non_directional
 **Single-end example**  
 
 ```bash
-bismark --bam -p 4 --genome bismark-reference-genome/ sample-1_trimmed.fastq.gz
+bismark --bam -p 4 --genome bismark_reference_genome/ sample-1_trimmed.fastq.gz
 ```
 
 **Paired-end example**  
 
 ```bash
-bismark --bam -p 4 --genome bismark-reference-genome/ \
+bismark --bam -p 4 --genome bismark_reference_genome/ \
         -1 sample-1_R1_trimmed.fastq.gz \
         -2 sample-1_R2_trimmed.fastq.gz
 ```
@@ -436,7 +435,7 @@ bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --
 
 * *\.txt.gz - bismark methylation call files for CpG and non-CpG contexts that were detected; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs), namely [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#methylation-call) for symbols, and [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#iv-bismark-methylation-extractor) for file format
 * \*.bedGraph.gz - gzip-compressed bedGraph-formatted file of methylation percentages of each CpG site (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output))
-* \*.bismark.cov.gz - gzip-compressed bedGraph-formatted file like above "\*.bedGraph.gz", but also including 2 more columns of methylated and unmethylated counts at the specified position (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output)
+* \*.bismark.cov.gz - gzip-compressed bedGraph-formatted file like above "\*.bedGraph.gz", but also including 2 more columns of methylated and unmethylated counts at the specified position (see bismark docs [here](https://github.com/FelixKrueger/Bismark/tree/master/Docs#optional-bedgraph-output))
 * \*_splitting_report.txt - text file of general detected methylation information
 * \*.M-bias.txt - text file with methylation information in the context of the position in reads, helpful for investigating bias as a function of base position in the read
 
@@ -613,10 +612,9 @@ awk ' $3 == "transcript" ' Mus_musculus.GRCm38.101.gtf | cut -f 9 | tr -s ";" "\
 
 * the generated file with gene IDs in the first column and transcript IDs in the second ("Mus_musculus.GRCm38.101-gene-to-transcript-map.tsv" in the above example)
 
+<br>
 
-### 11c. Making a table of all gene annotations
-This is being extricated from the workflow and handled separately. In progress.
-
+---
 
 ## 12. Differential methylation analysis
 
@@ -711,11 +709,6 @@ sig_all_out_tab_with_features <- cbind(data.frame(myDiff25p),
 write.table(sig_all_out_tab_with_features, "sig-all-methylated-out-with-features.tsv", 
             sep = "\t", quote = FALSE, row.names = FALSE)
 
-# making table of percent methylated
-perc.meth <- percMethylation(meth, rowids = TRUE)
-write.table(perc.meth, "percent-methylated.tsv", sep = "\t", 
-            quote = FALSE, row.names = TRUE, col.names=NA)
-
 # making sig table with features and functional annotations
 ## reading in annotation table appropriate for current organism
     ## when we have the final location for this information, this will
@@ -743,7 +736,12 @@ sig_all_out_tab_with_features_and_annots <-
 # and writing out
 write.table(sig_all_out_tab_with_features_and_annots, 
             "sig-all-methylated-out-with-features-and-annots.tsv", 
-            sep = "\t", quote = FALSE, col.names=NA)
+            sep = "\t", quote = FALSE, row.names = FALSE)
+
+# making and writing out a table of percent methylated
+perc.meth <- percMethylation(meth, rowids = TRUE)
+write.table(perc.meth, "percent-methylated.tsv", sep = "\t", 
+            quote = FALSE, row.names = TRUE, col.names=NA)
 ```
 
 **Input data:**
@@ -757,7 +755,7 @@ write.table(sig_all_out_tab_with_features_and_annots,
 * sig-all-methylated-out-with-features.tsv - all significantly differentially methylated cytosines with features (promotor, exon, intron)
 * sig-all-methylated-out-with-features-and-annots.tsv - all significantly differentially methylated cytosines with gene IDs, features (promotor, exon, intron), and functional annotations
 * percent-methylated.tsv - table of methylation levels across all cytosines and samples
-* sig-diff-meth-Cs-by-region.pdf - pie chart with percentages of differentially methylated cytosines
+
 
 \* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group_1_vs_Group_2-\*
 

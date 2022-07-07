@@ -4,8 +4,8 @@
 **IN PROGRESS**
 ---
 
-
-> **The document [`GL-DPPD-XXXX.md`](GL-DPPD-XXXX.md) holds an overview and some example commands of how GeneLab processes bisulfite sequencing (methylseq) datasets. Exact processing commands for specific datasets that have been released are available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **The document [`GL-DPPD-XXXX.md`](GL-DPPD-XXXX.md) holds an overview and some example commands GeneLab's draft bisulfite sequencing (methylseq) processing pipeline.
+> Example output files for reviewers can be found [here](https://drive.google.com/drive/folders/11fEFOn1Br6wJ4g_zBJ0ZkOGPEUxl07ZE?usp=sharing).**
 
 
 ---
@@ -19,7 +19,4 @@
 # Repository links
 
 * [Current processing protocol (GL-DPPD-XXXX.md)](GL-DPPD-XXXX.md)  
-* [Processed dataset files](GLDS_Processing_Scripts)  
-* [Template worflow files](workflow-template)  
-* [Workflow information and usage instructions](workflow-usage.md)
 
