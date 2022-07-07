@@ -1000,7 +1000,7 @@ sessionInfo()
 
 ## 9. Normalize Read Counts and Perform Differential Gene Expression Analysis
 
-Code used in this step in located with the workflow codebase [here](https://github.com/J-81/Nextflow_RCP/tree/f15086e4f83520204606039bfa69d5ae634cf7db/bin/dge_annotation_R_scripts)
+Code used in this step in located with the workflow codebase [here](https://github.com/J-81/Nextflow_RCP/tree/dev_rc1.0.6/bin/dge_annotation_R_scripts)
 <br>
 
 ### 9a. Using 'median of ratios method' Deseq2 normalization 
