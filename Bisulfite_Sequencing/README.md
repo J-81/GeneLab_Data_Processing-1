@@ -4,8 +4,7 @@
 **IN PROGRESS**
 ---
 
-> **The document [`GL-DPPD-XXXX.md`](GL-DPPD-XXXX.md) holds an overview and some example commands GeneLab's draft bisulfite sequencing (methylseq) processing pipeline.
-> Example output files for reviewers can be found [here](https://drive.google.com/drive/folders/11fEFOn1Br6wJ4g_zBJ0ZkOGPEUxl07ZE?usp=sharing).**
+> **The document [`GL-DPPD-XXXX.md`](GL-DPPD-XXXX.md) holds an overview and example commands of GeneLab's draft bisulfite sequencing (methylseq) processing pipeline. Example output files for reviewers can be found [here](https://drive.google.com/drive/folders/11fEFOn1Br6wJ4g_zBJ0ZkOGPEUxl07ZE?usp=sharing).**
 
 
 ---
