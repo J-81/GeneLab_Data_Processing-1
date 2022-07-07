@@ -303,10 +303,10 @@ The reference will need to be specific to what was sequenced. Bismark operates o
 
 ```bash
 # creating directory to hold reference and moving it into there
-mkdir reference-genome
-mv ref-genome.fasta reference-genome/
+mkdir bismark-reference-genome
+mv ref-genome.fasta bismark-reference-genome/
 
-bismark_genome_preparation --parallel 4 reference-genome/
+bismark_genome_preparation --parallel 4 bismark-reference-genome/
 ```
 
 **Parameter Definitions:**
@@ -332,13 +332,13 @@ Note that if the library preparation was non-directional, the `--non_directional
 **Single-end example**  
 
 ```bash
-bismark --bam -p 4 --genome reference-genome/ sample-1_trimmed.fastq.gz
+bismark --bam -p 4 --genome bismark-reference-genome/ sample-1_trimmed.fastq.gz
 ```
 
 **Paired-end example**  
 
 ```bash
-bismark --bam -p 4 --genome reference-genome/ \
+bismark --bam -p 4 --genome bismark-reference-genome/ \
         -1 sample-1_R1_trimmed.fastq.gz \
         -2 sample-1_R2_trimmed.fastq.gz
 ```
