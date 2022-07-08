@@ -998,7 +998,7 @@ sessionInfo()
 
 ---
 
-## 9. Normalize Read Counts and Perform Differential Gene Expression Analysis
+## 9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R
 
 Code used in this step in located with the workflow codebase [here](https://github.com/J-81/Nextflow_RCP/tree/dev_rc1.0.6/bin/dge_annotation_R_scripts)
 <br>
