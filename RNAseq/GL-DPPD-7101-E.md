@@ -1039,10 +1039,11 @@ dpt-isa-to-runsheet --accession <gldsAccession> --config-type bulkRNASeq --isa-a
 
 ## 10. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R
 
-Code used in this step in located with the workflow codebase [here](https://github.com/J-81/Nextflow_RCP/tree/dev_rc1.0.6/bin/dge_annotation_R_scripts)
+Code used in this step in located with the workflow codebase bin [directory](workflow_code/Nextflow_RCP/bin/dge_annotation_R_scripts)
+The gene annotations are sourced from annotation database tables generated in the GeneLab [Annotation Database Table Generation workflow](../Annotation_Database_Table_Generation).
 <br>
 
-### 9a. Using 'median of ratios method' Deseq2 normalization 
+### 10a. Using default 'median of ratios method' Deseq2 normalization 
 
 ```R
 ./dge_annotation_R_scripts/dge_annotation_workflow.R \
@@ -1055,25 +1056,30 @@ Code used in this step in located with the workflow codebase [here](https://gith
     --normalized_counts_output_prefix "norm_counts_output/" \
     --dge_output_prefix "dge_output/" \
     --extended_table_output_prefix "dge_output/"\
-    --extended_table_output_suffix ".csv" \
-    --verbose
+    --extended_table_output_suffix ".csv"
 ```
 
 **Parameter Definitions:**
 
-- path/to/runsheet.csv (csv file containing - for GLDS processing this is derived from the *ISA.zip file as located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
-- [organisms.csv](https://github.com/J-81/Nextflow_RCP/blob/dev_rc1.0.6/assets/organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
-- path/to/gene_results_directory (directory containing RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
+- `--runsheet_path` - Flag to specify the runsheet location
+- `--input_gene_results_dir` - Flag to specify the gene.results files containing directory location
+- `<path/to/gene_results_directory>` - Directory containing all *.gene.results files
+- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arobidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila melanogaster, Homo sapiens'
+- `--organisms_csv` - Flag to specify the location of the organisms.csv file that includes mappings to the organism specific gene annotation database tables URIs
+- `--organism` - Flag to denote the row of organisms.csv to use
+- `--normalization` - Flag to choose the normalization method. Supports the following options: 'default' - use default Deseq2 median of ratios approach using all unfiltered non-ERCC gene counts, 'ERCC-groupB' - uses ERCC group B spike-in gene counts as controlGroup genes. See Deseq2 manual at this [section](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#control-features-for-estimating-size-factors) for additional details.
+- `--normalized_counts_output_prefix` - Flag to specify the location of the normalized counts output files
+- `--dge_output_prefix` - Flag to specify the location of the differential gene expression out files
+- `--extended_table_output_prefix` - Flag to specify the extended table output files prefix (Note: these files are used internally by GeneLab for the visualization portal)
+- `--extended_table_output_suffix` - Flag to specify the extended table output files suffix (Note: these files are used internally by GeneLab for the visualization portal)
 
 **Input Data:**
 
-- runsheet.csv (csv file containing - for GLDS processing this is derived from the *ISA.zip file as located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
+- path/to/runsheet.csv (runsheet csv file generated in [Step 9](#9-create-runsheet))
 - [organisms.csv](https://github.com/J-81/Nextflow_RCP/blob/dev_rc1.0.6/assets/organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 **Output Data:**
-
-Output data without considering ERCC spike-in genes:
 
 - RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
 - Normalized_Counts.csv\# (table containing normalized gene counts for each sample)
@@ -1083,23 +1089,11 @@ Output data without considering ERCC spike-in genes:
 - differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations) 
 - contrasts.csv\# (table containing all pairwise comparisons)
 
-Output data with considering ERCC spike-in genes:
-
-- ERCC_rawCounts_unfiltered.csv (table containing raw ERCC unfiltered counts)
-- ERCC_rawCounts_filtered.csv (ERCC counts table after removing ERCC genes with low counts)
-- ERCC_Normalized_Counts.csv\# (table containing ERCC-normalized gene counts for each sample)
-- visualization_output_table_ERCCnorm.csv (file used to generate GeneLab DGE visualizations for ERCC-normalized data)
-- visualization_PCA_table_ERCCnorm.csv (file used to generate GeneLab PCA plots for ERCC-normalized data)
-- ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
-- ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
-
-> Note: RNAseq processed data interactive tables and plots are found in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
-
 <br>
 
 ---
 
-### 9b. Using Deseq2 ERCC group B based normalization 
+### 10b. Using Deseq2 ERCC group B based normalization 
 
 ```R
 ./dge_annotation_R_scripts/dge_annotation_workflow.R \
@@ -1116,21 +1110,37 @@ Output data with considering ERCC spike-in genes:
     --verbose
 ```
 
+**Parameter Definitions:**
+
+- `--runsheet_path` - Flag to specify the runsheet location
+- `--input_gene_results_dir` - Flag to specify the gene.results files containing directory location
+- `<path/to/gene_results_directory>` - Directory containing all *.gene.results files
+- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arobidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila melanogaster, Homo sapiens'
+- `--organisms_csv` - Flag to specify the location of the organisms.csv file that includes mappings to the organism specific gene annotation database tables URIs
+- `--organism` - Flag to denote the row of organisms.csv to use
+- `--normalization` - Flag to choose the normalization method. Supports the following options: 'default' - use default Deseq2 median of ratios approach using all unfiltered non-ERCC gene counts, 'ERCC-groupB' - uses ERCC group B spike-in gene counts as controlGroup genes. See Deseq2 manual at this [section](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#control-features-for-estimating-size-factors) for additional details.
+- `--normalized_counts_output_prefix` - Flag to specify the location of the normalized counts output files
+- `--dge_output_prefix` - Flag to specify the location of the differential gene expression out files
+- `--extended_table_output_prefix` - Flag to specify the extended table output files prefix (Note: these files are used internally by GeneLab for the visualization portal)
+- `--extended_table_output_suffix` - Flag to specify the extended table output files suffix (Note: these files are used internally by GeneLab for the visualization portal)
+
 **Input Data:**
 
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the \*ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
-- [organisms.csv](../organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
-- *genes.results (RSEM counts per gene, output from step 6)
+- path/to/runsheet.csv (runsheet csv file generated in [Step 9](#9-create-runsheet))
+- [organisms.csv](https://github.com/J-81/Nextflow_RCP/blob/dev_rc1.0.6/assets/organisms.csv) (csv file containing short name, species name, taxon ID, and annotation db object of model organisms hosted on GeneLab)
+- *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 **Output Data:**
 
 - RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
-- Normalized_Counts.csv\# (table containing normalized gene counts for each sample)
-- SampleTable.csv\# (table containing samples and their respective groups)
-- visualization_output_table.csv (file used to generate GeneLab DGE visualizations)
-- visualization_PCA_table.csv (file used to generate GeneLab PCA plots)
-- differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations) 
-- contrasts.csv\# (table containing all pairwise comparisons)
+- ERCC_SampleTable.csv\# (table containing samples and their respective groups)
+- ERCC_rawCounts_unfiltered.csv (table containing raw ERCC unfiltered counts)
+- ERCC_rawCounts_filtered.csv (ERCC counts table after removing ERCC genes with low counts)
+- ERCC_Normalized_Counts.csv\# (table containing ERCC-normalized gene counts for each sample)
+- visualization_output_table_ERCCnorm.csv (file used to generate GeneLab DGE visualizations for ERCC-normalized data)
+- visualization_PCA_table_ERCCnorm.csv (file used to generate GeneLab PCA plots for ERCC-normalized data)
+- ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
+- ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
 
 > Note: RNAseq processed data interactive tables and plots are found in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
