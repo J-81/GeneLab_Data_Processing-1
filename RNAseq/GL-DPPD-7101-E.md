@@ -1154,11 +1154,11 @@ The gene annotations are sourced from annotation database tables generated in th
 
 ---
 
-## 10. Evaluate ERCC Spike-In Data 
+## 11. Evaluate ERCC Spike-In Data 
 
 <br>
 
-### 10a. Evaluate ERCC Count Data in Python
+### 11a. Evaluate ERCC Count Data in Python
 
 ```python
 ### Setting up the notebook
@@ -1761,7 +1761,7 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv')
 
 <br>
 
-### 10b. Perform DESeq2 Analysis of ERCC Counts in R
+### 11b. Perform DESeq2 Analysis of ERCC Counts in R
 
 ```R
 
@@ -1826,7 +1826,7 @@ write.csv(normcounts, 'ERCC_analysis/ERCC_normcounts.csv') #OUTPUT
 
 <br>
 
-### 10c. Analyze ERCC DESeq2 Results in Python
+### 11c. Analyze ERCC DESeq2 Results in Python
 
 ```python
 
