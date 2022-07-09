@@ -95,7 +95,7 @@ ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-d
   - [4. Align Reads to Reference Genome then Sort and Index](#4-align-reads-to-reference-genome-then-sort-and-index)
     - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
     - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
-    - [4c. Tablulate STAR Counts in R](#4c-tablulate-star-counts-in-r)
+    - [4c. Tabulate STAR Counts in R](#4c-tabulate-star-counts-in-r)
     - [4d. Sort Aligned Reads](#4d-sort-aligned-reads)
     - [4e. Index Sorted Aligned Reads](#4e-index-sorted-aligned-reads)
   - [5. Create Reference BED File](#5-create-reference-bed-file)
@@ -175,7 +175,7 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 **Parameter Definitions:**
 
 - `-o` – the output directory to store results
-- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces in between them
 
 **Input Data:**
 
@@ -227,7 +227,7 @@ trim_galore --gzip \
   --phred33 \
   --illumina \ # if adapters are not illumina, replace with adapters used
   --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for PE studies, remove this paramater if raw data are SE
+  --paired \ # only for PE studies, remove this parameter if raw data are SE
   sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
 # if SE, replace the last line with only the forward reads (R1) of each sample
 
@@ -264,7 +264,7 @@ fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
 **Parameter Definitions:**
 
 - `-o` – the output directory to store results
-- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
+- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces in between them
 
 **Input Data:**
 
@@ -395,7 +395,7 @@ STAR --twopassMode Basic \
 - `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
 - `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
+- `--outSAMunmapped` - specifies output of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
 - `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
 - `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
 - `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
@@ -407,7 +407,7 @@ STAR --twopassMode Basic \
 - `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
 - `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
 - `--sjdbScore` - additional alignment score for alignments that cross database junctions
-- `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
+- `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to decompress the gzipped input files
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
 - `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab delimited file containing the number of reads per gene
@@ -425,7 +425,7 @@ STAR --twopassMode Basic \
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
-- *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
+- *ReadsPerGene.out.tab (tab delineated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
 - *Log.out
 - *Log.progress.out
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
@@ -455,7 +455,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Log.final.out (log file containing alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
@@ -464,7 +464,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 <br>
 
-### 4c. Tablulate STAR Counts in R
+### 4c. Tabulate STAR Counts in R
 
 ```R
 print("Make STAR counts table")
@@ -555,7 +555,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 
 **Input Data:**
 
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, ourput from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
 
 **Output Data:**
 
@@ -825,7 +825,7 @@ multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/
 
 **Input Data:**
 
-- *read_dist.out (files containing the read_distributation standard output, output from [Step 6g](#6g-assess-read-distribution))
+- *read_dist.out (files containing the read_distributution standard output, output from [Step 6g](#6g-assess-read-distribution))
 
 **Output Data:**
 
@@ -1037,7 +1037,7 @@ dpt-isa-to-runsheet --accession <gldsAccession> --config-type bulkRNASeq --isa-a
 
 - `--accession` - Required argument flag for supplying GLDS accession ID
 - `gldsAccession` - GLDS accession ID to generate a runsheet
-- `--config-type` - Required argument flag for specifying assay type to extract appropriatte metadata for assay type processing
+- `--config-type` - Required argument flag for specifying assay type to extract appropriate metadata for assay type processing
 - `--isa-archive` - ISA Archive zip file to extract metadata to generate the runsheet
 
 **Input:**
@@ -1077,7 +1077,7 @@ The gene annotations are sourced from annotation database tables generated in th
 - `--runsheet_path` - Flag to specify the runsheet location
 - `--input_gene_results_dir` - Flag to specify the gene.results files containing directory location
 - `<path/to/gene_results_directory>` - Directory containing all *.gene.results files
-- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arobidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila melanogaster, Homo sapiens'
+- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arabidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila Melanogaster, Homo sapiens'
 - `--organisms_csv` - Flag to specify the location of the organisms.csv file that includes mappings to the organism specific gene annotation database tables URIs
 - `--organism` - Flag to denote the row of organisms.csv to use
 - `--normalization` - Flag to choose the normalization method. Supports the following options: 'default' - use default Deseq2 median of ratios approach using all unfiltered non-ERCC gene counts, 'ERCC-groupB' - uses ERCC group B spike-in gene counts as controlGroup genes. See Deseq2 manual at this [section](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#control-features-for-estimating-size-factors) for additional details.
@@ -1128,7 +1128,7 @@ The gene annotations are sourced from annotation database tables generated in th
 - `--runsheet_path` - Flag to specify the runsheet location
 - `--input_gene_results_dir` - Flag to specify the gene.results files containing directory location
 - `<path/to/gene_results_directory>` - Directory containing all *.gene.results files
-- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arobidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila melanogaster, Homo sapiens'
+- `--primary_keytype` - Annotation key used for joining additional gene annotations, currently supports 'TAIR' for Arabidopsis Thaliana and 'ENSEMBL' for the following organisms: 'Mus Musculus, Drosophila melanogaster, Homo sapiens'
 - `--organisms_csv` - Flag to specify the location of the organisms.csv file that includes mappings to the organism specific gene annotation database tables URIs
 - `--organism` - Flag to denote the row of organisms.csv to use
 - `--normalization` - Flag to choose the normalization method. Supports the following options: 'default' - use default Deseq2 median of ratios approach using all unfiltered non-ERCC gene counts, 'ERCC-groupB' - uses ERCC group B spike-in gene counts as controlGroup genes. See Deseq2 manual at this [section](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#control-features-for-estimating-size-factors) for additional details.
