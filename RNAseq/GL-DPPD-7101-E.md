@@ -52,6 +52,8 @@ RSEM Count results are additionally summarized as follows:
 - MultiQC is used to compile RSEM count reports in [step 8b](#8b-compile-rsem-count-logs)
 - The total number of genes expressed per sample are calculated in new [step 8c](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
 
+Added new step related to generation of a runsheet csv file in [step 9](#9-create-runsheet)
+
 The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
 
 - Fixed bug where `ERCCnorm_contrasts.csv` was always the same as the non-ERCC contrasts.csv
@@ -59,8 +61,13 @@ The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a]
 
 The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), and without, [step 9b](#9b-for-datasets-without-ercc-spike-in) was modified as follows:
 
+- Input metadata file updated:
+  - Now a runsheet csv file replaces ISA archive file as the metadata input file. The generation of the runsheet is documented in [Step 9](#9-create-runsheet).
 - Input file regex modified to address bug that occured when certain sample IDs were substrings of other sample IDs (e.g. Sample1, Sample13)
 - Output file: `Unnormalized_Counts.csv` renamed to `RSEM_Unnormalized_Counts.csv` for clarity
+- Gene Annotations are now added using GeneLab in-house generated database tables. The documentation for generating these workflows can be found [here](../Annotation_Database_Table_Generation/Gene_Annotations)
+  - This addresses a bug in STRINGdb identified by a GeneLab data processing team member and documented on the [Bioconductor Support Forum](https://support.bioconductor.org/p/9144087/)
+  - Additionally, the updated gene annotations include mappings for all annotations in the case of one-to-many mappings. Previously, only the first annotation was kept for certain annotation keys.
 
 ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-data):
 
