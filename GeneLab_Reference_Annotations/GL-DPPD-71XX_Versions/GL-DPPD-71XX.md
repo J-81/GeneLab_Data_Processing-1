@@ -23,14 +23,14 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 - [**Software used**](#software-used)
 - [**Annotation table build overview with example commands**](#annotation-table-build-overview-with-example-commands)
-  - [**0. Pull In and Check Command Line Arguments]()
-  - [**1. Set Up Environment**](#1-raw-data-qc)
-  - [**2. Define Variables and Output File Names**](#2-trimfilter-raw-data-and-trimmed-data-qc)
-  - [**3. Load Annotation Databases and Retrieve Unique Gene IDs**](#3-build-star-reference)
-  - [**4. Build Annotation Table**]()
-  - [**5. Add STRING IDs**]()
-  - [**6. Add Gene Ontology (GO) slim IDs**]()
-  - [**7. Export Annotation Table and Build Info**]()
+  - [**0. Pull In and Check Command Line Arguments**](#0-pull-in-and-check-command-line-arguments)
+  - [**1. Set Up Environment**](#1-set-up-environment)
+  - [**2. Define Variables and Output File Names**](#2-define-variables-and-output-file-names)
+  - [**3. Load Annotation Databases and Retrieve Unique Gene IDs**](#3-load-annotation-databases-and-retrieve-unique-gene-ids)
+  - [**4. Build Annotation Table**](#4-build-annotation-table)
+  - [**5. Add STRING IDs**](#5-add-string-ids)
+  - [**6. Add Gene Ontology (GO) slim IDs**](#6-add-gene-ontology-go-slim-ids)
+  - [**7. Export Annotation Table and Build Info**](#7-export-annotation-table-and-build-info)
 
 
 ---
@@ -450,4 +450,11 @@ write(capture.output(sessionInfo()), out_log_filename, append = TRUE)
 
 ---
 
+**Pipeline Input data:**
 
+- No input files required, but a target organism must be specified as a positional command line argument
+
+**Pipeline Output data:**
+
+- *-GL-annotations.tsv (Tab delineated table of gene annotations, used to add gene annotations in other GeneLab processing pipelines)
+- *-GL-build-info.txt (Text file containing information used to create the annotation table, including tool and tool versions and date of creation)
