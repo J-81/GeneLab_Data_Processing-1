@@ -1,18 +1,24 @@
 #!/usr/bin/env Rscript
 
-# Maintained by Mike Lee (Mike.Lee@nasa.gov)
+# Maintained by Mike Lee 
 # GeneLab script for generating organism ENSEMBLE annotation tables
 # Example usage: Rscript build-genome-annots-tab.R MOUSE
 
-############################################
-############ pre-flight checks #############
-############################################
+#########################################################################
+############### Pull In and Check Command Line Arguments ################
+#########################################################################
+
+
+## Import command line arguments ##
 
 args <- commandArgs(trailingOnly = TRUE)
 
-currently_accepted_orgs <- c("MOUSE", "HUMAN", "ARABIDOPSIS", "FLY")
+## Define acceptable command line arguments ##
 
-# making sure a positional argument was provided
+currently_accepted_orgs <- c("MOUSE", "HUMAN", "ARABIDOPSIS", "FLY", "RAT")
+
+## Check that at least one positional command line argument was provided ##
+
 if ( length(args) < 1 ) {
     cat("\n  One positional argument is required that specifies the target organism. Currently available include:\n")
 
@@ -31,7 +37,9 @@ if ( length(args) < 1 ) {
 
 }
 
-# making sure it is one we are prepared to handle
+
+## Check that the positional argument provided is acceptable ##
+
 if ( ! target_organism %in% currently_accepted_orgs ) {
 
     cat(paste0("\n  '", args[1], "' isn't a valid entry.\n"))
@@ -50,9 +58,24 @@ if ( ! target_organism %in% currently_accepted_orgs ) {
 }
 
 
-############################################
-######### setting some things up ###########
-############################################
+#########################################################################
+######################## Set Up Environment #############################
+#########################################################################
+
+
+## Install required R packages if not already installed ##
+
+install.packages("tidyverse")
+
+source("https://bioconductor.org/biocLite.R")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+
+BiocManager::install("STRINGdb")
+BiocManager::install("PANTHER.db")
+BiocManager::install("rtracklayer")
+
+## Import libraries ##
 
 library(tidyverse)
 library(STRINGdb)
@@ -60,7 +83,8 @@ library(PANTHER.db)
 library(rtracklayer)
 
 
-# setting primary keytype, right now, TAIR if arabidopsis, ENSEMBL if anything else
+## Set the primary annotation keytype, TAIR for Arabidopsis, ENSEMBL for all other organisms ##
+
 if ( target_organism == "ARABIDOPSIS" ) {
 
     primary_keytype <- "TAIR"
@@ -71,24 +95,36 @@ if ( target_organism == "ARABIDOPSIS" ) {
 
 }
 
+## Define annotation keys to retrieve ##
+
 wanted_keys_vec <- c("SYMBOL", "GENENAME", "REFSEQ", "ENTREZID")
+
+## Define links to tables containing species-specific annotation info ##
+
 org_tab_link <-
-    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/RNAseq/organisms.csv"
+    "https://raw.githubusercontent.com/nasa/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/organisms.csv"
+
 ref_tab_link <-
-    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/RNAseq/GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv"
+    "https://raw.githubusercontent.com/nasa/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_ensembl_refs.csv"
 
 
-############################################
-######## getting down to business ##########
-############################################
 
-# setting this so any downloads won't timeout
+#########################################################################
+############## Define Variables and Output File Names ###################
+#########################################################################
+
+
+## Set timeout time to ensure annotation file downloads will complete ##
+
 options(timeout = 600)
 
-# getting org taxid and org db name
+## Read in tables containing species-specific annotation info ##
+
 organism_table <- read.csv(org_tab_link)
 
 ref_table <- read.csv(ref_tab_link)
+
+## Retrieve and define target organism taxid, annotation database name, and scientific name ##
 
 target_taxid <- organism_table %>%
     filter(name == target_organism) %>%
@@ -102,18 +138,22 @@ target_species_designation <- organism_table %>%
     filter(name == target_organism) %>%
     pull(species)
 
+## Define link to Ensembl annotation gtf file for the target organism ##
+
 gtf_link <- ref_table %>%
     filter(Organism == target_species_designation) %>%
     pull(Annotation.File)
 
-# making output prefix
+## Create output files names ##
+
 base_gtf_filename <- basename(gtf_link)
 base_output_name <- str_replace(base_gtf_filename, ".gtf.gz", "")
 
 out_table_filename <- paste0(base_output_name, "-GL-annotations.tsv")
 out_log_filename <- paste0(base_output_name, "-GL-build-info.txt")
 
-# making sure output file doesn't exist already, if it does, we're exiting without overwriting
+## Check if output file already exists and if it does, exit without overwriting ##
+
 if ( file.exists(out_table_filename) ) {
 
     cat("\n-------------------------------------------------------------------------------------------------\n")
@@ -125,19 +165,34 @@ if ( file.exists(out_table_filename) ) {
 
 }
 
-## getting all unique gene IDs
-# changing link to be https if it's currently http
+
+#########################################################################
+######## Load Annotation Databases and Retrieve Unique Gene IDs #########
+#########################################################################
+
+
+## Change link to Ensembl annotation gtf file to be https if it's currently http ##
+
 gtf_link <- str_replace(gtf_link, "http:", "https:")
 
+## Import Ensembl annotation gtf file for the target organism ##
+
 gtf_obj <- import(gtf_link)
+
+## Define unique Ensembl IDs ##
+
 unique_IDs <- gtf_obj$gene_id %>% unique()
 
-# removing gtf object now that we don't need it cause it can soak up a lot of RAM
+## Remove gtf object to conserve RAM, since it is no longer needed ##
+
 rm(gtf_obj)
+
+## Redefine target organism annotation database ##
 
 ann.dbi <- target_org_db
 
-# installing org db if needed
+## Install target organism annotation database if not already installed, then load the annotation database library ##
+
 if ( ! require(ann.dbi, character.only = TRUE)) {
 
     BiocManager::install(ann.dbi, ask = FALSE)
@@ -146,8 +201,19 @@ if ( ! require(ann.dbi, character.only = TRUE)) {
 
 library(ann.dbi, character.only = TRUE)
 
+
+#########################################################################
+######################## Build Annotation Table #########################
+#########################################################################
+
+
+
+## Begin annotation table using unique IDs of the primary keytype ##
+
 annot <- data.frame(unique_IDs)
 colnames(annot) <- primary_keytype
+
+## Retrieve and add additional annotation keys as table columns ##
 
 for ( key in wanted_keys_vec ) {
 
@@ -161,61 +227,77 @@ for ( key in wanted_keys_vec ) {
     }
 }
 
-# adding STRINGdb annots
+
+#########################################################################
+########################### Add STRING IDs ##############################
+#########################################################################
+
+
+## Retrieve target organism STRING protein-protein interaction database and create STRING ID map to the primary keytype ##
+
 string_db <- STRINGdb$new(version = "11", species = target_taxid, score_threshold = 0)
 string_map <- string_db$map(annot, primary_keytype, removeUnmappedRows = FALSE, takeFirst = FALSE)
 
-# adding a return because the stringdb stdout doesn't have one and it bothers me
+## Add a blank line for spacing ## 
 cat("\n\n")
 
-# combining if there are any with multiple string IDs
+## Create a table using the gene IDs of the primary keytype as row names and a column containing STRING IDs. For genes containig multiple STRING IDs, combine all STRING IDs for each gene into one row and separate each ID with a '|' ##
+
 tab_with_multiple_STRINGids_combined <-
     data.frame(row.names = annot[[primary_keytype]])
 
 for ( curr_gene_ID in row.names(tab_with_multiple_STRINGids_combined) ) {
 
-    # getting current gene's STRING_ids and turning into
-    # combined a vector
     curr_STRING_ids <- string_map %>%
         filter(!!rlang::sym(primary_keytype) == curr_gene_ID) %>%
         pull(STRING_id) %>% paste(collapse = "|")
 
-    # adding to table
     tab_with_multiple_STRINGids_combined[curr_gene_ID, "STRING_id"] <- curr_STRING_ids
 
 }
 
-# moving primary_keytype back to being a column
+## Move the primary keytype gene IDs back to being a column in the STRING ID table (since they were switched to row names above) ##
+
 tab_with_multiple_STRINGids_combined <-
     tab_with_multiple_STRINGids_combined %>%
     rownames_to_column(primary_keytype)
 
-# combining string column
+## Add the STRING ID column to the annotation table ##
+
 annot <- dplyr::left_join(annot,
                           tab_with_multiple_STRINGids_combined,
                           by = primary_keytype)
 
-# adding GO slim annotations
+
+
+#########################################################################
+################ Add Gene Ontology (GO) slim IDs ########################
+#########################################################################
+
+
+## Retrieve target organism PANTHER GO slim annotations database ##
+
 pthOrganisms(PANTHER.db) <- target_organism
 
-# since we are using ENTREZIDs to pull from the PANTHER db, and there can be multiple ENTREZIDs for a gene, we need to split them first,
-# so doing this as a loop building the new GOSLIM annotation column
+## Use ENTREZ IDs to map genes to respective PANTHER GO slim annotation(s) ##
+
+## Note: Since there can be none (indicated in the annotation table as "NA"), one, or multiple ENTREZ IDs for a gene, this section contains 3 distinct parts to handle each of those scenarios and create a new column in the annotation table containg the GO slim IDs ## 
 
 for ( curr_row in 1:dim(annot)[1] ) {
 
     curr_entry <- annot[curr_row, "ENTREZID"]
 
-    # dealing with NAs
+    ## For genes without an ENTREZ ID ##
     if ( curr_entry == "NA" ) {
 
         annot[curr_row, "GOSLIM_IDS"] <- "NA"
 
     } else if ( ! grepl("|", curr_entry, fixed = TRUE) ) {
 
-        # this handles if there is only one ENTREZID
+        ## For genes with one ENTREZ ID ##
         curr_GO_IDs <- mapIds(PANTHER.db, keys = curr_entry, keytype = "ENTREZ", column = "GOSLIM_ID", multiVals = "list") %>% unlist() %>% as.vector()
 
-        # handles if none were found
+        ## Add "NA" to the GO slim column for ENTREZ IDs that do not contain a respective GO slim ID ##
         if ( is.null(curr_GO_IDs) ) {
 
             curr_GO_IDs <- "NA"
@@ -225,35 +307,35 @@ for ( curr_row in 1:dim(annot)[1] ) {
 
     } else {
 
-        # this block handles if there are multiple ENTREZIDs, if this is the case,
-        # we want to split them, get the GO IDs for all, combine them, and remove any duplicates
+        ## For genes with multiple ENTREZ ID ##
+        ## Note: In this scenario, the ENTREZ IDs for each gene are first split with a '|' to separate the IDs, then the GO slim ID(s) for each ENTREZ ID are collected and combined, then duplicates are removed, and the final list of GO slim IDs for each gene are added in a single row, separated with a '|' ## 
 
-        # splitting them
+        ## Split the ENTREZ IDs ##
         curr_entry_vec <- strsplit(curr_entry, "|", fixed = TRUE)
 
-        # starting vector of current GO IDs
+        ## Start a vector of current GO slim IDs ##
         curr_GO_IDs <- vector()
 
-        # looping through, getting GO IDs, and combining them
+        ## Collect and combine GO slim ID(s) for each ENTREZ ID ##
         for ( curr_entry in curr_entry_vec ) {
 
             new_GO_IDs <- mapIds(PANTHER.db, keys = curr_entry, keytype = "ENTREZ", column = "GOSLIM_ID", multiVals = "list") %>% unlist() %>% as.vector()
 
-            # adding to building vector of all GO IDs
+            ## Add new GO slim IDs to the GO slim IDs vector ##
             curr_GO_IDs <- c(curr_GO_IDs, new_GO_IDs)
 
         }
 
-        # removing any dups
+        ## Remove duplicate GO slim IDs ##
         curr_GO_IDs <- unique(curr_GO_IDs)
 
-        # handles if none were found
+        ## Add "NA" to the GO slim vector for ENTREZ IDs that do not contain a respective GO slim ID ##
         if ( length(curr_GO_IDs) == 0 ) {
 
             curr_GO_IDs <- "NA"
         }
 
-        # adding to table
+        ## Add additional GO slim IDs to the GOSLIM ID column in the annotation table ## 
         annot[curr_row, "GOSLIM_IDS"] <- paste(curr_GO_IDs, collapse = "|")
 
     }
@@ -261,20 +343,25 @@ for ( curr_row in 1:dim(annot)[1] ) {
 }
 
 
-############################################
-##### writing out annots and run info ######
-############################################
+#########################################################################
+############# Export Annotation Table and Build Info ####################
+#########################################################################
 
-# ordering first
+
+## Sort the annotation table based on primary keytype gene IDs ##
+
 annot <- annot %>% arrange(.[[1]])
-# writing out annotations table
+
+## Export the annotation table using the file name defined in Step 2 ##
+
 write.table(annot, out_table_filename, sep = "\t", quote = FALSE, row.names = FALSE)
 
+## Define the date the annotation table was generated ## 
 
-# getting date of run
 date_generated <- format(Sys.time(), "%d-%B-%Y")
 
-# writing out building info
+## Export annotation table build info using the file name defined in Step 2 ##
+
 writeLines(paste(c("Build done on:\n    ", date_generated), collapse = ""), out_log_filename)
 write(paste(c("\nUsed gtf file:\n    ", gtf_link), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed ", ann.dbi, " version:\n    ", packageVersion(ann.dbi) %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
@@ -283,3 +370,4 @@ write(paste(c("\nUsed PANTHER.db version:\n    ", packageVersion("PANTHER.db") %
 
 write("\n\nAll session info:\n", out_log_filename, append = TRUE)
 write(capture.output(sessionInfo()), out_log_filename, append = TRUE)
+
