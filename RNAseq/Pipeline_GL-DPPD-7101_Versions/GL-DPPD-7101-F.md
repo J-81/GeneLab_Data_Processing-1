@@ -26,11 +26,11 @@ Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-D
 - Plants: Ensembl plants release 48
 - Bacteria: Ensembl bacteria release 48
 
-The DESeq2 Normalization and DGE step, [step ](), was modified as follows:
+The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r), was modified as follows:
 
-- A separate sub-step, [step ](), was added to use the []() program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
+- A separate sub-step, [step 9a](), was added to use the []() program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
 
-- GeneLab now creates a custom reference annotation table as detailed in the []() directory. The [GeneLab Reference Annotation table, version -,]() is now imported in the DESeq2 script to add gene annotations. 
+- GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version -](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX.md) is now imported in the DESeq2 script to add gene annotations. 
 
 - Added the `ERCCnorm_SampleTable.csv` output file in [step ]() to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
   > Note: In most cases, the ERCCnorm_SampleTable.csv and SampleTable.csv files are the same. They will only differ when, for the ERCC-based analysis, samples are removed due to a lack of detectable Group B ERCC spike-in genes.
@@ -73,7 +73,9 @@ The DESeq2 Normalization and DGE step, [step ](), was modified as follows:
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
     - [8c. Calculate Total Number of Genes Expressed Per Sample in R](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
-    - [9a. For Datasets With ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
+    - [9a. Create Sample RunSheet](#9a-create-sample-run-sheet)
+    - [9b. For Datasets With ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
+    - [9b. For Datasets With ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
     - [9b. For Datasets Without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
   - [**10. Evaluate ERCC Spike-In Data**](#10-evaluate-ercc-spike-in-data)
     - [10a. Evaluate ERCC Count Data in Python](#10a-evaluate-ercc-count-data-in-python)
@@ -969,7 +971,34 @@ sessionInfo()
 
 <br>
 
-### 9a. For Datasets With ERCC Spike-In
+### 9a. Create Sample RunSheet
+
+```bash
+multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/files
+```
+
+**Parameter Definitions:**
+
+- `--interactive` - force reports to use interactive plots
+- `-n` - prefix name for output files
+- `-o` – the output directory to store results
+- `/path/to/*stat/files` – the directories holding the *stat output files from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
+
+**Input Data:**
+
+- *stat (directory containing the following stats files, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
+  - *cnt
+  - *model
+  - *theta
+
+**Output Data:**
+
+- RSEM_count_multiqc.html\# (multiqc report)
+- /RSEM_count_multiqc_data\# (directory containing multiqc data)
+
+<br>
+
+### 9b. For Datasets With ERCC Spike-In
 
 ```R
 ## Install R packages if not already installed
