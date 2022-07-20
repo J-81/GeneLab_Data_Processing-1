@@ -4,9 +4,9 @@
 
 ---
 
-**Date:** April 26, 2022  
-**Revision:** E  
-**Document Number:** GL-DPPD-7101-E  
+**Date:** July XX, 2022  
+**Revision:** F  
+**Document Number:** GL-DPPD-7101-F  
 
 **Submitted by:**  
 Jonathan Oribello (GeneLab Data Processing Team)
@@ -21,52 +21,19 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous version
 
-[Software used](#software-used) now specifies exact version numbers.
-
-The following multiQC compilation steps now force interactive plots: 
-- [step 1b](#1b-compile-raw-data-qc), [step 2c](#2c-compile-trimmed-data-qc), [step 4b](#4b-compile-alignment-logs), [step 6b](#6b-compile-strandedness-reports).
-
-Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv) now used:
+Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-F_ensembl_refs.csv) now used:
 - Animals: Ensembl release 101
 - Plants: Ensembl plants release 48
 - Bacteria: Ensembl bacteria release 48
 
-STAR Gene Counts now generated in [step 4a](#4a-align-reads-to-reference-genome-with-star)
+The DESeq2 Normalization and DGE step, [step ](), was modified as follows:
 
-- These counts are tabulated in new [step 4c](#4c-tablulate-star-counts-in-r)
+- A separate sub-step, [step ](), was added to use the []() program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
 
-Aligned reads are now subsequently sorted with Samtools in new [step 4d](#4d-sort-aligned-reads) 
-- Sorted aligned reads are then indexed with Samtools in new [step 4e](#4e-index-sorted-aligned-reads)
+- GeneLab now creates a custom reference annotation table as detailed in the []() directory. The [GeneLab Reference Annotation table, version -,]() is now imported in the DESeq2 script to add gene annotations. 
 
-Additional RSeQC analyses are performed on genome aligned reads as follows:
-
-- GeneBody coverage is evaluated and reports are compiled with multiQC in [step 6c](#6c-evaluate-genebody-coverage) and [step 6d](#6d-compile-genebody-coverage-reports), respectively
-- For paired end datasets, inner distance is determined and reports are compiled with multiQC in [step 6e](#6e-determine-inner-distance-for-paired-end-datasets-only) and [step 6f](#6f-compile-inner-distance-reports), respectively
-- Read distribution is assessed and reports are compiled with multiQC in [step 6g](#6g-assess-read-distribution) and [step 6h](#6h-compile-read-distribution-reports), respectively
-
-RSEM now quantitates all reads >= 20bp
-- The `--seed-length 20` option was added in [step 8a](#8a-count-aligned-reads-with-rsem)
-
-RSEM Count results are additionally summarized as follows:
-
-- MultiQC is used to compile RSEM count reports in [step 8b](#8b-compile-rsem-count-logs)
-- The total number of genes expressed per sample are calculated in new [step 8c](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
-
-The DESeq2 Normalization and DGE step for datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), was modified as follows:
-
-- Fixed bug where `ERCCnorm_contrasts.csv` was always the same as the non-ERCC contrasts.csv
-  > Note: In most cases, these files are the same. They will only differ when, for the ERCC-based analysis, removal of samples with no detectable Group B ERCC spike-in results in the a complete removal of a group.
-
-The DESeq2 Normalization and DGE step for both datasets with ERCC spike-in, [step 9a](#9a-for-datasets-with-ercc-spike-in), and without, [step 9b](#9b-for-datasets-without-ercc-spike-in) was modified as follows:
-
-- Input file regex modified to address bug that occured when certain sample IDs were substrings of other sample IDs (e.g. Sample1, Sample13)
-- Output file: `Unnormalized_Counts.csv` renamed to `RSEM_Unnormalized_Counts.csv` for clarity
-
-ERCC Analysis is performed as detailed in [step 10](#10-evaluate-ercc-spike-in-data):
-
-- ERCC Counts are plotted and quantified [step 10a](#10a-evaluate-ercc-count-data-in-python)
-- DESeq2 differential gene expression in Mix 1 versus Mix 2 groups is performed on ERCC counts [step 10b](#10b-perform-deseq2-analysis-of-ercc-counts-in-r)
-- DESeq2 results are analyzed for the expected Mix 1 vs Mix 2 ERCC groups A, B, C, and D ratios [step 10c](#10c-analyze-ercc-deseq2-results-in-python)
+- Added the `ERCCnorm_SampleTable.csv` output file in [step ]() to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
+  > Note: In most cases, the ERCCnorm_SampleTable.csv and SampleTable.csv files are the same. They will only differ when, for the ERCC-based analysis, samples are removed due to a lack of detectable Group B ERCC spike-in genes.
 
 ---
 
