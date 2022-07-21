@@ -155,9 +155,8 @@ TODO: Add logs
 
 ### 6. Known Issues to Look Out For
 
-#### Truncated Raw Read Files
+#### Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of raw reads files from GeneLab Repository
 
-- This is a known issue for Nextflow file staging from URL.  
-- If the Nextflow process is forcefully interrupted while staging a file (most notably raw read files for this pipeline), the truncated file will **NOT** be re-downloaded, resulting in a pipeline trying to process with the truncated file.
-- This is most commonly manifests as an unexpected error related to truncation occuring for processes that use the raw read files.
-- The advised workaround is to purge the staged files, located in your Nextflow "work" directory under the "stage" sub-directory, and relaunch the pipeline.
+- [Github Issue Link](https://github.com/nextflow-io/nextflow/issues/2918)
+- This will be fixed in an upcoming release of Nextflow. In the meantime, the workflow should work with Nextflow Version 21.10.6, which predates the introduction of the bug.
+  - We recommend setting the environment variable 'NXF_VER=21.10.6' to allow Nextflow to automatically update/downgrade to that version on launch.
