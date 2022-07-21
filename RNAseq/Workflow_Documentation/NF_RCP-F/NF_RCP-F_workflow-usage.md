@@ -58,9 +58,9 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 5. [Additional Output Files](#5-additional-output-files)
 6. [Known Issues](#6-known-issues)
 
-### 1. Install Conda and Nextflow
+### 1. Install Conda and Nextflow (**CHANGE TO SINGULARITY INSTALL INSTRUCTIONS**)
 
-We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the Happy Belly Bioinformatics link above](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
+We recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
 
 Once conda is installed on your system, you can install the latest version of Nextflow by running the following commands:
 
@@ -71,11 +71,10 @@ nextflow self-update
 
 ### 2. Download the Workflow Files
 
-All files required for utilizing the NF_RCP-E GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
-copy of latest NF_RCP-E version on to your system, copy the github web address of the [latest NF_RCP-E version](workflow_code/NF_RCP-E_1.0.0) 
-sub-directory under the workflow_code 
-directory, then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
+All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
+copy of latest NF_RCP-F version on to your system, copy the github web address of the [latest NF_RCP-F version](workflow_code/NF_RCP-F_1.0.0), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
 
+TODO: Update image when we have the official NASA GitHub link - alternatively create script that can be run to do this automatically
 <p align="center">
 <a href="../../images/NF_RCP-F_gitzip_rnaseq.png"><img src="../../images/NF_RCP-F_gitzip_rnaseq.png"></a>
 </p>
