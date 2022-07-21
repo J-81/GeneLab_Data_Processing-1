@@ -2,7 +2,7 @@
 
 ## General Workflow Info
 
-### Implemenation Tools
+### Implementation Tools
 
 The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a 
 [Nextflow](https://nextflow.io/) DSL2 workflow that utilizes [conda](https://docs.conda.io/en/latest/) 
