@@ -25,7 +25,7 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
    - Description:
      - This subworkflow extracts the metadata parameters (e.g. organism, library layout) needed for processing from the GLDS ISA archive and retrieves the raw reads files hosted on the [GeneLab Data Repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
-       > GLDS ISA archive: ISA directory containing Investigation, Study, and Assay (ISA) metadata files for a respective GLDS dataset - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files' for any GLDS dataset in the GeneLab Data Repository.
+       > *GLDS ISA archive*: ISA directory containing Investigation, Study, and Assay (ISA) metadata files for a respective GLDS dataset - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files' for any GLDS dataset in the GeneLab Data Repository.
 
 2. **RNASeq Consensus Pipeline Subworkflow**
 
@@ -41,11 +41,14 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
        |Flag Codes|Flag Name|Interpretation|
        |:---------|:--------|:-------------|
-       | 20-29 | GREEN | Indicates the check passed all validation conditions |
-       | 30-39 | YELLOW | Indicates the check was flagged for minor issues (e.g. slight outliers) |
-       | 50-59 | RED | Indicates the check was flagged for moderate issues (e.g. major outliers) |
-       | 80-89 | HALT | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
+       | 20-29    | GREEN   | Indicates the check passed all validation conditions |
+       | 30-39    | YELLOW  | Indicates the check was flagged for minor issues (e.g. slight outliers) |
+       | 50-59    | RED     | Indicates the check was flagged for moderate issues (e.g. major outliers) |
+       | 80-89    | HALT    | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
 
+<br>
+
+---
 ## Utilizing the Workflow
 
 1. [Install conda and Nextflow](#1-install-conda-and-nextflow)  
