@@ -36,13 +36,14 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
    - Description:
      - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
 
+| Flag Name             |Interpretation                  |
+|-----------------------|-------------------------|
+| GREEN                 |Indicates the check passed all validation conditions                         |  
+| YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
+| RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
+| HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
+
 ---
-|Flag Codes|Flag Name|Interpretation|
-|:---------|:--------|:-------------|
-| 20-29 | GREEN | Indicates the check passed all validation conditions |
-| 30-39 | YELLOW | Indicates the check was flagged for minor issues (e.g. slight outliers) |
-| 50-59 | RED | Indicates the check was flagged for moderate issues (e.g. major outliers) |
-| 80-89 | HALT | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
 
 ## Utilizing the Workflow
 
