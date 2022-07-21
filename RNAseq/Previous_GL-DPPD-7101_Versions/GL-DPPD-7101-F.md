@@ -63,7 +63,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
     - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
     - [6c. Evaluate GeneBody Coverage](#6c-evaluate-genebody-coverage)
     - [6d. Compile GeneBody Coverage Reports](#6d-compile-genebody-coverage-reports)
-    - [6e. Determine Inner Distance (For Paired End Datasets)](#6e-determine-inner-distance-for-paired-end-datasets-only)
+    - [6e. Determine Inner Distance (For Paired End Datasets ONLY)](#6e-determine-inner-distance-for-paired-end-datasets-only)
     - [6f. Compile Inner Distance Reports](#6f-compile-inner-distance-reports)
     - [6g. Assess Read Distribution](#6g-assess-read-distribution)
     - [6h. Compile Read Distribution Reports](#6h-compile-read-distribution-reports)
