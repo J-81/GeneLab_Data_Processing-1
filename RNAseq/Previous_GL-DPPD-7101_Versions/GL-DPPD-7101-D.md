@@ -596,7 +596,7 @@ rsem-calculate-expression --num-threads NumberOfThreads \
 
 install.packages("tidyverse")
 source("https://bioconductor.org/biocLite.R")
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!require("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("tximport")
 BiocManager::install("DESeq2")
@@ -1204,7 +1204,7 @@ Output data with considering ERCC spike-in genes:
 
 install.packages("tidyverse")
 source("https://bioconductor.org/biocLite.R")
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!require("BiocManager", quietly = TRUE))
 install.packages("BiocManager")
 BiocManager::install("tximport")
 BiocManager::install("DESeq2")
