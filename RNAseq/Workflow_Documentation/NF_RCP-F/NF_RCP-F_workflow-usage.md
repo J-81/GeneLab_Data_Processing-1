@@ -148,6 +148,9 @@ The output from the Analysis Staging subworkflow, V&V Pipeline subworkflow, and 
      - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEQC)
      - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEM_COUNTS)
 
+1. Nextflow Resource Usage Logs
+TODO: Add logs
+
 ---
 
 ### 6. Known Issues to Look Out For
