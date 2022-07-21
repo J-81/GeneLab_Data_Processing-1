@@ -4,12 +4,7 @@
 
 ### Implemenation Tools
 
-The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a 
-[Nextflow](https://nextflow.io/) DSL2 workflow that utilizes [conda](https://docs.conda.io/en/latest/) 
-environments. 
-This workflow (NF_RCP-F) is run using the command line interface (CLI) of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, 
-[the 
-Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow. An introduction to conda with installation help and links to other resources can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro).  
+The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow that utilizes [conda](https://docs.conda.io/en/latest/) environments. This workflow (NF_RCP-F) is run using the command line interface (CLI) of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow. An introduction to conda with installation help and links to other resources can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro).  
 
 ### Workflow & Subworkflows
 
@@ -29,25 +24,27 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 1. **Analysis Staging Subworkflow**
 
    - Description:
-     - This subworkflow extracts the processing parameters (e.g. organism, library layout) from the GLDS ISA archive as well as retrieves the raw reads files hosted on the GeneLab Data Repository.
+     - This subworkflow extracts the metadata parameters (e.g. organism, library layout) needed for processing from the GLDS ISA archive and retrieves the raw reads files hosted on the [GeneLab Data Repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+       > GLDS ISA archive: ISA directory containing Investigation, Study, and Assay (ISA) metadata files for a respective GLDS dataset - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files' for any GLDS dataset in the GeneLab Data Repository.
 
 2. **RNASeq Consensus Pipeline Subworkflow**
 
    - Description:
-     - This subworkflow uses the staged raw data and processing parameters to generate processed data.
+     - This subworkflow uses the staged raw data and metadata parameters from the Analysis Staging Subworkflow to generate processed data using [version F of the GeneLab RCP](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md).
 
 3. **V&V Pipeline Subworkflow**
 
    - Description:
-     - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
+     - This subworkflow performs validation and verification on the raw and processed data files in real-time.  It performs a series of checks on the output files generated and flags the results, using the flag codes indicated in the table below, which outputted as a series of log files. 
+     
+       **V&V Flags**:
 
----
-|Flag Codes|Flag Name|Interpretation|
-|:---------|:--------|:-------------|
-| 20-29 | GREEN | Indicates the check passed all validation conditions |
-| 30-39 | YELLOW | Indicates the check was flagged for minor issues (e.g. slight outliers) |
-| 50-59 | RED | Indicates the check was flagged for moderate issues (e.g. major outliers) |
-| 80-89 | HALT | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
+       |Flag Codes|Flag Name|Interpretation|
+       |:---------|:--------|:-------------|
+       | 20-29 | GREEN | Indicates the check passed all validation conditions |
+       | 30-39 | YELLOW | Indicates the check was flagged for minor issues (e.g. slight outliers) |
+       | 50-59 | RED | Indicates the check was flagged for moderate issues (e.g. major outliers) |
+       | 80-89 | HALT | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
 
 ## Utilizing the Workflow
 
