@@ -22,17 +22,17 @@ Jonathan Galazka (GeneLab Project Scientist)
 ## Updates from previous version
 
 Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-F_ensembl_refs.csv) now used:
-- Animals: Ensembl release 101
-- Plants: Ensembl plants release 48
-- Bacteria: Ensembl bacteria release 48
+- Animals: Ensembl release 107
+- Plants: Ensembl plants release 54
+- Bacteria: Ensembl bacteria release 54
 
 The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r), was modified as follows:
 
-- A separate sub-step, [step 9a](), was added to use the []() program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
+- A separate sub-step, [step 9a](#9a-create-sample-runsheet), was added to use the [dp_tools](https://github.com/J-81/dp_tools) program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
 
 - GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version -](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX.md) is now imported in the DESeq2 script to add gene annotations. 
 
-- Added the `ERCCnorm_SampleTable.csv` output file in [step ]() to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
+- Added the `ERCCnorm_SampleTable.csv` output file in [step 9g](#9g-export-genelab-dge-tables-with-annotations-for-datasets-with-ercc-spike-in) to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
   > Note: In most cases, the ERCCnorm_SampleTable.csv and SampleTable.csv files are the same. They will only differ when, for the ERCC-based analysis, samples are removed due to a lack of detectable Group B ERCC spike-in genes.
 
 ---
@@ -73,10 +73,17 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
     - [8c. Calculate Total Number of Genes Expressed Per Sample in R](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
   - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
-    - [9a. Create Sample RunSheet](#9a-create-sample-run-sheet)
-    - [9b. For Datasets With ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
-    - [9b. For Datasets With ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
-    - [9b. For Datasets Without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
+    - [9a. Create Sample RunSheet](#9a-create-sample-runsheet)
+    - [9b. Environment Set Up](#9b-environment-set-up)
+    - [9c. Configure Metadata, Sample Grouping, and Group Comparisons](#9c-configure-metadata-sample-grouping-and-group-comparisons)
+    - [9d. Import RSEM GeneCounts](#9d-import-rsem-genecounts)
+    - [9e. Perform DGE on Datasets With ERCC Spike-In](#9e-perform-dge-on-datasets-with-ercc-spike-in)
+    - [9f. Prepare GeneLab DGE Tables with Annotations on Datasets With ERCC Spike-In](#9f-prepare-genelab-dge-tables-with-annotations-on-datasets-with-ercc-spike-in)
+    - [9g. Export GeneLab DGE Tables with Annotations for Datasets With ERCC Spike-In](#9g-export-genelab-dge-tables-with-annotations-for-datasets-with-ercc-spike-in)
+    - [9h. Perform DGE on Datasets Without ERCC Spike-In](#9h-perform-dge-on-datasets-without-ercc-spike-in)
+    - [9i. Prepare GeneLab DGE Tables with Annotations on Datasets Without ERCC Spike-In](#9i-prepare-genelab-dge-tables-with-annotations-on-datasets-without-ercc-spike-in)
+    - [9j. Export GeneLab DGE Tables with Annotations for Datasets Without ERCC Spike-In](#9j-export-genelab-dge-tables-with-annotations-for-datasets-without-ercc-spike-in)
+
   - [**10. Evaluate ERCC Spike-In Data**](#10-evaluate-ercc-spike-in-data)
     - [10a. Evaluate ERCC Count Data in Python](#10a-evaluate-ercc-count-data-in-python)
     - [10b. Perform DESeq2 Analysis of ERCC Counts in R](#10b-perform-deseq2-analysis-of-ercc-counts-in-r)
@@ -1853,8 +1860,6 @@ Output data with considering ERCC spike-in genes:
 - visualization_PCA_table_ERCCnorm.csv (file used to generate GeneLab PCA plots for ERCC-normalized data)
 - ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
 - ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
-
-> Note: RNAseq processed data interactive tables and plots are found in the [GLDS visualization portal](https://visualization.genelab.nasa.gov/data/studies).
 
 
 **Output Data for Datasets without ERCC Spike-In:**
