@@ -514,7 +514,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 **Parameter Definitions:**
 
 - `-@` - number of threads available on server node to index the sorted alignment files
-- `/path/to/*Aligned.sortedByCoord_sorted.out.bam` – the path to the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
+- `/path/to/*Aligned.sortedByCoord_sorted.out.bam` – the path to the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [Step 4d](#4d-sort-aligned-reads), provided as a positional argument
 
 **Input Data:**
 
@@ -675,7 +675,7 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/geneBody_coverage/output/files` – the directory holding the geneBody_coverage output files from [step 6c](#6c-evaluate-genebody-coverage), provided as a positional argument
+- `/path/to/geneBody_coverage/output/files` – the directory holding the geneBody_coverage output files from [Step 6c](#6c-evaluate-genebody-coverage), provided as a positional argument
 
 **Input Data:**
 
@@ -1133,7 +1133,8 @@ txi.rsem$length[txi.rsem$length == 0] <- 1
 <br>
 
 ### 9e. Perform DGE on Datasets With ERCC Spike-In
-> Note: For datasets that do not contain ERCC spike-in, skip to [step 9h]()
+
+> Note: For datasets that do not contain ERCC spike-in, skip to [Step 9h](#9h-perform-dge-on-datasets-without-ercc-spike-in)
 
 ```R
 ### Create data frame defining which group each sample belongs to ###
@@ -1305,7 +1306,7 @@ res_1_lrt <- results(dds_1_lrt)
 <br>
 
 ### 9f. Prepare GeneLab DGE Tables with Annotations on Datasets With ERCC Spike-In
-> Note: For datasets that do not contain ERCC spike-in, skip to [step 9h]()
+> Note: For datasets that do not contain ERCC spike-in, skip to [Step 9h](#9h-perform-dge-on-datasets-without-ercc-spike-in)
 
 ```R
 ### Create two data frames, one containing (non-ERCC) normalized counts and the other containing ERCC-normalized counts ###
@@ -1576,7 +1577,7 @@ reduced_output_table_2 <- reduced_output_table_2 %>%
 <br>
 
 ### 9g. Export GeneLab DGE Tables with Annotations for Datasets With ERCC Spike-In
-> Note: For datasets that do not contain ERCC spike-in, skip to [step 9h]()
+> Note: For datasets that do not contain ERCC spike-in, skip to [Step 9h](#9h-perform-dge-on-datasets-without-ercc-spike-in)
 
 ```R
 ### Export unnormalized, (non-ERCC) normalized, and ERCC-normalized counts tables ###
@@ -1839,7 +1840,7 @@ sessionInfo()
 
 **Input Data:**
 
-- *runsheet.csv file (table containing metadata required for analysis, output from [step 9a](9a-create-sample-runSheet))
+- *runsheet.csv file (table containing metadata required for analysis, output from [Step 9a](#9a-create-sample-runSheet))
 - [GL-DPPD-71XX_organisms.csv](https://github.com/asaravia-butler/GeneLab_Data_Processing/blob/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
