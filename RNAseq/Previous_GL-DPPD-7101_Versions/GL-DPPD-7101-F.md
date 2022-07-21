@@ -971,22 +971,28 @@ sessionInfo()
 
 ### 9a. Create Sample RunSheet
 
+This document describes the creation of RunSheets from GLDS ISA Archives.
+RunSheets may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
+
 ```bash
-dp_tools [insert options] 
+dpt-isa-to-runsheet --accession GLDS-194 \
+                    --config-type bulkRNASeq --isa-archive /path/to/ISAArchiveZip
 ```
 
 **Parameter Definitions:**
 
-- `-option` - definition
-
+- `--accession` - GLDS accession ID, used to retrieve the urls for raw reads hosted on the GeneLab Repository
+- `GLDS-194` - An example GLDS accession ID, should be replaced with the accession ID that corresponds to the ISA archive a runsheet is to be prepared from
+- `--config-type` - Instructs the script to extract the metadata required for bulkRNASeq processing from the ISA archive
+- `--isa-archive` - The ISA archive to extract metadata from
 
 **Input Data:**
 
-- *input data (definition)
+- ISAArchiveZip (ISA Archive file for the GLDS entry)
 
 **Output Data:**
 
-- output file name\# (table containing metadata required for analysis)
+- {GLDS-Accession-ID}_bulkRNASeq_v{version}.csv\# (table containing metadata required for analysis, version denotes the internal dp_tools schema used to specify the metadata to extract from the ISA archive)
 
 <br>
 
