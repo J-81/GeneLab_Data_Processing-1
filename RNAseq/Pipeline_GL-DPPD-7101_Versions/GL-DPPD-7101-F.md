@@ -106,16 +106,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
-|Risa|1.36|[https://www.bioconductor.org/packages/release/bioc/html/Risa.html](https://www.bioconductor.org/packages/release/bioc/html/Risa.html)|
-|STRINGdb|2.6.0|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
-|PANTHER.db|1.0.11|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
-|org.Hs.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html)|
-|org.Mm.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html)|
-|org.Dm.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Dm.eg.db.html)|
-|org.Ce.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Ce.eg.db.html)|
-|org.At.tair.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.At.tair.db.html)|
-|org.EcK12.eg.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.EcK12.eg.db.html)|
-|org.Sc.sgd.db|3.14.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Sc.sgd.db.html)|
+|dp_tools|XXX|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
 
 ---
 
@@ -974,148 +965,151 @@ sessionInfo()
 ### 9a. Create Sample RunSheet
 
 ```bash
-multiqc --interactive -n RSEM_count_multiqc -o /path/to/RSEM_count_multiqc/output/directory /path/to/*stat/files
+dp_tools [insert options] 
 ```
 
 **Parameter Definitions:**
 
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/*stat/files` – the directories holding the *stat output files from the [RSEM Counts step](#8a-count-aligned-reads-with-rsem), provided as a positional argument
+- `-option` - definition
+
 
 **Input Data:**
 
-- *stat (directory containing the following stats files, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
-  - *cnt
-  - *model
-  - *theta
+- *input data (definition)
 
 **Output Data:**
 
-- RSEM_count_multiqc.html\# (multiqc report)
-- /RSEM_count_multiqc_data\# (directory containing multiqc data)
+- output file name\# (table containing metadata required for analysis)
 
 <br>
 
-### 9b. For Datasets With ERCC Spike-In
+### 9b. Environment Set Up
 
 ```R
-## Install R packages if not already installed
+### Install R packages if not already installed ###
+
 
 install.packages("tidyverse")
-source("https://bioconductor.org/biocLite.R")
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.14")
 BiocManager::install("tximport")
 BiocManager::install("DESeq2")
-BiocManager::install("Risa")
-BiocManager::install("STRINGdb")
-BiocManager::install("PANTHER.db")
 
 
-## Install annotation R packages if not already installed - only the annotation package for the organism that the data were derived from is required
-
-BiocManager::install("org.Hs.eg.db")
-BiocManager::install("org.Mm.eg.db")
-BiocManager::install("org.Rn.eg.db")
-BiocManager::install("org.Dr.eg.db")
-BiocManager::install("org.Dm.eg.db")
-BiocManager::install("org.Ce.eg.db")
-BiocManager::install("org.Sc.sgd.db")
-BiocManager::install("org.At.tair.db")
-BiocManager::install("org.EcK12.eg.db")
-BiocManager::install("MeSH.Bsu.168.eg.db")
-
-
-##### Set up your environment #####
-
-## Import libraries (tximport, DESeq2, tidyverse, Risa)
+### Import libraries (tximport, DESeq2, tidyverse, stringr) ###
 
 library(tximport)
 library(DESeq2)
 library(tidyverse)
-library(Risa)
+library(stringr)
 
 
-## Define which organism is used in the study - this should be consistent with the name in the organisms.csv file, which matches the abbreviations used in the Panther database for each organism
+### Define which organism is used in the study - this should be consistent with the name in the *organisms.csv file, which matches the abbreviations used in the Panther database for each organism ###
+## Organism options include: HUMAN|MOUSE|RAT|ZEBRAFISH|FLY|WORM|YEAST|ARABIDOPSIS|ECOLI|BACSU
 
 organism <- "organism_that_samples_were_derived_from"
 
-## Create a directory for the metadata and in that directory, download the *ISA.zip file for the study being analyzed, which is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files'
 
-## Define the location of the input data and where the ouput data will be printed to
-metadata_dir="/path/to/directory/containing/*ISA.zip/file"
-work_dir="/path/to/working/directory/where/script/is/executed/from" ## Must contain organisms.csv file
+### Define the location of the input data and where the ouput data will be printed to ###
+
+runsheet_path="/path/to/directory/containing/runsheet.csv/file" ## This is the runsheet created in step 9a above
+work_dir="/path/to/working/directory/where/script/is/executed/from" 
 counts_dir="/path/to/directory/containing/RSEM/counts/files"
 norm_output="/path/to/normalized/counts/output/directory"
 DGE_output="/path/to/DGE/output/directory"
-DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory"
+DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed for datasets with ERCC spike-in
 
 
-## Set your working directory to the directory containing the *ISA.zip file for the GLDS dataset being processed
-setwd(file.path(metadata_dir))
+### Set your working directory to the directory where you will execute your DESeq2 script from ###
+
+setwd(file.path(work_dir))
+
+```
+
+<br>
+
+### 9c. Configure Metadata, Sample Grouping, and Group Comparisons
+
+```R
+### Pull all factors for each sample in the study from the runsheet created in step 9a ###
+
+compare_csv_from_runsheet <- function(runsheet_path) {
+    df = read.csv(runsheet_path)
+    # get only Factor Value columns
+    factors = as.data.frame(df[,grep("Factor.Value", colnames(df), ignore.case=TRUE)])
+    colnames(factors) = paste("factor",1:dim(factors)[2], sep= "_")
+    result = data.frame(sample_id = df[,c("Sample.Name")], factors)	
+    return(result)
+}
 
 
-##### Pull all factors for each sample in the study from the metadata in the ISA files #####
+### Load metadata from runsheet csv file ###
 
-td = tempdir()
-unzip(Sys.glob(file.path(metadata_dir,"*ISA.zip")), exdir = td)
-isa <- readISAtab(path = td)
-n = as.numeric(which(isa@assay.technology.types == "RNA Sequencing (RNA-Seq)"))
-isa_tabs<-isa@assay.tabs[[n]]@assay.file
-factors <- as.data.frame(isa@factors[[1]], stringsAsFactors = FALSE)
-colnames(factors)<-paste("factor",1:dim(factors)[2], sep = "_")
-compare_csv <- data.frame(sample_id = isa_tabs$`Sample Name`, factors) # note: both the s_* table and a_* table in ISA MUST have rows in the same order, otherwise samples may be assigned to the incorrect factor group
+compare_csv <- compare_csv_from_runsheet(params$runsheet_path)
 
-## Create data frame containing all samples and respective factors
+
+### Create data frame containing all samples and respective factors ###
 
 study <- as.data.frame(compare_csv[,2:dim(compare_csv)[2]])
 colnames(study) <- colnames(compare_csv)[2:dim(compare_csv)[2]]
 rownames(study) <- compare_csv[,1]
 
-## Set your working directory to the directory containing the organisms.csv file
 
-setwd(file.path(work_dir))
-
-
-##### Format groups and indicate the group that each sample belongs to #####
+### Format groups and indicate the group that each sample belongs to ###
 
 if (dim(study) >= 2){
-	group<-apply(study,1,paste,collapse = " & ") # concatenate multiple factors into one condition per sample
+	group<-apply(study,1,paste,collapse = " & ") ## concatenate multiple factors into one condition per sample
 } else{
 	group<-study[,1]
 }
-group_names <- paste0("(",group,")",sep = "") # human readable group names
-group <- make.names(group) # group naming compatible with R models
+group_names <- paste0("(",group,")",sep = "") ## human readable group names
+group <- make.names(group) ## group naming compatible with R models
 names(group) <- group_names
 rm(group_names)
 
 
-##### Format contrasts table, defining pairwise comparisons for all groups #####
+### Format contrasts table, defining pairwise comparisons for all groups ###
 
-contrasts <- combn(levels(factor(group)),2) # generate matrix of pairwise group combinations for comparison
+contrasts <- combn(levels(factor(group)),2) ## generate matrix of pairwise group combinations for comparison
 contrast.names <- combn(levels(factor(names(group))),2)
-contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) # format combinations for output table files names
+contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) ## format combinations for output table files names
 contrasts <- cbind(contrasts,contrasts[c(2,1),])
 colnames(contrasts) <- contrast.names
 rm(contrast.names) 
 
+```
 
-##### Import RSEM raw (gene) count data #####
+<br>
+
+### 9d. Import RSEM GeneCounts
+
+```R
+### Import RSEM raw (gene) count data ###
 
 files <- list.files(file.path(counts_dir),pattern = ".genes.results", full.names = TRUE)
 
-## Reorder the *genes.results files to match the ordering of the ISA samples
+
+### Reorder the *genes.results files to match the ordering of the ISA samples ###
+
 files <- files[sapply(rownames(study), function(x)grep(paste0(x,".genes.results$"), files, value=FALSE))]
 
 names(files) <- rownames(study)
 txi.rsem <- tximport(files, type = "rsem", txIn = FALSE, txOut = FALSE)
 
-## Add 1 to genes with lengths of zero - needed to make DESeqDataSet object 
+
+### Add 1 to genes with lengths of zero - needed to make DESeqDataSet object ###
+
 txi.rsem$length[txi.rsem$length == 0] <- 1
 
+```
 
+<br>
+
+### 9e. Perform DGE on Datasets With ERCC Spike-In
+> Note: For datasets that do not contain ERCC spike-in, skip to [step 9h]()
+
+```R
 ##### Make DESeqDataSet object #####
 
 ## Create data frame defining which group each sample belongs to
