@@ -18,5 +18,5 @@ Michael D. Lee (Mike.Lee@nasa.gov)
 
 * [Current processing protocol (GL-DPPD-XXXX.md)](GL-DPPD-XXXX.md)  
 * [Processed dataset files](GLDS_Processing_Scripts)  
-* [Template worflow files](workflow-template)  
+* [Template workflow files](workflow-template)  
 * [Workflow information and usage instructions](workflow-usage.md)
