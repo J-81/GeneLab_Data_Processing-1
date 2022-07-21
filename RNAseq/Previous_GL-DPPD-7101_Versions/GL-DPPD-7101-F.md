@@ -1036,7 +1036,7 @@ DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed f
 
 ### Pull in the GeneLab annotation table (GL-DPPD-71XX) organisms.csv file ###
 
-###### CHANGE THIS TO OFFICIAL NASA GITHUB
+###### TODO: CHANGE THIS TO OFFICIAL NASA GITHUB
 org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv"
 
 org_table <- read.table(org_table_link, sep = ",", header = TRUE)
