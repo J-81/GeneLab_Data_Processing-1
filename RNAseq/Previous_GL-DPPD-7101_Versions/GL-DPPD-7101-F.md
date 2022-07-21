@@ -1844,7 +1844,6 @@ sessionInfo()
 - [GL-DPPD-71XX_organisms.csv](https://github.com/asaravia-butler/GeneLab_Data_Processing/blob/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
-
 **Output Data for Datasets with ERCC Spike-In:**
 
 Output data without considering ERCC spike-in genes:
@@ -1868,7 +1867,6 @@ Output data with considering ERCC spike-in genes:
 - ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
 - ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
 
-
 **Output Data for Datasets without ERCC Spike-In:**
 
 - RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
@@ -1886,6 +1884,7 @@ Output data with considering ERCC spike-in genes:
 ---
 
 ## 10. Evaluate ERCC Spike-In Data 
+
 > Note: This is only applicable for datasets with ERCC spike-in
 
 <br>
@@ -2476,7 +2475,6 @@ ERCCcounts.head()
 
 ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv') 
 ```
-
 
 **Input Data:**
 
