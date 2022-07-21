@@ -81,6 +81,7 @@ chmod -R u+x bin
 ```
 
 ### 4. Run the Workflow
+TODO: Update with most recent parameters/help menu, convert to parameter-input-output format
 
 #### Approach 1: Running the workflow with automatic retrieval of Ensembl reference fasta and gtf
 
