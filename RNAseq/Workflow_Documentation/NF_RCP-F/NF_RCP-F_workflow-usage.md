@@ -126,7 +126,7 @@ See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nex
 
 ### 5. Additional Output Files
 
-The output from the Analysis Staging subworkflow and V&V Pipeline subworkflow are described here.
+The output from the Analysis Staging subworkflow, V&V Pipeline subworkflow, and Nextflow specific logs are described here.
 > Note: The outputs from version F of the RNASeq Consensus Pipeline are documented in the current processing protocol, 
 [GL-DPPD-7101-F.md](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md).
 
