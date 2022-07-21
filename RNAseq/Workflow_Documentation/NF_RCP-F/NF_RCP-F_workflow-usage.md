@@ -4,12 +4,7 @@
 
 ### Implementation Tools
 
-The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a 
-[Nextflow](https://nextflow.io/) DSL2 workflow that utilizes [conda](https://docs.conda.io/en/latest/) 
-environments. 
-This workflow (NF_RCP-F) is run using the CLI of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, 
-[the 
-Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow. An introduction to conda with installation help and links to other resources can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro).  
+The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow and utilizes [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/introduction.html) to run all tools in containers. This workflow is run using the CLI of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow.
 
 ### Workflow & Subworkflows
 
@@ -51,23 +46,20 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
 ## Utilizing the Workflow
 
-1. [Install conda and Nextflow](#1-install-conda-and-nextflow)  
-2. [Download the workflow files](#2-download-the-workflow-files)  
-3. [Setup execution permission for bin scripts](#3-setup-execution-permission-for-bin-scripts)  
-4. [Run the workflow](#4-run-the-workflow)
-5. [Additional Output Files](#5-additional-output-files)
-6. [Known Issues](#6-known-issues)
 
-### 1. Install Conda and Nextflow
+### 1. Install Nextflow and Singularity
 
-We recommend installing a Miniconda, Python3 version appropriate for your system, as exemplified in [the Happy Belly Bioinformatics link above](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
+#### 1a. Installing Nextflow
 
-Once conda is installed on your system, you can install the latest version of Nextflow by running the following commands:
+Nextflow can be installed either through [Anaconda](https://anaconda.org/bioconda/nextflow) or as documented on the Nextflow documentation [page](https://www.nextflow.io/docs/latest/getstarted.html).
 
-```bash
-conda install -c bioconda nextflow
-nextflow self-update
-```
+#### 1b. Installing Singularity
+
+Singularity is a container platform that allows usage of containerized software. This enables the workflow to retrieve and use all software required during the processing pipeline without needing to directly install the processing software directly to the user system.
+
+We recommend installing Singularity on a system wide level as per the associated [documentation](https://docs.sylabs.io/guides/3.10/admin-guide/admin_quickstart.html).
+
+Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
 
 ### 2. Download the Workflow Files
 
