@@ -104,6 +104,7 @@ nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_fasta
 ```
 
 **Approach 3: Run the workflow with user-created runsheet**
+
 Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
 ```bash
 nextflow run ./main.nf --runsheetPath </path/to/runsheet>
