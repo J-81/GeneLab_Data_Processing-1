@@ -1,8 +1,8 @@
-# RunSheet Specification
+# Runsheet Specification
 
 ## Description
 
-1. The RunSheet is a csv file that contains the metadata required for processing bulkRNASeq datasets through GeneLab's processing workflow.
+1. The Runsheet is a csv file that contains the metadata required for processing bulkRNASeq datasets through GeneLab's processing workflow.
 
 ## Examples
 
