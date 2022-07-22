@@ -51,10 +51,10 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 ---
 ## Utilizing the Workflow
 
-1. [Install conda and Nextflow](#1-install-conda-and-nextflow)  
-2. [Download the workflow files](#2-download-the-workflow-files)  
-3. [Setup execution permission for bin scripts](#3-setup-execution-permission-for-bin-scripts)  
-4. [Run the workflow](#4-run-the-workflow)
+1. [Install Conda and Nextflow](#1-install-conda-and-nextflow)  
+2. [Download the Workflow Files](#2-download-the-workflow-files)  
+3. [Setup Execution Permission for Workflow Scripts](#3-setup-execution-permission-for-workflow-scripts)  
+4. [Run the Workflow](#4-run-the-workflow)
 5. [Additional Output Files](#5-additional-output-files)
 6. [Known Issues](#6-known-issues)
 
@@ -79,15 +79,32 @@ TODO: Update image when we have the official NASA GitHub link - alternatively cr
 <a href="../../images/NF_RCP-F_gitzip_rnaseq.png"><img src="../../images/NF_RCP-F_gitzip_rnaseq.png"></a>
 </p>
 
-### 3. Setup Execution Permission for Bin Scripts
+### 3. Setup Execution Permission for Workflow Scripts
 
-Once you've downloaded the workflow template, you need to set the execution permission for the scripts in the bin folder.  The scripts may be made executable using the following command inside the unzipped workflow_code directory.
+Once you've downloaded the NF_RCP-F workflow directory as a zip file, unzip the workflow then `cd` into the NF_RCP-F directory on the CLI. Next, run the following command to set the execution permissions for all scripts in the bin folder:
 
 ```bash
 chmod -R u+x bin
 ```
 
 ### 4. Run the Workflow
+
+While in the NF_RCP-F workflow directory, you are now able to run the workflow. Below are two examples of how to run the NF_RCP-F workflow:
+> Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
+
+**Approach 1: Run the workflow with automatic retrieval of Ensembl reference fasta and gtf files**
+
+```bash
+nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107
+```
+
+**Approach 2: Run the workflow with automatic retrieval of Ensembl reference fasta and gtf files**
+
+```bash
+nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107
+```
+
+
 
 #### Approach 1: Running the workflow with automatic retrieval of Ensembl reference fasta and gtf
 
