@@ -103,7 +103,8 @@ nextflow run ./main.nf --gldsAccession GLDS-194
 nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
 ```
 
-**Approach 3: Run the workflow using local Ensembl reference fasta and gtf files**
+**Approach 3: Run the workflow with user-created runsheet**
+Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
 ```bash
 nextflow run ./main.nf --runsheetPath </path/to/runsheet>
 ```
