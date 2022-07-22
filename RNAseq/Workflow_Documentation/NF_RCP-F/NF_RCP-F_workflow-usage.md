@@ -95,17 +95,17 @@ While in the NF_RCP-F workflow directory, you are now able to run the workflow. 
 **Approach 1: Run the workflow with automatic retrieval of Ensembl reference fasta and gtf files**
 
 ```bash
-nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107
+nextflow run ./main.nf --gldsAccession GLDS-194
 ```
 
 **Approach 2: Run the workflow using local Ensembl reference fasta and gtf files**
 
 ```bash
-nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_source <ensembl_reference_label>  --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
+nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
 ```
-TODO: Remove the --ref_source <ensembl_reference_label> option (here and below) when the workflow is updated to get that info from the runsheet
 
-TODO: If it's possible to run the workflow on a non-GLDS RNAseq dataset, add a 3rd Approach for how to do this, which of course will include providing a user-generated runsheet and raw fastq files
+**Approach 3: Run the workflow using local Ensembl reference fasta and gtf files**
+
 
 **Required Arguments:**
 
@@ -123,16 +123,14 @@ TODO: If it's possible to run the workflow on a non-GLDS RNAseq dataset, add a 3
 * `--truncateTo` - specifies the number of reads to download and process for each sample (Default: all reads are used)
 * `--force_single_end` - forces the analysis to use single end processing; for paired end datasets, this means only R1 is used; for single end datasets, this should have no effect
 * `--stageLocal TRUE|FALSE` - TRUE = download the raw reads files for the GLDS dataset indicated, FALSE = disable raw reads download and processing (Default: TRUE)
+* `--use_dummy_gene_counts` - Use random gene counts instead of actual RSEM gene counts during DGE. This is useful when using a low number of reads / sumbsampled genomes to prevent DGE errors due to low/zero gene counts.
 * `--ref_order toplevel|primary_assemblyELSEtoplevel` - specifies which Ensembl fasta file to use, toplevel = use the toplevel fasta, primary_assemblyELSEtoplevel = use the primary_assembly fasta if available but if not, use the toplevel fasta (Default: primary_assemblyELSEtoplevel)
 * `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
 * `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl)
 * `--referenceStorePath` - specifies the directory to store the Ensembl fasta and gtf files (Default: within the directory structure created by default in the launch directory)
 * `--derivedStorePath` - specifies the directory to store the tool-specific indices created during processing (Default: within the directory structure created by default in the launch directory)
 * `--ref_source` - specifies the ensembl database source (e.g. ensembl, ensembl_plants, ensembl_bacteria) when local reference files are used, required when the `--ref_fasta` and/or `--ref_gtf` options are specified
-* `-stub-run` - forces the workflow to use the RSEM `--strandedness none` setting and creates "dummy" gene counts for differential gene expression (DGE) analysis, used in combination with the `--truncateTo` option to avoid V&V errors when evaluating counts and DGE output files during testing 
-
-TODO: Add any optional arguments that are missing
-   
+* `-stub-run` - forces the workflow to use the RSEM `--strandedness none` setting, used in combination with the `--truncateTo` option to avoid V&V errors when evaluating counts and DGE output files during testing
 
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
 
