@@ -104,7 +104,9 @@ nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_fasta
 ```
 
 **Approach 3: Run the workflow using local Ensembl reference fasta and gtf files**
-
+```bash
+nextflow run ./main.nf --runsheetPath </path/to/runsheet>
+```
 
 **Required Arguments:**
 
