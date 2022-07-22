@@ -36,15 +36,15 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
    - Description:
      - This subworkflow performs validation and verification (V&V) on the raw and processed data files in real-time.  It performs a series of checks on the output files generated and flags the results, using the flag codes indicated in the table below, which outputted as a series of log files. 
-     
+
        **V&V Flags**:
 
-| Flag Name             |Interpretation                  |
-|-----------------------|-------------------------|
-| GREEN                 |Indicates the check passed all validation conditions                         |  
-| YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
-| RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
-| HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
+      | Flag Name             |Interpretation                  |
+      |-----------------------|-------------------------|
+      | GREEN                 |Indicates the check passed all validation conditions                         |  
+      | YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
+      | RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
+      | HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
 
 <br>
 
