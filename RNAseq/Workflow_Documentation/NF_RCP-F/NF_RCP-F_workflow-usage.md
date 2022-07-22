@@ -160,10 +160,15 @@ The outputs from the Analysis Staging and V&V Pipeline Subworkflows are describe
      - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (table containing V&V flags through RSeQC file checks ONLY)
      - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (table containing V&V flags through RSEM raw count file checks ONLY)
 
-Nextflow resource usage logs are also produced as follows:
+Standard Nextflow resource usage logs are also produced as follows:
+Further details about these logs can also found within this Nextflow documentation [page](https://www.nextflow.io/docs/latest/tracing.html#execution-report).
 
-1. Nextflow Resource Usage Logs
-TODO: Add logs
+**Nextflow Resource Usage Logs**
+
+   - Output:
+     - Resource_Usage/execution_report_{timestamp}.html (an html report which includes many useful metrics about a workflow execution)
+     - Resource_Usage/execution_timeline_{timestamp}.html (an html timeline for all processes executed in your pipeline)
+     - Resource_Usage/execution_trace_{timestamp}.txt (an execution tracing file that contains some useful information about each process executed in your pipeline script, including: submission time, start time, completion time, cpu and memory used, machine-readable output)
 
 ---
 
