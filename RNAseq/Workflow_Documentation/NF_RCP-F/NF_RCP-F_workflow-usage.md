@@ -140,35 +140,34 @@ See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nex
 
 ### 5. Additional Output Files
 
-The output from the Analysis Staging subworkflow and V&V Pipeline subworkflow are described here.
-> Note: The outputs from version F of the RNASeq Consensus Pipeline are documented in the current processing protocol, 
-[GL-DPPD-7101-F.md](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md).
+The outputs from the Analysis Staging and V&V Pipeline Subworkflows are described below:
+> Note: The outputs from the RNASeq Consensus Pipeline Subworkflow are documented in the [GL-DPPD-7101-F.md](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md) processing protocol.
 
-1. Analysis Staging Subworkflow
-
-   - Output:
-     - \*_bulkRNASeq_v1_runsheet.csv (a table that include processing parameters and raw reads files location)
-     - \*-ISA.zip (the ISA archive fetched from the GeneLab Data Repository)
-     - \*_metadata_table.txt (a table that includes additional information about the GLDS entry, not used for processing)
-
-1. V&V Pipeline Subworkflow
+**Analysis Staging Subworkflow**
 
    - Output:
-     - VV_Logs/VV_log_final.tsv (A tab-separated values file that includes all V&V flags levels logged)
-     - VV_Logs/VV_log_final_only_issues.tsv (A tab-separated values file that includes V&V flags levels logged with maximum flag codes greater than 20)
-     - VV_Logs/VV_log_verbose_through_VV_RAW_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RAW_READS)
-     - VV_Logs/VV_log_verbose_through_VV_TRIMMED_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after TRIMMED_READS)
-     - VV_Logs/VV_log_verbose_through_VV_STAR_ALIGNMENTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after STAR_ALIGNMENTS)
-     - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEQC)
-     - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEM_COUNTS)
+     - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
+     - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
+     - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
+   
+   
+**V&V Pipeline Subworkflow**
+
+   - Output:
+     - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
+     - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag level >= 30)
+     - VV_Logs/VV_log_verbose_through_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
+     - VV_Logs/VV_log_verbose_through_VV_TRIMMED_READS.tsv (table containing V&V flags through trimmed reads checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags through alignment file checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (table containing V&V flags through RSeQC file checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (table containing V&V flags through RSEM raw count file checks ONLY)
 
 ---
 
 ### 6. Known Issues to Look Out For
 
-#### Truncated Raw Read Files
+**Truncated Raw Read Files**
 
-- This is a known issue for Nextflow file staging from URL.  
-- If the Nextflow process is forcefully interrupted while staging a file (most notably raw read files for this pipeline), the truncated file will **NOT** be re-downloaded, resulting in a pipeline trying to process with the truncated file.
-- This is most commonly manifests as an unexpected error related to truncation occuring for processes that use the raw read files.
-- The advised workaround is to purge the staged files, located in your Nextflow "work" directory under the "stage" sub-directory, and relaunch the pipeline.
+- This is a known issue for Nextflow file staging from a URL.  
+- If the Nextflow process is forcefully interrupted while staging a file (most notably raw read files for this workflow), the truncated file will **NOT** be re-downloaded, resulting in an error when the pipeline begins processing the truncated file.
+- The advised workaround is to delete the staged files, located in your Nextflow "work" directory under the "stage" sub-directory, then relaunch the workflow.
