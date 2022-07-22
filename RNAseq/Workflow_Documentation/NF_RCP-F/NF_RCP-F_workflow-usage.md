@@ -4,7 +4,7 @@
 
 ### Implementation Tools
 
-The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow and utilizes [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/introduction.html) to run all tools in containers. This workflow is run using the CLI of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow.
+The current GeneLab RNAseq consensus processing pipeline (RCP), [GL-DPPD-7101-F](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md), is implemented as a [Nextflow](https://nextflow.io/) DSL2 workflow and utilizes [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/introduction.html) to run all tools in containers. This workflow (NF_RCP-F) is run using the command line interface (CLI) of any unix-based system.  While knowledge of creating workflows in Nextflow is not required to run the workflow as is, [the Nextflow documentation](https://nextflow.io/docs/latest/index.html) is a useful resource for users who want to modify and/or extend this workflow.
 
 ### Workflow & Subworkflows
 
@@ -24,17 +24,29 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 1. **Analysis Staging Subworkflow**
 
    - Description:
-     - This subworkflow extracts the processing parameters (e.g. organism, library layout) from the GLDS ISA archive as well as retrieves the raw reads files hosted on the GeneLab Data Repository.
+     - This subworkflow extracts the metadata parameters (e.g. organism, library layout) needed for processing from the GLDS ISA archive and retrieves the raw reads files hosted on the [GeneLab Data Repository](https://genelab-data.ndc.nasa.gov/genelab/projects).
+       > *GLDS ISA archive*: ISA directory containing Investigation, Study, and Assay (ISA) metadata files for a respective GLDS dataset - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files' for any GLDS dataset in the GeneLab Data Repository.
 
 2. **RNASeq Consensus Pipeline Subworkflow**
 
    - Description:
-     - This subworkflow uses the staged raw data and processing parameters to generate processed data.
+     - This subworkflow uses the staged raw data and metadata parameters from the Analysis Staging Subworkflow to generate processed data using [version F of the GeneLab RCP](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md).
 
 3. **V&V Pipeline Subworkflow**
 
    - Description:
-     - This subworkflow performs validation and verification on the raw and processed files.  It performs a series of checks and flags the results to a series of log files. The following flag levels are found in these logs:
+     - This subworkflow performs validation and verification (V&V) on the raw and processed data files in real-time.  It performs a series of checks on the output files generated and flags the results, using the flag codes indicated in the table below, which outputted as a series of log files. 
+     
+       **V&V Flags**:
+
+       |Flag Codes|Flag Name|Interpretation|
+       |:---------|:--------|:-------------|
+       | 20-29    | GREEN   | Indicates the check passed all validation conditions |
+       | 30-39    | YELLOW  | Indicates the check was flagged for minor issues (e.g. slight outliers) |
+       | 50-59    | RED     | Indicates the check was flagged for moderate issues (e.g. major outliers) |
+       | 80-89    | HALT    | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
+
+<br>
 
 | Flag Name             |Interpretation                  |
 |-----------------------|-------------------------|
@@ -64,18 +76,17 @@ Singularity is also available through [Anaconda](https://anaconda.org/conda-forg
 
 ### 2. Download the Workflow Files
 
-All files required for utilizing the NF_RCP-E GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
-copy of latest NF_RCP-E version on to your system, copy the github web address of the [latest NF_RCP-E version](workflow_code/NF_RCP-E_1.0.0) 
-sub-directory under the workflow_code 
-directory, then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
+All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
+copy of latest NF_RCP-F version on to your system, copy the github web address of the [latest NF_RCP-F version](workflow_code/NF_RCP-F_1.0.0), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
 
+TODO: Update image when we have the official NASA GitHub link - alternatively create script that can be run to do this automatically
 <p align="center">
 <a href="../../images/NF_RCP-F_gitzip_rnaseq.png"><img src="../../images/NF_RCP-F_gitzip_rnaseq.png"></a>
 </p>
 
-### 3. Setup Execution Permission for Bin Scripts
+### 3. Setup Execution Permission for Workflow Scripts
 
-Once you've downloaded the workflow template, you need to set the execution permission for the scripts in the bin folder.  The scripts may be made executable using the following command inside the unzipped workflow_code directory.
+Once you've downloaded the NF_RCP-F workflow directory as a zip file, unzip the workflow then `cd` into the NF_RCP-F directory on the CLI. Next, run the following command to set the execution permissions for all scripts in the bin folder:
 
 ```bash
 chmod -R u+x bin
@@ -84,43 +95,50 @@ chmod -R u+x bin
 ### 4. Run the Workflow
 TODO: Update with most recent parameters/help menu, convert to parameter-input-output format
 
-#### Approach 1: Running the workflow with automatic retrieval of Ensembl reference fasta and gtf
+While in the NF_RCP-F workflow directory, you are now able to run the workflow. Below are two examples of how to run the NF_RCP-F workflow:
+> Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
 
-Here is one example command of how to run the workflow in using Approach 1.  Note: main.nf is a file located in the workflow_code directory.
+**Approach 1: Run the workflow with automatic retrieval of Ensembl reference fasta and gtf files**
 
-> **Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument**  
-
-``` text
-Usage example 1:
-   Fetches ensembl reference files via ftp and GeneLab raw data via https before running processing pipeline
-   > nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 96
-
-Usage example 2:
-   Fetches GeneLab raw data via https before running processing pipeline using supplied local reference fasta and gtf files.
-   Note: ensemblVersion and ref_source are used here to label subdirectories for derived reference files.
-   > nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 96 --ref_source <reference_label>  --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
-
-required arguments:
-  --gldsAccession GLDS-000
-                        the GLDS accession id to process through the RNASeq consensus Pipeline.
-  --ensemblVersion n    the ensembl Version to use for the reference genome.
-optional arguments:
-  --help                show this help message and exit
-  --skipVV              skip automated V&V processes. Default: false
-  --outputDir           directory to save staged raw files and processed files. Default: <launch directory>
-  --limitSamplesTo n    limit the number of samples staged to a number.
-  --genomeSubsample n   subsamples genome fasta and gtf files to the supplied chromosome.
-  --truncateTo n        limit number of reads downloaded and processed to *n* reads , for paired end limits number of reverse and forward read files to *n* reads each.
-  --force_single_end    forces analysis to use single end processing.  For paired end datasets, this means only R1 is used.  For single end studies, this should have no effect.
-  --stageLocal          download the raw reads files for the supplied GLDS accession id.  Set to false to disable raw read download and processing.  Default: true
-  --ref_order           specifies the reference to use from ensembl.  Allowed values:  ['toplevel','primary_assemblyELSEtoplevel']. 'toplevel' : use toplevel.  'primary_assemblyELSEtoplevel' : use primary assembly, but use toplevel if primary assembly doesn't exist. Default: 'primary_assemblyELSEtoplevel'
-  --ref_fasta           specifies a reference fasta from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl
-  --ref_gtf             specifies a reference gtf from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl
-  --referenceStorePath  specifies the directory where fetched reference files are downloaded to
-  --derivedStorePath    specifies the directory where derivative reference files are saved. Examples of such files in this pipeline included BED and PRED files generated from the reference gtf
-  --ref_source          a string to label subdirectories in 'StorePath' paths. Examples include 'ensembl' or 'ensembl_plants'.
-  -stub-run             runs the workflow forcing 'unstranded' RSEM settings and using dummy gene counts in the differential gene expression (DGE) analysis. Useful when combined with the --truncateTo parameter this often leads to low gene counts and errors in the DGE analysis
+```bash
+nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107
 ```
+
+**Approach 2: Run the workflow using local Ensembl reference fasta and gtf files**
+
+```bash
+nextflow run ./main.nf --gldsAccession GLDS-194 --ensemblVersion 107 --ref_source <ensembl_reference_label>  --ref_fasta </path/to/fasta> --ref_gtf </path/to/gtf>
+```
+TODO: Remove the --ref_source <ensembl_reference_label> option (here and below) when the workflow is updated to get that info from the runsheet
+
+TODO: If it's possible to run the workflow on a non-GLDS RNAseq dataset, add a 3rd Approach for how to do this, which of course will include providing a user-generated runsheet and raw fastq files
+
+**Required Arguments:**
+
+* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument)
+  
+  
+**Optional Arguments:**
+
+* `--help` – show the NF_RCP-F workflow help menu
+* `--skipVV` - skip the automated V&V processes (Default: the automated V&V processes are active) 
+* `--outputDir` - specifies the directory to save the raw and processed data files (Default: files are saved in the launch directory)
+* `--limitSamplesTo` - specifies the number of samples to process (Default: all samples in the GLDS dataset indicated are processed)
+* `--genomeSubsample` - specifies an individual chromosome to use for processing (Default: all chromosomes in the fasta/gtf files are used)
+* `--truncateTo` - specifies the number of reads to download and process for each sample (Default: all reads are used)
+* `--force_single_end` - forces the analysis to use single end processing; for paired end datasets, this means only R1 is used; for single end datasets, this should have no effect
+* `--stageLocal TRUE|FALSE` - TRUE = download the raw reads files for the GLDS dataset indicated, FALSE = disable raw reads download and processing (Default: TRUE)
+* `--ref_order toplevel|primary_assemblyELSEtoplevel` - specifies which Ensembl fasta file to use, toplevel = use the toplevel fasta, primary_assemblyELSEtoplevel = use the primary_assembly fasta if available but if not, use the toplevel fasta (Default: primary_assemblyELSEtoplevel)
+* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
+* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl)
+* `--referenceStorePath` - specifies the directory to store the Ensembl fasta and gtf files (Default: within the directory structure created by default in the launch directory)
+* `--derivedStorePath` - specifies the directory to store the tool-specific indices created during processing (Default: within the directory structure created by default in the launch directory)
+* `--ref_source` - specifies the ensembl database source (e.g. ensembl, ensembl_plants, ensembl_bacteria) when local reference files are used, required when the `--ref_fasta` and/or `--ref_gtf` options are specified
+* `-stub-run` - forces the workflow to use the RSEM `--strandedness none` setting and creates "dummy" gene counts for differential gene expression (DGE) analysis, used in combination with the `--truncateTo` option to avoid V&V errors when evaluating counts and DGE output files during testing 
+
+TODO: Add any optional arguments that are missing
+   
 
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
 
@@ -128,27 +146,29 @@ See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nex
 
 ### 5. Additional Output Files
 
-The output from the Analysis Staging subworkflow, V&V Pipeline subworkflow, and Nextflow specific logs are described here.
-> Note: The outputs from version F of the RNASeq Consensus Pipeline are documented in the current processing protocol, 
-[GL-DPPD-7101-F.md](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md).
+The outputs from the Analysis Staging and V&V Pipeline Subworkflows are described below:
+> Note: The outputs from the RNASeq Consensus Pipeline Subworkflow are documented in the [GL-DPPD-7101-F.md](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md) processing protocol.
 
-1. Analysis Staging Subworkflow
-
-   - Output:
-     - \*_bulkRNASeq_v1_runsheet.csv (a table that include processing parameters and raw reads files location)
-     - \*-ISA.zip (the ISA archive fetched from the GeneLab Data Repository)
-     - \*_metadata_table.txt (a table that includes additional information about the GLDS entry, not used for processing)
-
-1. V&V Pipeline Subworkflow
+**Analysis Staging Subworkflow**
 
    - Output:
-     - VV_Logs/VV_log_final.tsv (A tab-separated values file that includes all V&V flags levels logged)
-     - VV_Logs/VV_log_final_only_issues.tsv (A tab-separated values file that includes V&V flags levels logged with maximum flag codes greater than 20)
-     - VV_Logs/VV_log_verbose_through_VV_RAW_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RAW_READS)
-     - VV_Logs/VV_log_verbose_through_VV_TRIMMED_READS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after TRIMMED_READS)
-     - VV_Logs/VV_log_verbose_through_VV_STAR_ALIGNMENTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after STAR_ALIGNMENTS)
-     - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEQC)
-     - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (A tab-separated values file that includes all V&V flags levels logged, generated after RSEM_COUNTS)
+     - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
+     - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
+     - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
+   
+   
+**V&V Pipeline Subworkflow**
+
+   - Output:
+     - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
+     - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag level >= 30)
+     - VV_Logs/VV_log_verbose_through_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
+     - VV_Logs/VV_log_verbose_through_VV_TRIMMED_READS.tsv (table containing V&V flags through trimmed reads checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags through alignment file checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_RSEQC.tsv (table containing V&V flags through RSeQC file checks ONLY)
+     - VV_Logs/VV_log_verbose_through_VV_RSEM_COUNTS.tsv (table containing V&V flags through RSEM raw count file checks ONLY)
+
+Nextflow resource usage logs are also produced as follows:
 
 1. Nextflow Resource Usage Logs
 TODO: Add logs
