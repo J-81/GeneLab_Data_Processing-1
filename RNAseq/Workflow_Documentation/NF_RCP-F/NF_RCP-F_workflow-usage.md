@@ -39,21 +39,15 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
      
        **V&V Flags**:
 
-       |Flag Codes|Flag Name|Interpretation|
-       |:---------|:--------|:-------------|
-       | 20-29    | GREEN   | Indicates the check passed all validation conditions |
-       | 30-39    | YELLOW  | Indicates the check was flagged for minor issues (e.g. slight outliers) |
-       | 50-59    | RED     | Indicates the check was flagged for moderate issues (e.g. major outliers) |
-       | 80-89    | HALT    | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
-
-<br>
-
 | Flag Name             |Interpretation                  |
 |-----------------------|-------------------------|
 | GREEN                 |Indicates the check passed all validation conditions                         |  
 | YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
 | RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
 | HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
+
+<br>
+
 
 ---
 
