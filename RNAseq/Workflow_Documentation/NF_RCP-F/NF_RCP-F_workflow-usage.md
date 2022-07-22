@@ -87,9 +87,8 @@ chmod -R u+x bin
 ```
 
 ### 4. Run the Workflow
-TODO: Update with most recent parameters/help menu, convert to parameter-input-output format
 
-While in the NF_RCP-F workflow directory, you are now able to run the workflow. Below are two examples of how to run the NF_RCP-F workflow:
+While in the NF_RCP-F workflow directory, you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
 
 **Approach 1: Run the workflow with automatic retrieval of Ensembl reference fasta and gtf files**
