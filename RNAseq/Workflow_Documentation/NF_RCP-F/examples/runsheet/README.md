@@ -4,6 +4,11 @@
 
 1. The RunSheet is a csv file that contains the metadata required for processing bulkRNASeq datasets through GeneLab's processing workflow.
 
+## Examples
+
+1. [Runsheet for GLDS-194](paired_end_runsheet/GLDS-194_bulkRNASeq_v1.csv) (paired end dataset)
+2. [Runsheet for GLDS-48](single_end_runsheet/GLDS-48_bulkRNASeq_v1.csv) (single end dataset)
+
 ## Specific File Usage
 
 1. Used in the Nextflow Workflow to describe metadata required for processing
