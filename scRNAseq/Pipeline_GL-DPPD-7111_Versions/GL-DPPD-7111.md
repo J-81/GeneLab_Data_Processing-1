@@ -278,36 +278,35 @@ STAR --runThreadN <NumberOfThreads> \
   --readFilesCommand zcat \
   --soloCBwhitelist CellBarcodeWhitelist \
   --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
-  --readFilesIn /path/to/reads_from_sample \
-  /path/to/barcode_reads
+  --readFilesIn /path/to/cDNA_reads_file \
+  /path/to/barcode_reads_file
 
 ```
 
 **Parameter Definitions:**
+> Note: Parameters selected to be consistent with the [Cell Ranger] (https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline for 10X Chromium data per the [STARsolo documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#running-starsolo-for-10x-chromium-scrna-seq-data)
 
-- `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
-- `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
-- `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
-- `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
-- `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
-- `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
-- `--outFilterMismatchNmax` - maximum number of mismatches allowed to be included in the alignment output
-- `--outFilterMismatchNoverReadLmax` - ratio of mismatches to read length allowed to be included in the alignment output; the `0.04` value indicates that up to 4 mismatches are allowed per 100 bases
-- `--alignIntronMin` - minimum intron size; a genomic gap is considered an intron if its length is equal to or greater than this value, otherwise it is considered a deletion
-- `--alignIntronMax` - maximum intron size
-- `--alignMatesGapMax` - maximum genomic distance (in bases) between two mates of paired-end reads; this option should be removed for single-end reads
-- `--alignSJoverhangMin` - minimum overhang (i.e. block size) for unannotated spliced alignments
-- `--alignSJDBoverhangMin` - minimum overhang (i.e. block size) for annotated spliced alignments
-- `--sjdbScore` - additional alignment score for alignments that cross database junctions
-- `--readFilesCommand` - specifies command needed to interpret input files; the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
-- `--outSAMtype` - specifies desired output format; the `BAM SortedByCoordinate` options specify that the output file will be sorted by coordinate and be in the bam format
-- `--quantMode` - specifies the type(s) of quantification desired; the `TranscriptomeSAM` option instructs STAR to output a separate sam/bam file containing alignments to the transcriptome and the `GeneCounts` option instructs STAR to output a tab 
-delimited file containing the number of reads per gene
-- `--outSAMheaderHD` - indicates a header line for the sam/bam file
+- `--genomeDir` - specifies the path to the directory where the STAR reference is stored
+- `--soloType CB_UMI_Simple` - Activates the STAR solo algorithm for 10X Chromium data 
+- `--soloCBmatchWLtype` - cell barcode and UMI collapsing parameter, a value of `1MM_multi_Nbase_pseudocounts` is used to get the best agreement between STARsolo and CellRanger 3.x.x
+- `--soloUMIfiltering` - cell barcode and UMI collapsing parameter, a value of `MultiGeneUMI_CR` is used to get the best agreement between STARsolo and CellRanger 3.x.x 
+- `--soloUMIdedup` - cell barcode and UMI collapsing parameter, a value of `1MM_CR` is used to get the best agreement between STARsolo and CellRanger 3.x.x
+- `--soloUMIlen` - barcode length, a value of `12` is used to work for 10X Chromium V3 data
+- `--soloCellFilter` - specifices the type of cell filtering to perform (<ExpectedCells> = number of expected cells), a value of `EmptyDrops_CR <ExpectedCells> 0.99 10 45000 90000 500 0.01 20000 0.01 10000` instructs STAR to use the CellRanger 3.0.0 advanced filtering based on the [EmptyDrop algorithm](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y) 
+- `--soloMultiMappers` - specifies the algorithm used to handle multi-mapped reads, a value of `EM` instructs STAR to use the Maximum Likelihood Estimation (MLE) to distribute multi-gene UMIs among their genes, taking into account other UMIs (both unique- and multi-gene) from the same cell (i.e. with the same CB).
+- `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf) 
+- `--outSAMtype` - specifies desired output format, the `BAM Unsorted` options specify that the output file will be not be sorted and be in the bam format (required to output BAM tags in the BAM file) 
+- `--soloFeatures` - specifies the genomic features collected for the UMI counts per Cell Barcode, the `Gene GeneFull SJ Velocyto` options indicate the folowing:
+    - `Gene` - output gene counts 
+    - `GeneFull` - ouput pre-mRNA counts (useful for single-nucleus RNA-seq), this option counts all reads that overlap gene loci, i.e. including both exonic and intronic reads
+    - `SJ` - output counts for annotated and novel splice junctions
+    - `Gene Velocyto` - output spliced, unspliced, and ambiguous counts per cell per gene, similar to the [velocyto.py](http://velocyto.org/) tool
+- `--readFilesCommand` - specifies command needed to interpret input files, the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
+- `--soloCBwhitelist` - specifies the CellBarcode whitelist file, indicated here as `CellBarcodeWhitelist`, which contains the list of all known barcode sequences that have been included in the assay kit and are available during library preparation
 - `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
-- `--readFilesIn` - path to input read 1 (forward read) and read 2 (reverse read); for paired-end reads, read 1 and read 2 should be separated by a space; for single-end reads only read 1 should be indicated
+- `--readFilesIn` - paths to the input reads files, the first file should contain the cDNA reads and second file should contain the barcode (cell+UMI) reads 
+
 
 **Input Data:**
 
