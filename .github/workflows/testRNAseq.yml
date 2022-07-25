@@ -22,10 +22,11 @@ jobs:
           - "21.10.6"
         # MUST use earlier version affected by this issue: https://github.com/nextflow-io/nextflow/issues/3023  - "latest-everything"
         RUN_PARAMS:
-          - "-profile test48"
-          - "-profile test194"
-          - "-profile test207"
-          - "-profile test251"
+          - "-profile test48,singularity"
+          - "-profile test194,singularity"
+          - "-profile test207,singularity"
+          - "-profile test251,singularity"
+          - "-profile test48,docker" # Test docker runtime
     ## TODO: Set up tracking via tower for tests
     #environment: Nextflow_Tower
     #env:
@@ -47,5 +48,5 @@ jobs:
         run: |
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
-                  -name "GH_CI_$(date '+%s')" -ansi-log false -executor.singularity.enabled true \
+                  -name "GH_CI_$(date '+%s')" -ansi-log false  \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; } 
