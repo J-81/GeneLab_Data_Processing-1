@@ -44,7 +44,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
 |STRINGdb|2.8.4|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
 |PANTHER.db|1.0.11|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
-|rtracklayer|1.56.0|[https://bioconductor.org/packages/release/bioc/html/rtracklayer.html](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
+|rtracklayer|1.56.1|[https://bioconductor.org/packages/release/bioc/html/rtracklayer.html](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
 |org.Hs.eg.db|3.15.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html)|
 |org.Mm.eg.db|3.15.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html)|
 |org.Rn.eg.db|3.15.0|[https://bioconductor.org/packages/release/data/annotation/html/org.Rn.eg.db.html](https://bioconductor.org/packages/release/data/annotation/html/org.Rn.eg.db.html)
