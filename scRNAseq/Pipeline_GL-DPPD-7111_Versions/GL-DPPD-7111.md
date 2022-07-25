@@ -351,17 +351,24 @@ of mapped reads etc.)
       - features.tsv (table containing all gene IDs and symbols)
       - matrix.mtx (table containing the unique-gene UMI raw counts)
       - UniqueAndMult-EM.mtx (table containing the sum of unique+multi-gene UMI counts)
-  - /SJ (sub-directory containing the following:)
+  - /SJ (sub-directory containing the following outputs using the `SJ` soloFeatures setting:)
+     > Note: All files in the `/SJ` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `SJ.zip` file for each respective GLDS dataset.
+    - Features.stats (quantitated features statistics)
+    - Summary.csv (table contining summary statistics for filtered cells)
+    - /raw (sub-directory containing output files for raw, unfiltered, expression data)
+      - barcodes.tsv (table containing all barcodes processed)
+      - features.tsv (table containing all gene IDs and symbols)
+      - matrix.mtx (table containing the raw counts for annotated and novel splice junctions)
   - /Velocyto (sub-directory containing the following:)
-  
-- *_STARgenome (directory containing the following:)
-  - sjdbInfo.txt
-  - sjdbList.out.tab
-- *_STARpass1 (directory containing the following:)
-  - Log.final.out
-  - SJ.out.tab
-- *_STARtmp (directory created to store temporary files during alignment)
-
+    > Note: All files in the `/Velocyto` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `Velocyto.zip` file for each respective GLDS dataset.
+    - Features.stats (quantitated features statistics)
+    - Summary.csv (table contining summary statistics for filtered cells)
+    - /raw (sub-directory containing output files for raw, unfiltered, expression data)
+      - barcodes.tsv (table containing all barcodes processed)
+      - features.tsv (table containing all gene IDs and symbols)
+      - ambiguous.mtx (table containing the raw ambiguous counts per cell per gene)
+      - spliced.mtx (table containing the raw spliced counts per cell per gene)
+      - unspliced.mtx (table containing the raw unspliced counts per cell per gene)
 
 <br>
 
