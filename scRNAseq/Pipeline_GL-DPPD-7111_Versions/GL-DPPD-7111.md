@@ -284,7 +284,7 @@ STAR --runThreadN <NumberOfThreads> \
 ```
 
 **Parameter Definitions:**
-> Note: Parameters selected to be consistent with the [Cell Ranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline for 10X Chromium data per the [STARsolo documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#running-starsolo-for-10x-chromium-scrna-seq-data)
+> Note: Parameters selected to be consistent with the [Cell Ranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline for 10X Chromium data per the [STARsolo documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#running-starsolo-for-10x-chromium-scrna-seq-data) are indicated
 
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
