@@ -44,18 +44,33 @@ process VV_RAW_READS {
 }
 
 process VV_TRIMMED_READS {
-  publishDir "${ params.RootDirForVV }/VV_Logs",
+  publishDir "${ params.outputDir }/${ params.gldsAccession }",
+    pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+  // V&V'ed data publishing
+  publishDir "${ params.outputDir }/${ params.gldsAccession }",
+    pattern: '01-TG_Preproc',
+    mode: params.publish_dir_mode
 
   label 'VV'
 
   input:
-    path("NULL") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
-    path("VV_in.tsv")
+    path("VV_INPUT/Metadata/*")
+    path("VV_INPUT/00-RawData/Fastq/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/00-RawData/FastQC_Reports/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/00-RawData/FastQC_Reports/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/01-TG_Preproc/Fastq/*")
+    path("VV_INPUT/01-TG_Preproc/FastQC_Reports/*")
+    path("VV_INPUT/01-TG_Preproc/FastQC_Reports/*")
+    path("VV_INPUT/01-TG_Preproc/Trimming_Reports/*")
 
   output:
-    path("VV_log.tsv")
+    path("01-TG_Preproc/Fastq"), emit: VVed_trimmed_reads
+    path("01-TG_Preproc/FastQC_Reports/*{_fastqc.html,_fastqc.zip}"), emit: VVed_trimmed_fastqc
+    path("01-TG_Preproc/FastQC_Reports/trimmed_multiqc_report.zip"), emit: VVed_trimmed_multiqc_report
+    path("01-TG_Preproc/Trimming_Reports/*_raw.fastq.gz_trimming_report.txt"), emit: VVed_trimming_reports
+    path("VV_log.tsv"), optional: params.skipVV, emit: log
 
   script:
     """
@@ -70,27 +85,50 @@ process VV_TRIMMED_READS {
     """
 }
 
-
 process VV_STAR_ALIGNMENTS {
-  publishDir "${ params.RootDirForVV }/VV_Logs",
+  publishDir "${ params.outputDir }/${ params.gldsAccession }",
+    pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+  // V&V'ed data publishing
+  publishDir "${ params.outputDir }/${ params.gldsAccession }",
+    pattern: '02-STAR_Alignment',
+    mode: params.publish_dir_mode
 
   label 'VV'
 
   input:
-    path("NULL") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
-    path("VV_in.tsv")
+    path("VV_INPUT/Metadata/*")
+    path("VV_INPUT/00-RawData/Fastq/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/00-RawData/FastQC_Reports/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/00-RawData/FastQC_Reports/*") // While files from processing are staged, we instead want to use the files located in the publishDir for QC
+    path("VV_INPUT/01-TG_Preproc/Fastq/*")
+    path("VV_INPUT/01-TG_Preproc/FastQC_Reports/*")
+    path("VV_INPUT/01-TG_Preproc/FastQC_Reports/*")
+    path("VV_INPUT/01-TG_Preproc/Trimming_Reports/*")
+    path("VV_INPUT/02-STAR_Alignment/*") // direct STAR alignment output
+    path("VV_INPUT/02-STAR_Alignment/*") // STAR alignment counts tables
+    path("VV_INPUT/02-STAR_Alignment/*") //  
+    path("VV_INPUT/02-STAR_Alignment/*") //
 
   output:
-    path("VV_log.tsv")
+    path("02-STAR_Alignment/*")
+    path("VV_log.tsv"), optional: params.skipVV, emit: log
 
   script:
     """
-    star_alignments_VV.py --root-path ${ params.RootDirForVV } --accession ${ params.gldsAccession }
-    """
-}
+    # move from VV_INPUT to task directory
+    # This allows detection as output files for publishing
+    mv VV_INPUT/* .
+    sort_into_subdirectories_by_sample.py 02-STAR_Alignment 02-STAR_Alignment
 
+    # Run V&V unless user requests to skip V&V
+    if ${ !params.skipVV} ; then
+      star_alignments_VV.py --root-path . --accession ${ params.gldsAccession }
+    fi
+    """
+
+}
 process VV_RSEQC {
   publishDir "${ params.RootDirForVV }/VV_Logs",
     mode: params.publish_dir_mode,
