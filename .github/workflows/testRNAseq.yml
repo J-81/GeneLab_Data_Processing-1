@@ -23,10 +23,10 @@ jobs:
         # MUST use earlier version affected by this issue: https://github.com/nextflow-io/nextflow/issues/3023  - "latest-everything"
         RUN_PARAMS:
           - "-profile test48,singularity"
+          - "-profile test48,docker" # Test docker runtime
           - "-profile test194,singularity"
           - "-profile test207,singularity"
           - "-profile test251,singularity"
-          - "-profile test48,docker" # Test docker runtime
     ## TODO: Set up tracking via tower for tests
     #environment: Nextflow_Tower
     #env:
