@@ -88,7 +88,7 @@ We recommend installing Singularity on a system wide level as per the associated
 ### 2. Download the Workflow Files
 
 All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
-copy of latest NF_RCP-F version on to your system, copy the github web address of the [latest NF_RCP-F version](NF_RCP-F/workflow_code/NF_RCP-F_1.0.0), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
+copy of latest NF_RCP-F version on to your system, copy the github web address of the [latest NF_RCP-F version](workflow_code/NF_RCP-F_1.0.0), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download:
 
 TODO: Update image when we have the official NASA GitHub link - alternatively create script that can be run to do this automatically
 <p align="center">
