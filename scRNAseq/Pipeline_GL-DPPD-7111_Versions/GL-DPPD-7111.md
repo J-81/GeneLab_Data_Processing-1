@@ -264,22 +264,22 @@ STAR genome reference, which consists of the following files:
 
 ```bash
 STAR --runThreadN <NumberOfThreads> \
- --genomeDir /path/to/STAR/genome/directory \
- --soloType CB_UMI_Simple \ # Used for 10X Chromium data 
- --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
- --soloUMIfiltering MultiGeneUMI_CR \
- --soloUMIdedup 1MM_CR \
- --soloUMIlen 12 \
- --soloCellFilter EmptyDrops_CR <ExpectedCells> 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \
- --soloMultiMappers EM \
- --outSAMattributes NH HI nM AS CR UR GX GN sS sQ sM \
- --outSAMtype BAM Unsorted \
- --soloFeatures Gene GeneFull SJ Velocyto \
- --readFilesCommand zcat \
- --soloCBwhitelist CellBarcodeWhitelist \
- --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
- --readFilesIn /path/to/reads_from_sample \
- /path/to/barcode_reads
+  --genomeDir /path/to/STAR/genome/directory \
+  --soloType CB_UMI_Simple \ # Used for 10X Chromium data 
+  --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+  --soloUMIfiltering MultiGeneUMI_CR \
+  --soloUMIdedup 1MM_CR \
+  --soloUMIlen 12 \
+  --soloCellFilter EmptyDrops_CR <ExpectedCells> 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \
+  --soloMultiMappers EM \
+  --outSAMattributes NH HI nM AS CR UR GX GN sS sQ sM \
+  --outSAMtype BAM Unsorted \
+  --soloFeatures Gene GeneFull SJ Velocyto \
+  --readFilesCommand zcat \
+  --soloCBwhitelist CellBarcodeWhitelist \
+  --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
+  --readFilesIn /path/to/reads_from_sample \
+  /path/to/barcode_reads
 
 ```
 
