@@ -6,7 +6,7 @@
 
 **Date:** July XX, 2022  
 **Revision:** -  
-**Document Number:** GL-DPPD-71XX  
+**Document Number:** GL-DPPD-7110  
 
 **Submitted by:**  
 Mike Lee (GeneLab Data Processing Team)
@@ -58,7 +58,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # Annotation table build overview with example commands  
 
-> Current GeneLab annotation tables are available on [figshare](https://figshare.com/), exact links for each reference organism are provided in the [GL-DPPD-71XX_annotations.csv](GL-DPPD-71XX_annotations.csv) file.
+> Current GeneLab annotation tables are available on [figshare](https://figshare.com/), exact links for each reference organism are provided in the [GL-DPPD-7110_annotations.csv](GL-DPPD-7110_annotations.csv) file.
 
 ---
 
@@ -161,7 +161,7 @@ wanted_keys_vec <- c("SYMBOL", "GENENAME", "REFSEQ", "ENTREZID")
 ## Define links to tables containing species-specific annotation info ##
 
 ref_tab_link <-
-    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_annotations.csv"
+    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
 
 ```
 
