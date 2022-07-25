@@ -2,7 +2,7 @@
 
 # Maintained by Mike Lee 
 # GeneLab script for generating organism ENSEMBLE annotation tables
-# Example usage: Rscript build-genome-annots-tab.R MOUSE
+# Example usage: Rscript GL-DPPD-7110_build-genome-annots-tab.R MOUSE
 
 #########################################################################
 ############### Pull In and Check Command Line Arguments ################
