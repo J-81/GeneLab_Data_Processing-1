@@ -263,29 +263,23 @@ STAR genome reference, which consists of the following files:
 ### 4a. Align Reads to Reference Genome with STARsolo
 
 ```bash
-STAR --twopassMode Basic \
- --limitBAMsortRAM 65000000000 \
+STAR --runThreadN <NumberOfThreads> \
  --genomeDir /path/to/STAR/genome/directory \
- --outSAMunmapped Within \
- --outFilterType BySJout \
- --outSAMattributes NH HI AS NM MD MC \
- --outFilterMultimapNmax 20 \
- --outFilterMismatchNmax 999 \
- --outFilterMismatchNoverReadLmax 0.04 \
- --alignIntronMin 20 \
- --alignIntronMax 1000000 \
- --alignMatesGapMax 1000000 \ # for PE only
- --alignSJoverhangMin 8 \
- --alignSJDBoverhangMin 1 \
- --sjdbScore 1 \
+ --soloType CB_UMI_Simple \ # Used for 10X Chromium data 
+ --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+ --soloUMIfiltering MultiGeneUMI_CR \
+ --soloUMIdedup 1MM_CR \
+ --soloUMIlen 12 \
+ --soloCellFilter EmptyDrops_CR <ExpectedCells> 0.99 10 45000 90000 500 0.01 20000 0.01 10000 \
+ --soloMultiMappers EM \
+ --outSAMattributes NH HI nM AS CR UR GX GN sS sQ sM \
+ --outSAMtype BAM Unsorted \
+ --soloFeatures Gene GeneFull SJ Velocyto \
  --readFilesCommand zcat \
- --runThreadN NumberOfThreads \
- --outSAMtype BAM SortedByCoordinate \
- --quantMode TranscriptomeSAM GeneCounts \
- --outSAMheaderHD @HD VN:1.4 SO:coordinate \
+ --soloCBwhitelist CellBarcodeWhitelist \
  --outFileNamePrefix /path/to/STAR/output/directory/<sample_id> \
- --readFilesIn /path/to/trimmed_forward_reads \
- /path/to/trimmed_reverse_reads # only needed for PE studies
+ --readFilesIn /path/to/reads_from_sample \
+ /path/to/barcode_reads
 
 ```
 
