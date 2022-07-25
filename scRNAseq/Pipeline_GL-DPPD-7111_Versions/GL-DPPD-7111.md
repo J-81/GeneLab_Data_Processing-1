@@ -284,7 +284,7 @@ STAR --runThreadN <NumberOfThreads> \
 ```
 
 **Parameter Definitions:**
-> Note: Parameters selected to be consistent with the [Cell Ranger] (https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline for 10X Chromium data per the [STARsolo documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#running-starsolo-for-10x-chromium-scrna-seq-data)
+> Note: Parameters selected to be consistent with the [Cell Ranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline for 10X Chromium data per the [STARsolo documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#running-starsolo-for-10x-chromium-scrna-seq-data)
 
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
@@ -315,22 +315,53 @@ STAR --runThreadN <NumberOfThreads> \
 
 **Output Data:**
 
-- *Aligned.sortedByCoord.out.bam (sorted mapping to genome)
-- *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
+- *Aligned.bam\# (binary sequence alignment map with reads mapping to the genome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
-- *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand 
-aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
-- *Log.out
-- *Log.progress.out
+- *Log.out (main log file containint detailed info about the STAR run)
+- *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, %
+of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
+- *Solo.out (directory containing the following:)
+  - Barcodes.stats\# (barcode statistics)
+  - /Gene\# (sub-directory containing the following outputs using the `Gene` soloFeatures setting:)
+    > Note: All files in the `/Gene` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `Gene.zip` file for each respective GLDS dataset.
+    - Features.stats (quantitated features statistics)
+    - Summary.csv (table contining summary statistics for filtered cells)
+    - UMIperCellSorted.txt (list of the number of UMIs per cell sorted)
+    - /filtered (sub-directory containing output files for filtered expression data)
+      - barcodes.tsv (table containing remaining barcodes after filtering)
+      - features.tsv (table containing remaining gene IDs and symbols after filtering)
+      - matrix.mtx (table containing the unique-gene UMI filtered counts)
+    - /raw (sub-directory containing output files for raw, unfiltered, expression data)
+      - barcodes.tsv (table containing all barcodes processed)
+      - features.tsv (table containing all gene IDs and symbols)
+      - matrix.mtx (table containing the unique-gene UMI raw counts)
+      - UniqueAndMult-EM.mtx (table containing the sum of unique+multi-gene UMI counts)
+  - /GeneFull (sub-directory containing the following outputs using the `GeneFull` soloFeatures setting:)
+     > Note: All files in the `/GeneFull` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `GeneFull.zip` file for each respective GLDS dataset.
+    - Features.stats (quantitated features statistics)
+    - Summary.csv (table contining summary statistics for filtered cells)
+    - UMIperCellSorted.txt (list of the number of UMIs per cell sorted)
+    - /filtered (sub-directory containing output files for filtered expression data)
+      - barcodes.tsv (table containing remaining barcodes after filtering)
+      - features.tsv (table containing remaining gene IDs and symbols after filtering)
+      - matrix.mtx (table containing the unique-gene UMI filtered counts)
+    - /raw (sub-directory containing output files for raw, unfiltered, expression data)
+      - barcodes.tsv (table containing all barcodes processed)
+      - features.tsv (table containing all gene IDs and symbols)
+      - matrix.mtx (table containing the unique-gene UMI raw counts)
+      - UniqueAndMult-EM.mtx (table containing the sum of unique+multi-gene UMI counts)
+  - /SJ (sub-directory containing the following:)
+  - /Velocyto (sub-directory containing the following:)
+  
 - *_STARgenome (directory containing the following:)
   - sjdbInfo.txt
   - sjdbList.out.tab
 - *_STARpass1 (directory containing the following:)
   - Log.final.out
   - SJ.out.tab
-- *_STARtmp (directory containing the following:)
-  - BAMsort (directory containing subdirectories that are empty – this was the location for temp files that were automatically removed after successful completion)
+- *_STARtmp (directory created to store temporary files during alignment)
+
 
 <br>
 
