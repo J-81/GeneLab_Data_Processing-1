@@ -72,7 +72,7 @@ Rscript GL-DPPD-7110_build-genome-annots-tab.R MOUSE
 
 - No input files required, but a target organism must be specified as a positional command line argument, `MOUSE` is used in the example above. Current possible arguments include: MOUSE | HUMAN | ARABIDOPSIS | FLY | RAT | BACSU | WORM | ZEBRAFISH | ECOLI | YEAST
 
-**Pipeline Output data:**
+**Output data:**
 
 - *-GL-annotations.tsv (Tab delineated table of gene annotations)
 - *-GL-build-info.txt (Text file containing information used to create the annotation table, including tool and tool versions and date of creation)
