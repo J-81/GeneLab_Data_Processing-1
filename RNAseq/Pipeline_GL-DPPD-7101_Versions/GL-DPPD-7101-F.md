@@ -21,7 +21,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous version
 
-Updated [Ensembl Reference Files](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_annotations.csv) now use:
+Updated [Ensembl Reference Files](../../GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) now use:
 - Animals: Ensembl release 101 (current: 107)
 - Plants: Ensembl plants release 48 (current: 54)
 - Bacteria: Ensembl bacteria release 48 (current: 54)
@@ -30,7 +30,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 
 - A separate sub-step, [step 9a](#9a-create-sample-runsheet), was added to use the [dp_tools](https://github.com/J-81/dp_tools) program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
 
-- GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version GL-DPPD-71XX](https://github.com/asaravia-butler/GeneLab_Data_Processing/tree/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX) is now imported in the DESeq2 script to add gene annotations in [step 9f](#9f-prepare-genelab-dge-tables-with-annotations-on-datasets-with-ercc-spike-in) and [step 9i](#9i-prepare-genelab-dge-tables-with-annotations-on-datasets-without-ercc-spike-in). 
+- GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version GL-DPPD-7110](https://github.com/asaravia-butler/GeneLab_Data_Processing/tree/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110) is now imported in the DESeq2 script to add gene annotations in [step 9f](#9f-prepare-genelab-dge-tables-with-annotations-on-datasets-with-ercc-spike-in) and [step 9i](#9i-prepare-genelab-dge-tables-with-annotations-on-datasets-without-ercc-spike-in). 
 
 - Added the `ERCCnorm_SampleTable.csv` output file in [step 9g](#9g-export-genelab-dge-tables-with-annotations-for-datasets-with-ercc-spike-in) to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
   > Note: In most cases, the ERCCnorm_SampleTable.csv and SampleTable.csv files are the same. They will only differ when, for the ERCC-based analysis, samples are removed due to a lack of detectable Group B ERCC spike-in genes.
@@ -1034,10 +1034,10 @@ DGE_output="/path/to/DGE/output/directory"
 DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed for datasets with ERCC spike-in
 
 
-### Pull in the GeneLab annotation table (GL-DPPD-71XX) organisms.csv file ###
+### Pull in the GeneLab annotation table (GL-DPPD-7110) organisms.csv file ###
 
 ###### TODO: CHANGE THIS TO OFFICIAL NASA GITHUB
-org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv"
+org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_organisms.csv"
 
 org_table <- read.table(org_table_link, sep = ",", header = TRUE)
 
@@ -1840,7 +1840,7 @@ sessionInfo()
 **Input Data:**
 
 - *runsheet.csv file (table containing metadata required for analysis, output from [step 9a](#9a-create-sample-runsheet))
-- [GL-DPPD-71XX_annotations.csv](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_annotations.csv) (csv file containing link to GeneLab annotations) 
+- [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 
