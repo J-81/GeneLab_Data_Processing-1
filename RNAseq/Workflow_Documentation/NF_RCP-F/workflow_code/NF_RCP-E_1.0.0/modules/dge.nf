@@ -18,7 +18,7 @@ process DGE_BY_DESEQ2 {
     path("Rsem_gene_counts/*")
     val(meta)
     path(annotation_file)
-    path("dge_annotation_R_scripts")
+    path("dge_annotation_R_scripts.zip")
 
   output:
     tuple path("norm_counts_output/Normalized_Counts.csv"),
@@ -41,6 +41,9 @@ process DGE_BY_DESEQ2 {
 
   script:
     """
+    # Unzip r scripts
+    unzip dge_annotation_R_scripts.zip
+
     Rscript --vanilla dge_annotation_R_scripts/dge_annotation_workflow.R \\
         --runsheet_path runsheet.csv \\
         ${ params.use_dummy_gene_counts ? '--DEBUG_MODE_ADD_DUMMY_COUNTS' : ''} \\

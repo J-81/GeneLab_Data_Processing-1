@@ -182,6 +182,8 @@ workflow {
 
       TRIMGALORE.out.reads | combine( BUILD_STAR.out.build ) | ALIGN_STAR
 
+      TRIMMED_MULTIQC( ch_samples_txt, trim_mqc_ch, ch_multiqc_config ) // refering to the trimmed reads
+
       STRANDEDNESS ( ALIGN_STAR.out.bam_by_coord, REFERENCES.out.genome_bed, ch_samples_txt ) 
       STRANDEDNESS.out.strandedness | map { it.text.split(":")[0] } | set { strandedness_ch }
 
@@ -205,8 +207,18 @@ workflow {
       QUANTIFY_RSEM_GENES( ch_samples_txt, rsem_ch )
 
       organism_ch = channel.fromPath( params.organismCSV )
+      
+      // Note: This is loaded as a zip file to ensure correct caching (directories don't seem to yield identical hases)
+      ch_r_scripts = channel.fromPath( "${ projectDir }/bin/dge_annotation_R_scripts.zip" ) 
+      ch_annotation_path = channel.fromPath( params.annotation_path )
 
-      DGE_BY_DESEQ2( STAGING.out.runsheet, organism_ch, COUNT_ALIGNED.out.gene_counts | collect, ch_meta, params.annotation_path, "${ workflow.projectDir }/bin/dge_annotation_R_scripts")
+      DGE_BY_DESEQ2(STAGING.out.runsheet, 
+                    organism_ch, 
+                    COUNT_ALIGNED.out.gene_counts | toSortedList, 
+                    ch_meta, 
+                    ch_annotation_path, 
+                    ch_r_scripts
+                    )
 
 
     }
@@ -221,7 +233,6 @@ workflow {
 
 
       // ALL MULTIQC
-      TRIMMED_MULTIQC( ch_samples_txt, trim_mqc_ch, ch_multiqc_config ) // refering to the trimmed reads
       TRIM_MULTIQC( ch_samples_txt, TRIMGALORE.out.reports | collect, ch_multiqc_config ) // refering to the trimming process
       ALIGN_MULTIQC( ch_samples_txt, align_mqc_ch, ch_multiqc_config )
       COUNT_MULTIQC( ch_samples_txt, rsem_ch, ch_multiqc_config )
