@@ -1,6 +1,6 @@
 # GeneLab Reference Annotation Table (GL_RefAnnotTable) Workflow Information
 
-> **GeneLab has wrapped each step of the Reference Annotation Table pipeline into an R workflow. The table below lists (and links to) each GL_RefAnnotTable version and the corresponding workflow subdirectory, the current RCP/workflow implementation is indicated. Each workflow subdirectory contains information about the workflow along with instructions for installation and usage.**  
+> **GeneLab has wrapped each step of the Reference Annotation Table pipeline into an R workflow. The table below lists (and links to) each GL_RefAnnotTable version and the corresponding workflow subdirectory, the current GL_RefAnnotTable/workflow implementation is indicated. Each workflow subdirectory contains information about the workflow along with instructions for installation and usage.**  
 
 ## RCP Version and Corresponding Workflow
 
