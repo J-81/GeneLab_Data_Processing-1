@@ -389,8 +389,8 @@ STAR --twopassMode Basic \
 - *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
 - *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
-- *Log.out
-- *Log.progress.out
+- *Log.out (main log file containint detailed info about the STAR run)
+- *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, % of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
 - *_STARgenome (directory containing the following:)
   - sjdbInfo.txt
