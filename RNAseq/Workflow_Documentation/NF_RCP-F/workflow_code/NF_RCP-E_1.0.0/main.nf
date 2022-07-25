@@ -150,14 +150,6 @@ workflow {
                             | unique
                             | collect
                             | set { raw_mqc_ch }
-
-      RAW_MULTIQC( ch_samples_txt, raw_mqc_ch, ch_multiqc_config  )
-
-      VV_RAW_READS( STAGING.out.runsheet,
-                    ch_all_raw_reads,
-                    RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
-                    RAW_MULTIQC.out.zipped_report,
-                  )
       RAW_FASTQC.out.fastqc | map { it -> [ it[2] ] }
                             | flatten
                             | GET_MAX_READ_LENGTH
@@ -182,7 +174,6 @@ workflow {
 
       TRIMGALORE.out.reads | combine( BUILD_STAR.out.build ) | ALIGN_STAR
 
-      TRIMMED_MULTIQC( ch_samples_txt, trim_mqc_ch, ch_multiqc_config ) // refering to the trimmed reads
 
       STRANDEDNESS ( ALIGN_STAR.out.bam_by_coord, REFERENCES.out.genome_bed, ch_samples_txt ) 
       STRANDEDNESS.out.strandedness | map { it.text.split(":")[0] } | set { strandedness_ch }
@@ -207,7 +198,7 @@ workflow {
       QUANTIFY_RSEM_GENES( ch_samples_txt, rsem_ch )
 
       organism_ch = channel.fromPath( params.organismCSV )
-      
+
       // Note: This is loaded as a zip file to ensure correct caching (directories don't seem to yield identical hases)
       ch_r_scripts = channel.fromPath( "${ projectDir }/bin/dge_annotation_R_scripts.zip" ) 
       ch_annotation_path = channel.fromPath( params.annotation_path )
@@ -220,6 +211,25 @@ workflow {
                     ch_r_scripts
                     )
 
+      // ALL MULTIQC
+      RAW_MULTIQC( ch_samples_txt, raw_mqc_ch, ch_multiqc_config  )
+      TRIMMED_MULTIQC( ch_samples_txt, trim_mqc_ch, ch_multiqc_config ) // refering to the trimmed reads
+      TRIM_MULTIQC( ch_samples_txt, TRIMGALORE.out.reports | collect, ch_multiqc_config ) // refering to the trimming process
+      ALIGN_MULTIQC( ch_samples_txt, align_mqc_ch, ch_multiqc_config )
+      COUNT_MULTIQC( ch_samples_txt, rsem_ch, ch_multiqc_config )
+      raw_mqc_ch | concat( trim_mqc_ch ) 
+                 | concat( ALIGN_STAR.out.alignment_logs ) 
+                 | concat( STRANDEDNESS.out.rseqc_logs )
+                 | concat( rsem_ch )
+                 | concat( TRIMGALORE.out.reports )
+                 | collect | set { all_mqc_ch }
+      ALL_MULTIQC( ch_samples_txt, all_mqc_ch, ch_multiqc_config )
+
+      VV_RAW_READS( STAGING.out.runsheet,
+                    ch_all_raw_reads,
+                    RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
+                    RAW_MULTIQC.out.zipped_report,
+                  )
 
     }
       /*
@@ -232,17 +242,7 @@ workflow {
 
 
 
-      // ALL MULTIQC
-      TRIM_MULTIQC( ch_samples_txt, TRIMGALORE.out.reports | collect, ch_multiqc_config ) // refering to the trimming process
-      ALIGN_MULTIQC( ch_samples_txt, align_mqc_ch, ch_multiqc_config )
-      COUNT_MULTIQC( ch_samples_txt, rsem_ch, ch_multiqc_config )
-      raw_mqc_ch | concat( trim_mqc_ch ) 
-                 | concat( ALIGN_STAR.out.alignment_logs ) 
-                 | concat( STRANDEDNESS.out.rseqc_logs )
-                 | concat( rsem_ch )
-                 | concat( TRIMGALORE.out.reports )
-                 | collect | set { all_mqc_ch }
-      ALL_MULTIQC( ch_samples_txt, all_mqc_ch, ch_multiqc_config )
+
 
       // Software Version Capturing
       nf_version = "Nextflow Version:".concat("${nextflow.version}\n<><><>\n")
