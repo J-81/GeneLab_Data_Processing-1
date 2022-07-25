@@ -66,7 +66,7 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
 Nextflow can be installed either through [Anaconda](https://anaconda.org/bioconda/nextflow) or as documented on the [Nextflow documentation page](https://www.nextflow.io/docs/latest/getstarted.html).
 
-> Note: If you need to install Anaconda, we recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
+> Note: If you want to install Anaconda, we recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
 > 
 > Once conda is installed on your system, you can install the latest version of Nextflow by running the following commands:
 > 
