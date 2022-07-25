@@ -274,7 +274,6 @@ workflow {
                            | collectFile(name: "software_versions.txt", newLine: true, cache: false)
 			   | set{ch_final_software_versions}
 
-      /*
       // VV processes
         
       VV_CONCAT_FILTER( VV_RAW_READS.out.log | mix(VV_TRIMMED_READS.out.log) | collect )
