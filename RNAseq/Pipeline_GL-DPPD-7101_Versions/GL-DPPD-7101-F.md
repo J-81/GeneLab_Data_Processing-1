@@ -974,7 +974,7 @@ sessionInfo()
 > Note: Rather than running the command below to create the runsheet needed for processing, the runsheet may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
 
 ```bash
-dpt-isa-to-runsheet --accession GLDS-XXX \
+dpt-isa-to-runsheet --accession GLDS-### \
  --config-type bulkRNASeq \
  --isa-archive /path/to/*ISA.zip
 ```
