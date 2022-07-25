@@ -41,7 +41,7 @@ jobs:
           version: "${{ matrix.NXF_VER }}"
 
       - name: Install Singularity
-        run: conda install singularity -y
+        run: conda install -c conda-forge singularity -y
 
       - name: Run pipeline with test data
         run: |
