@@ -21,7 +21,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous version
 
-Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-F_ensembl_refs.csv) now used:
+Updated [Ensembl Reference Files](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_annotations.csv) now use:
 - Animals: Ensembl release 101 (current: 107)
 - Plants: Ensembl plants release 48 (current: 54)
 - Bacteria: Ensembl bacteria release 48 (current: 54)
