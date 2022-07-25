@@ -232,19 +232,28 @@ workflow {
                     RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
                     RAW_MULTIQC.out.zipped_report,
                   )
-
-    }
-      /*
-      STAGING.out.runsheet
-      STAGING.out.raw_reads | set { raw_reads_ch }
-      // meta only for dataset specific processes that don't use samples
-      // e.g. downloading correct reference genome base on organism
-
-
-
-
-
-
+      VV_TRIMMED_READS( STAGING.out.runsheet,
+                        ch_all_raw_reads,
+                        RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
+                        RAW_MULTIQC.out.zipped_report,
+                        TRIMGALORE.out.reads | map { it -> it[1] } | flatten | collect,
+                        TRIMMED_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
+                        TRIMMED_MULTIQC.out.zipped_report,
+                        TRIMGALORE.out.reports | collect,
+                      )
+      VV_STAR_ALIGNMENTS( STAGING.out.runsheet,
+                          ch_all_raw_reads,
+                          RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
+                          RAW_MULTIQC.out.zipped_report,
+                          TRIMGALORE.out.reads | map { it -> it[1] } | flatten | collect,
+                          TRIMMED_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
+                          TRIMMED_MULTIQC.out.zipped_report,
+                          TRIMGALORE.out.reports | collect,
+                          ALIGN_STAR.out.publishables | collect,
+                          QUANTIFY_STAR_GENES.out.publishables | collect,
+                          ALIGN_MULTIQC.out.zipped_report,
+                          STRANDEDNESS.out.bam_bed | collect
+                      )
 
       // Software Version Capturing
       nf_version = "Nextflow Version:".concat("${nextflow.version}\n<><><>\n")
@@ -267,34 +276,25 @@ workflow {
 
       /*
       // VV processes
-      if ( !params.skipVV ) {
-        VV_RAW_READS( STAGING.out.raw_reads | collect )
         
-        VV_CONCAT_FILTER( 
-          ch_vv_log_01 | mix(
-                        ch_vv_log_02,
-                        ch_vv_log_03,
-                        ch_vv_log_04,
-                        ch_vv_log_05,
-                        ch_vv_log_06
-                      ) | collect
-
-        )
+      VV_CONCAT_FILTER( VV_RAW_READS.out.log | mix(VV_TRIMMED_READS.out.log) | collect )
         
-        // GeneLab post processing
-        if (!params.runsheetPath) {
-          POST_PROCESSING(STAGING.out.runsheet, ch_vv_log_06, STAGING.out.metasheet) // Penultimate process when V&V enabled is the last V&V process
-        }
-      } else {
-        if (!params.runsheetPath) {
-          POST_PROCESSING(STAGING.out.runsheet, Channel.value("NO VV, last output is software versions"), STAGING.out.metasheet)
-        }
-      */
-      // }
+      // VV_CONCAT_FILTER( 
+      //   ch_vv_log_01 | mix(
+      //                 ch_vv_log_02,
+      //                 ch_vv_log_03,
+      //                 ch_vv_log_04,
+      //                 ch_vv_log_05,
+      //                 ch_vv_log_06
+      //               ) | collect
+        
+      if (!params.runsheetPath) {
+        // POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
+      }
 
       // Generate final versions output
-      // SOFTWARE_VERSIONS(ch_final_software_versions)
-    // }
+      SOFTWARE_VERSIONS(ch_final_software_versions)
+    }
 }
 
 workflow.onComplete {
