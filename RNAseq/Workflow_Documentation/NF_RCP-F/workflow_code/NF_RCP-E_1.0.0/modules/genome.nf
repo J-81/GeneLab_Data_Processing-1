@@ -60,9 +60,6 @@ process ALIGN_STAR {
   // Aligns reads against STAR index
   // TODO: make '--alignMatesGapMax 1000000' conditional on PE
   tag "Sample: ${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/02-STAR_Alignment",
-    mode: params.publish_dir_mode,
-    pattern: "${ meta.id }/${ meta.id }*"
   label 'maxCPU'
   label 'big_mem'
 
@@ -191,9 +188,6 @@ process QUANTIFY_RSEM_GENES {
 }
 
 process QUANTIFY_STAR_GENES {
-  // An R script that extracts gene counts by sample to a table
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/02-STAR_Alignment",
-    mode: params.publish_dir_mode
 
   input:
     path("samples.txt")
@@ -201,7 +195,7 @@ process QUANTIFY_STAR_GENES {
     val(strandedness)
 
   output:
-    tuple path("STAR_Unnormalized_Counts.csv"), path("STAR_NumNonZeroGenes.csv")
+    tuple path("STAR_Unnormalized_Counts.csv"), path("STAR_NumNonZeroGenes.csv"), emit: publishables
 
   script:
     """
