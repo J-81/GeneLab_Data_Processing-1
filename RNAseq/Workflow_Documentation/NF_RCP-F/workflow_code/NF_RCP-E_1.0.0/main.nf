@@ -5,14 +5,14 @@ c_bright_green = "\u001b[32;1m";
 c_blue = "\033[0;34m";
 c_reset = "\033[0m";
 
-include { FASTQC as RAW_FASTQC } from './modules/quality.nf' addParams(PublishTo: "00-RawData/FastQC_Reports")
-include { FASTQC as TRIMMED_FASTQC } from './modules/quality.nf' addParams(PublishTo: "01-TG_Preproc/FastQC_Reports")
-include { MULTIQC as RAW_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "00-RawData/FastQC_Reports", MQCLabel:"raw")
-include { MULTIQC as TRIMMED_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "01-TG_Preproc/FastQC_Reports", MQCLabel:"trimmed")
-include { MULTIQC as TRIM_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "01-TG_Preproc/Trimming_Reports", MQCLabel:"trimming")
-include { MULTIQC as ALIGN_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "02-STAR_Alignment", MQCLabel:"align")
-include { MULTIQC as COUNT_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "03-RSEM_Counts", MQCLabel:"RSEM_count")
-include { MULTIQC as ALL_MULTIQC } from './modules/quality.nf' addParams(PublishTo: "MULTIQC_ALL", MQCLabel:"all")
+include { FASTQC as RAW_FASTQC } from './modules/quality.nf'
+include { FASTQC as TRIMMED_FASTQC } from './modules/quality.nf'
+include { MULTIQC as RAW_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"raw")
+include { MULTIQC as TRIMMED_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"trimmed")
+include { MULTIQC as TRIM_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"trimming")
+include { MULTIQC as ALIGN_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"align")
+include { MULTIQC as COUNT_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"RSEM_count")
+include { MULTIQC as ALL_MULTIQC } from './modules/quality.nf' addParams(MQCLabel:"all")
 include { TRIMGALORE } from './modules/quality.nf'
 include { BUILD_STAR;
           ALIGN_STAR;
@@ -29,7 +29,7 @@ include { VV_RAW_READS;
           VV_RSEQC;
           VV_RSEM_COUNTS;
           VV_DESEQ2_ANALYSIS;
-          VV_CONCAT_FILTER } from './modules/vv.nf' addParams( RootDirForVV: "${workflow.launchDir}/${ params.outputDir }/${ params.gldsAccession }")
+          VV_CONCAT_FILTER } from './modules/vv.nf'
 include { GET_MAX_READ_LENGTH } from './modules/fastqc.nf'
 include { POST_PROCESSING;
           SOFTWARE_VERSIONS } from './modules/genelab.nf'
