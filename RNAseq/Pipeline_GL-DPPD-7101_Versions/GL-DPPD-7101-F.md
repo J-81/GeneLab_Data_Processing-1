@@ -1839,8 +1839,8 @@ sessionInfo()
 
 **Input Data:**
 
-- *runsheet.csv file (table containing metadata required for analysis, output from [step 9a](9a-create-sample-runSheet))
-- [GL-DPPD-71XX_organisms.csv](https://github.com/asaravia-butler/GeneLab_Data_Processing/blob/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv) (csv file containing link to GeneLab annotations) 
+- *runsheet.csv file (table containing metadata required for analysis, output from [step 9a](#9a-create-sample-runsheet))
+- [GL-DPPD-71XX_annotations.csv](../../GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_annotations.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
 
