@@ -42,6 +42,7 @@ jobs:
 
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE}  ${{ matrix.RUN_PARAMS }} \
+          MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
+          nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -ansi-log false \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; } 
