@@ -305,7 +305,7 @@ STAR --runThreadN <NumberOfThreads> \
 - `--readFilesCommand` - specifies command needed to interpret input files, the `zcat` option indicates input files are compressed with gzip and zcat will be used to uncompress the gzipped input files
 - `--soloCBwhitelist` - specifies the CellBarcode whitelist file, indicated here as `CellBarcodeWhitelist`, which contains the list of all known barcode sequences that have been included in the assay kit and are available during library preparation
 - `--outFileNamePrefix` - specifies the path to and prefix for the output file names; for GeneLab the prefix is the sample id
-- `--readFilesIn` - paths to the input reads files, the first file should contain the cDNA reads and second file should contain the barcode (cell+UMI) reads 
+- `--readFilesIn` - paths to the input reads files, the first file should contain the cDNA reads and second file should contain the respective barcode (cell+UMI) reads 
 
 
 **Input Data:**
