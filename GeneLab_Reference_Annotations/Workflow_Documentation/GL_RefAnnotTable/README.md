@@ -5,7 +5,7 @@ The current GeneLab Reference Annotation Table (GL_RefAnnotTable) pipeline is im
 
 ## Utilizing the workflow
 
-1. [Install R and R packages](#1-install-conda-and-genelab-utils-package)  
+1. [Install R and R packages](#1-install-r-and-r-packages)  
 2. [Download the workflow files](#2-download-the-workflow-files)  
 3. [Setup Execution Permission for Workflow Scripts](#3-setup-execution-permission-for-workflow-scripts)
 4. [Run the workflow](#4-run-the-workflow)  
