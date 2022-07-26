@@ -39,98 +39,75 @@ After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory
   ```
 
   Activate the fastqc conda environment with the following command:
-  > This environment needs to be activated to run steps 1-6 of the [RNAseq processing pipeline](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/GL-DPPD-7101-C.md)
+  > This environment needs to be activated to run steps [1a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1a-raw-data-qc) and [2b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2b-trimmed-data-qc) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
   
   ```
   conda activate fastqc
-  ``` 
-  Note: At least 45GB of RAM is required to run the tools in the RNAseq_fq_to_counts_tools conda environment.
-  
+  ```   
   
 <br>
 
-#### Install the **RNAseq_R_tools** conda environment by running the following command:
+#### Install the **multiqc** conda environment by running the following command:
 
   ```
-  conda env create -f RNAseq_R_tools.yml
+  conda env create -f multiqc.yml
   ```
 
-  Activate the RNAseq_R_tools conda environment with the following command:
-  > This environment needs to be activated to run step 7 of the [RNAseq processing pipeline](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/GL-DPPD-7101-C.md)
+  Activate the multiqc conda environment with the following command:
+  > This environment needs to be activated to run steps [1b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1b-compile-raw-data-qc), [2c](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2c-compile-trimmed-data-qc), and [4b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#4b-compile-alignment-logs) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
   
   ```
-  conda activate RNAseq_R_tools
-  ``` 
-  Note: The tools in the RNAseq_R_tools conda environment can be run on a standard laptop.
+  conda activate multiqc
+  ```   
+  
+<br>
+
+#### Install the **trim_galore** conda environment by running the following command:
+
+  ```
+  conda env create -f trim_galore.yml
+  ```
+
+  Activate the trim_galore conda environment with the following command:
+  > This environment needs to be activated to run step [2a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2a-trimfilter-raw-data) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
+  
+  ```
+  conda activate trim_galore
+  ```   
+  
+<br>
+
+#### Install the **star** conda environment by running the following command:
+
+  ```
+  conda env create -f star.yml
+  ```
+
+  Activate the star conda environment with the following command:
+  > This environment needs to be activated to run steps [3](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#3-build-star-reference) and [4a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#4a-align-reads-to-reference-genome-with-starsolo) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
+  
+  ```
+  conda activate star
+  ```   
+  
+<br>
+
+
+---
 
 <br>
 
 ### Troubleshooting conda environment installation
 
   If you run into any issues while installing the RNAseq conda environments, update conda using the following command then try re-creating the RNAseq conda environments using the installation instructions above.
+  
   ```
   conda update conda
   ```
 
 <br>
   
-
-### Create directory structure for Genome and STAR and RSEM Indices 
-
-  To generate the same directory structure that GeneLab uses to organize genome reference files and STAR and RSEM indices needed for processing RNAseq data, follow the instructions below:
-  1. Use the `cd` command to navigate to the location on your device where you want to create the genome and index directory structure.
-  
-  2. Download the [GL_genome_index_mkdir.sh](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/RNAseq_Tool_Install/GL_genome_index_mkdir.sh) file and save it to the location on your device you selected in step 1, then create the 
-genome and index directories and sub-directories by executing the following command:
-  ```
-  bash GL_genome_index_mkdir.sh
-  ```  
-  
-3. Your directory structure should now be set up. You'll next have to download the fasta and gtf files for your organism(s) of interest from [Ensembl](https://www.ensembl.org/) and save the fasta and gtf file in each respective organism's subdirectory 
-in the 'Genomes' directory you made in step 2.  
-
-   1. For animals you can find these Ensembl files [here](https://uswest.ensembl.org/index.html), plant Ensembl references can be found [here](https://plants.ensembl.org/index.html), and Ensembl reference files for microbes can be found 
-[here](https://bacteria.ensembl.org/index.html). The reference files for the ERCC genes GeneLab uses can be downloaded [here](https://assets.thermofisher.com/TFS-Assets/LSG/manuals/ERCC92.zip). 
-
-      > **Note:** Ensembl displays the current release of each organism's genome and annotation files; to use the exact release that was used to process data hosted in the [GeneLab Repository](https://genelab-data.ndc.nasa.gov/genelab/projects), 
-download the files using the links provided in the [GeneLab_Reference_and_Annotation_Files](https://github.com/nasa/GeneLab_Data_Processing/tree/master/RNAseq/GeneLab_Reference_and_Annotation_Files) tables.
-  
-   2. If samples from the dataset you want to process were spiked with ERCC genes, you'll have to create a reference fasta and gtf file containing both the organism of interest and ERCC genes by concatenating your organism of interest's fasta file 
-with the ERCC fasta file, and your organism of interest's gtf file with the ERCC gtf file. Below are example commands for how to do this with *Mus musculus* (mouse) Ensembl release 101:
-      ```
-      gunzip ./Genomes/Mus_musculus/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz
-      ```
-      ```
-      cat ./Genomes/Mus_musculus/Mus_musculus.GRCm38.dna.primary_assembly.fa ./Genomes/ERCC/ERCC92.fa > ./Genomes/Mus_musculus/Mus_musculus.GRCm38.dna.primary_assembly_and_ERCC92.fa
-      ```
-      ```
-      gunzip ./Genomes/Mus_musculus/Mus_musculus.GRCm38.101.gtf.gz
-      ```
-      ```
-      cat ./Genomes/Mus_musculus/Mus_musculus.GRCm38.101.gtf ./Genomes/ERCC/ERCC92.gtf > ./Genomes/Mus_musculus/Mus_musculus.GRCm38.101_and_ERCC92.gtf
-      ```
-  
-  4. You can now set up your scripts for creating STAR indices for each organism of interest in the `./STAR_Indices/STAR_index_scripts` subdirectory you created in step 2 by following the instructions in [step 
-3](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/GL-DPPD-7101-C.md#3-build-star-reference) of the GL RNAseq processing pipeline. 
-  
-     > **Note:** Prior to creating a STAR index for your organizm of interest, you will need to create a subdirectory in the `./STAR_Indices` directory you created in step 2, where the STAR index will be outputted. At GeneLab, we title these 
-directories with the organism name and the readlength of the raw sequence data. Below is an example for making a STAR index output directory for Mus musculus samples with ERCC spike-in having a readlength of 149: 
-     ```
-     mkdir ./STAR_Indices/Mus_musculus_w_ERCC_RL-149
-     ```
-  
-  5. You can now set up your scripts for creating RSEM indices for each organism of interest in the `./RSEM_Indices/RSEM_index_scripts` subdirectory you created in step 2 by following the instructions in [step 
-5](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/GL-DPPD-7101-C.md#5-build-rsem-reference) of the GL RNAseq processing pipeline. 
-  
-     > **Note:** Prior to creating a RSEM index for your organizm of interest, you will need to create a subdirectory in the `./RSEM_Indices` directory you created in step 2, where the RSEM index will be outputted. At GeneLab, we title these 
-directories with the organism name. Below is an example for making a RSEM index output directory for Mus musculus samples with ERCC spike-in: 
-     ```
-     mkdir ./RSEM_Indices/Mus_musculus_w_ERCC
-     ``` 
- 
-
-<br>
-
+---
 
 ### Create RNAseq output directory structure
 
