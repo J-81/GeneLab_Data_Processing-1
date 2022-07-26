@@ -6,6 +6,6 @@
 
 |GL_RefAnnotTable Version|Workflow|
 |:-----------------------|:-------|
-|*[GL-DPPD-7110.md](../Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110.md)|[GL_RefAnnotTable](GL_RefAnnotTable)|
+|*[GL-DPPD-7110.md](../Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110.md)|[GL_RefAnnotTable](GL_RefAnnotTable)|
 
 *Current GL_RefAnnotTable version/workflow implementation
