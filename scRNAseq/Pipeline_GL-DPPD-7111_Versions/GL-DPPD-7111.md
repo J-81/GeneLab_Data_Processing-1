@@ -321,7 +321,7 @@ STAR --runThreadN <NumberOfThreads> \
 - *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, %
 of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
-- *Solo.out (directory containing the following:)
+- /*Solo.out (directory containing the following:)
   - Barcodes.stats\# (barcode statistics)
   - /Gene\# (sub-directory containing the following outputs using the `Gene` soloFeatures setting:)
     > Note: All files in the `/Gene` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `Gene.zip` file for each respective GLDS dataset.
