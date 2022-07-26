@@ -7,8 +7,7 @@ Additionally, instructions and the shell scripts for creating the directory stru
 
 ### Install Conda
 
-  * **Anaconda**  
-    To install conda environments, you'll first have to install [Anaconda](https://www.anaconda.com/). We recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda). 
+To install conda environments, you'll first have to install [Anaconda](https://www.anaconda.com/). We recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda). 
 
 <br>
 
