@@ -21,9 +21,6 @@ process ASSESS_STRANDEDNESS {
 
 process SORT_INDEX_BAM {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }/${ meta.id }",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }*"
   label 'big_mem'
 
   input:

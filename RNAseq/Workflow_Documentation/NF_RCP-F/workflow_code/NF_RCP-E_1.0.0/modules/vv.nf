@@ -112,7 +112,7 @@ process VV_STAR_ALIGNMENTS {
     path("VV_INPUT/02-STAR_Alignment/*") //
 
   output:
-    path("02-STAR_Alignment/*")
+    path("02-STAR_Alignment")
     path("VV_log.tsv"), optional: params.skipVV, emit: log
 
   script:
