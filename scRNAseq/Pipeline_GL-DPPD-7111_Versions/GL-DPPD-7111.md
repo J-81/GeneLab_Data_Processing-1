@@ -328,29 +328,29 @@ of mapped reads etc.)
     - Features.stats (quantitated features statistics)
     - Summary.csv (table contining summary statistics for filtered cells)
     - UMIperCellSorted.txt (list of the number of UMIs per cell sorted)
-    - /filtered (sub-directory containing output files for filtered expression data)
-      - barcodes.tsv (table containing remaining barcodes after filtering)
-      - features.tsv (table containing remaining gene IDs and symbols after filtering)
-      - matrix.mtx (table containing the unique-gene UMI filtered counts)
     - /raw (sub-directory containing output files for raw, unfiltered, expression data)
       - barcodes.tsv (table containing all barcodes processed)
       - features.tsv (table containing all gene IDs and symbols)
       - matrix.mtx (table containing the unique-gene UMI raw counts)
       - UniqueAndMult-EM.mtx (table containing the sum of unique+multi-gene UMI counts)
+    - /filtered (sub-directory containing output files for filtered expression data)
+      - barcodes.tsv (table containing remaining barcodes after filtering)
+      - features.tsv (table containing remaining gene IDs and symbols after filtering)
+      - matrix.mtx (table containing the unique-gene UMI filtered counts)
   - /GeneFull (sub-directory containing the following outputs using the `GeneFull` soloFeatures setting:)
      > Note: All files in the `/GeneFull` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `GeneFull.zip` file for each respective GLDS dataset.
     - Features.stats (quantitated features statistics)
     - Summary.csv (table contining summary statistics for filtered cells)
     - UMIperCellSorted.txt (list of the number of UMIs per cell sorted)
-    - /filtered (sub-directory containing output files for filtered expression data)
-      - barcodes.tsv (table containing remaining barcodes after filtering)
-      - features.tsv (table containing remaining gene IDs and symbols after filtering)
-      - matrix.mtx (table containing the unique-gene UMI filtered counts)
     - /raw (sub-directory containing output files for raw, unfiltered, expression data)
       - barcodes.tsv (table containing all barcodes processed)
       - features.tsv (table containing all gene IDs and symbols)
       - matrix.mtx (table containing the unique-gene UMI raw counts)
       - UniqueAndMult-EM.mtx (table containing the sum of unique+multi-gene UMI counts)
+    - /filtered (sub-directory containing output files for filtered expression data)
+      - barcodes.tsv (table containing remaining barcodes after filtering)
+      - features.tsv (table containing remaining gene IDs and symbols after filtering)
+      - matrix.mtx (table containing the unique-gene UMI filtered counts)
   - /SJ (sub-directory containing the following outputs using the `SJ` soloFeatures setting:)
      > Note: All files in the `/SJ` output directory are published in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) as a `SJ.zip` file for each respective GLDS dataset.
     - Features.stats (quantitated features statistics)
@@ -383,11 +383,11 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-star), provided as a positional argument
+- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-starsolo), provided as a positional argument
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-starsolo))
 
 **Output Data:**
 
