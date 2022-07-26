@@ -126,9 +126,9 @@ if ( ! target_organism %in% currently_accepted_orgs ) {
 
 install.packages("tidyverse")
 
-source("https://bioconductor.org/biocLite.R")
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.15")
 
 BiocManager::install("STRINGdb")
 BiocManager::install("PANTHER.db")
