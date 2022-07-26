@@ -317,7 +317,7 @@ STAR --runThreadN <NumberOfThreads> \
 
 - *Aligned.bam\# (binary sequence alignment map with reads mapping to the genome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
-- *Log.out (main log file containint detailed info about the STAR run)
+- *Log.out (main log file containing detailed info about the STAR run)
 - *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, %
 of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
