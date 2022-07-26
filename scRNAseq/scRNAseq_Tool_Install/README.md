@@ -1,36 +1,55 @@
 # Instructions for installing the tools required to process single cell RNAseq data using the GeneLab pipeline
 
-**NEEDS TO BE UPDATED FOR SC RNASEQ**
-
-> **This directory holds yaml files and instructions for how to install two conda environments, RNAseq_fq_to_counts_tools and RNAseq_R_tools, that contain all the software programs needed to process RNAseq data using the GeneLab pipeline. 
-Additionally, instructions and the shell scripts for creating the directory structure that GeneLab uses to organize the RNAseq processing pipeline output files are provided.**  
+> **This directory holds yaml files and instructions for how to install the conda environments that contain all the software programs needed to process single cell RNAseq data using the GeneLab pipeline. 
+Additionally, instructions and the shell scripts for creating the directory structure that GeneLab uses to organize the single cell RNAseq processing pipeline output files are provided.**  
 
 ---
 
-### Install prerequisites
+### Install Conda
 
   * **Anaconda**  
-    To install conda environments, you'll first have to install [Anaconda](https://www.anaconda.com/). Click [here](https://docs.anaconda.com/anaconda/install/) for installation instructions.
+    To install conda environments, you'll first have to install [Anaconda](https://www.anaconda.com/). We recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda). 
 
 <br>
 
-### Install the **RNAseq_fq_to_counts_tools** conda environment by running the following command:
+---
+
+### Download the yaml files
+
+All the yaml files required to install the conda environments needed to run the scRNAseq pipeline are in the [scRNAseq_yaml_files](scRNAseq_yaml_files) sub-directory. To get a 
+copy of the yaml files on to your system, copy the github web address of the [scRNAseq_yaml_files directory](scRNAseq_yaml_files), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download.
+
+
+After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory, where you will find 4 yaml files:
+* [fastqc.yml](scRNAseq_yaml_files/fastqc.yml)
+* [multiqc.yml](scRNAseq_yaml_files/multiqc.yml)
+* [star.yml](scRNAseq_yaml_files/star.yml)
+* [trim_galore.yml](scRNAseq_yaml_files/trim_galore.yml)
+
+<br>
+
+---
+
+### Install the GeneLab scRNAseq tools via conda environments
+
+#### Install the **fastqc** conda environment by running the following command:
 
   ```
-  conda env create -f RNAseq_fq_to_counts_tools.yml
+  conda env create -f fastqc.yml
   ```
 
-  Activate the RNAseq_fq_to_counts_tools conda environment with the following command:
+  Activate the fastqc conda environment with the following command:
   > This environment needs to be activated to run steps 1-6 of the [RNAseq processing pipeline](https://github.com/nasa/GeneLab_Data_Processing/blob/master/RNAseq/GL-DPPD-7101-C.md)
   
   ```
-  conda activate RNAseq_fq_to_counts
+  conda activate fastqc
   ``` 
   Note: At least 45GB of RAM is required to run the tools in the RNAseq_fq_to_counts_tools conda environment.
-
+  
+  
 <br>
 
-### Install the **RNAseq_R_tools** conda environment by running the following command:
+#### Install the **RNAseq_R_tools** conda environment by running the following command:
 
   ```
   conda env create -f RNAseq_R_tools.yml
