@@ -1,4 +1,6 @@
-# Instructions for installing the tools required to process RNAseq data using the GeneLab pipeline
+# Instructions for installing the tools required to process single cell RNAseq data using the GeneLab pipeline
+
+**NEEDS TO BE UPDATED FOR SC RNASEQ**
 
 > **This directory holds yaml files and instructions for how to install two conda environments, RNAseq_fq_to_counts_tools and RNAseq_R_tools, that contain all the software programs needed to process RNAseq data using the GeneLab pipeline. 
 Additionally, instructions and the shell scripts for creating the directory structure that GeneLab uses to organize the RNAseq processing pipeline output files are provided.**  
