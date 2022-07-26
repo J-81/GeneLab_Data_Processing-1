@@ -125,7 +125,8 @@ To generate the same directory structure that GeneLab uses to organize the scRNA
   ``` 
   
   4. Download the [GL_scRNAseq_mkdir.sh](GL_scRNAseq_mkdir.sh) bash script into the directory you created in step 2. To download the bash script, copy the github web address of the [GL_scRNAseq_mkdir.sh bash script](GL_scRNAseq_mkdir.sh), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download.
-     > Make the downloaded GL_scRNAseq_mkdir.sh bash script executable by running the following command:
+     > Make the downloaded GL_scRNAseq_mkdir.sh bash script executable by running the following command:  
+     >   
      > `chmod u+x GL_scRNAseq_mkdir.sh`
   
   5. Create all sub-directories (aka child and subsequent grandchild directories) within the top level directory (created in step 2) by executing the GL_scRNAseq_mkdir.sh script as follows:
