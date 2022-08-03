@@ -22,9 +22,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 ## Updates from previous version
 
 Updated [Ensembl Reference Files](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) now use:
-- Animals: Ensembl release 101 (current: 107)
-- Plants: Ensembl plants release 48 (current: 54)
-- Bacteria: Ensembl bacteria release 48 (current: 54)
+- Animals: Ensembl release 107
+- Plants: Ensembl plants release 54
+- Bacteria: Ensembl bacteria release 54
 
 The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r), was modified as follows:
 
