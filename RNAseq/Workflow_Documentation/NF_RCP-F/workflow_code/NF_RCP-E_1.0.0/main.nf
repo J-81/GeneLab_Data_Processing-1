@@ -227,33 +227,54 @@ workflow {
                  | collect | set { all_mqc_ch }
       ALL_MULTIQC( ch_samples_txt, all_mqc_ch, ch_multiqc_config )
 
-      VV_RAW_READS( STAGING.out.runsheet,
+      VV_RAW_READS( ch_meta,
+                    STAGING.out.runsheet,
                     ch_all_raw_reads,
                     RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
                     RAW_MULTIQC.out.zipped_report,
+                    RAW_MULTIQC.out.unzipped_report,
                   )
-      VV_TRIMMED_READS( STAGING.out.runsheet,
-                        ch_all_raw_reads,
-                        RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
-                        RAW_MULTIQC.out.zipped_report,
+      VV_TRIMMED_READS( ch_meta,
+                        STAGING.out.runsheet,
                         TRIMGALORE.out.reads | map { it -> it[1] } | flatten | collect,
                         TRIMMED_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
                         TRIMMED_MULTIQC.out.zipped_report,
+                        TRIMMED_MULTIQC.out.unzipped_report,
                         TRIMGALORE.out.reports | collect,
+                        TRIM_MULTIQC.out.zipped_report,
+                        TRIM_MULTIQC.out.unzipped_report,
                       )
       VV_STAR_ALIGNMENTS( STAGING.out.runsheet,
-                          ch_all_raw_reads,
-                          RAW_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
-                          RAW_MULTIQC.out.zipped_report,
-                          TRIMGALORE.out.reads | map { it -> it[1] } | flatten | collect,
-                          TRIMMED_FASTQC.out.fastqc | map { it -> [ it[1], it[2] ] } | flatten | collect,
-                          TRIMMED_MULTIQC.out.zipped_report,
-                          TRIMGALORE.out.reports | collect,
                           ALIGN_STAR.out.publishables | collect,
                           QUANTIFY_STAR_GENES.out.publishables | collect,
                           ALIGN_MULTIQC.out.zipped_report,
+                          ALIGN_MULTIQC.out.unzipped_report,
                           STRANDEDNESS.out.bam_bed | collect
-                      )
+                        )
+      VV_RSEQC( ch_meta,
+                STAGING.out.runsheet,
+                STRANDEDNESS.out.rseqc_logs,
+                STRANDEDNESS.out.genebody_coverage_multiqc,
+                STRANDEDNESS.out.infer_experiment_multiqc,
+                STRANDEDNESS.out.inner_distance_multiqc,
+                STRANDEDNESS.out.read_distribution_multiqc,
+              )
+      VV_RSEM_COUNTS( STAGING.out.runsheet,
+                      COUNT_ALIGNED.out.only_counts | collect,
+                      QUANTIFY_RSEM_GENES.out.publishables,
+                      COUNT_MULTIQC.out.zipped_report,
+                      COUNT_MULTIQC.out.unzipped_report,
+                    )
+      VV_DESEQ2_ANALYSIS( ch_meta,
+                          STAGING.out.runsheet,
+                          QUANTIFY_RSEM_GENES.out.publishables,
+                          COUNT_MULTIQC.out.zipped_report,
+                          COUNT_MULTIQC.out.unzipped_report,
+                          DGE_BY_DESEQ2.out.norm_counts,
+                          DGE_BY_DESEQ2.out.dge,
+                          DGE_BY_DESEQ2.out.norm_counts_ercc | ifEmpty( { file("NO_FILES.placeholder") }),
+                          DGE_BY_DESEQ2.out.dge_ercc | ifEmpty( { file("NO_FILES.placeholder") }),
+                    )
 
       // Software Version Capturing
       nf_version = "Nextflow Version:".concat("${nextflow.version}\n<><><>\n")
@@ -276,7 +297,12 @@ workflow {
 
       // VV processes
         
-      VV_CONCAT_FILTER( VV_RAW_READS.out.log | mix(VV_TRIMMED_READS.out.log) | collect )
+      VV_CONCAT_FILTER( VV_RAW_READS.out.log | mix( VV_TRIMMED_READS.out.log,
+                                                    VV_STAR_ALIGNMENTS.out.log,
+                                                    VV_RSEQC.out.log,
+                                                    VV_RSEM_COUNTS.out.log,
+                                                    VV_DESEQ2_ANALYSIS.out.log,
+                                                    ) | collect )
         
       // VV_CONCAT_FILTER( 
       //   ch_vv_log_01 | mix(

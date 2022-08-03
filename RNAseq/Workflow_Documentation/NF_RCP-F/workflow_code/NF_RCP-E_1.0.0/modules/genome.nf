@@ -133,9 +133,6 @@ process BUILD_RSEM {
 process COUNT_ALIGNED {
   // Generates gene and isoform counts from alignments
   tag "Sample: ${ meta.id }, strandedness: ${ strandedness } "
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/03-RSEM_Counts",
-    mode: params.publish_dir_mode,
-    pattern: "${ meta.id }*"
 
   input:
     tuple val(meta), path("${meta.id}_Aligned.toTranscriptome.out.bam"), path(RSEM_REF)
@@ -143,6 +140,7 @@ process COUNT_ALIGNED {
 
   output:
     tuple val(meta), path("${ meta.id }*"), emit: counts
+    path("${ meta.id }*"), emit: only_counts
     path("${ meta.id }.genes.results"), emit: gene_counts
     path("versions.txt"), emit: version
 
@@ -170,15 +168,13 @@ process COUNT_ALIGNED {
 
 process QUANTIFY_RSEM_GENES {
   // An R script that extracts gene counts by sample to a table
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/03-RSEM_Counts",
-    mode: params.publish_dir_mode
 
   input:
     path("samples.txt")
     path("03-RSEM_Counts/*")
 
   output:
-    tuple path("RSEM_Unnormalized_Counts.csv"), path("RSEM_NumNonZeroGenes.csv")
+    tuple path("RSEM_Unnormalized_Counts.csv"), path("RSEM_NumNonZeroGenes.csv"), emit: publishables
 
   script:
     """

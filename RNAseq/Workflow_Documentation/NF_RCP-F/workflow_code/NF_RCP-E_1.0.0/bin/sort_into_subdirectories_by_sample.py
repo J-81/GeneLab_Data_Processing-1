@@ -8,6 +8,7 @@ import pandas as pd
 
 FROM = sys.argv[1]
 TO = sys.argv[2]
+GLOB_SUFFIX = sys.argv[3]
 
 # Determine samples list
 [runsheetPath] = (f for f in Path.cwd().glob("Metadata/*runsheet*.csv"))
@@ -18,7 +19,7 @@ print(samples)
 # For a given directory, sort all files into {sample: str, [files: str]}
 files_by_sample = dict()
 for sample in samples:
-    files_for_this_sample = list(Path(FROM).glob(f"{sample}_*"))
+    files_for_this_sample = list(Path(FROM).glob(f"{sample}{GLOB_SUFFIX}"))
 
     # Move files
     for file in files_for_this_sample:

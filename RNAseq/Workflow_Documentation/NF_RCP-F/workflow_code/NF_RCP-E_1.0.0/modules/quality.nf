@@ -36,6 +36,7 @@ process MULTIQC {
     path("${ params.MQCLabel }_multiqc_report/${ params.MQCLabel }_multiqc.html"), emit: html
     path("${ params.MQCLabel }_multiqc_report/${ params.MQCLabel }_multiqc_data"), emit: data
     path("${ params.MQCLabel }_multiqc_report.zip"), emit: zipped_report
+    path("${ params.MQCLabel }_multiqc_report"), emit: unzipped_report
     path("versions.txt"), emit: version
 
   script:
