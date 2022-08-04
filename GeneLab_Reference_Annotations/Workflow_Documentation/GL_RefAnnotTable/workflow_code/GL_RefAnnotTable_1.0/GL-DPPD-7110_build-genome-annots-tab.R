@@ -64,6 +64,7 @@ if ( ! target_organism %in% currently_accepted_orgs ) {
 
 
 ## Install required R packages if not already installed ##
+## Install commands can be commented out after running this script the first time by adding a # in front of lines 69-77 ##
 
 install.packages("tidyverse")
 
@@ -102,7 +103,7 @@ wanted_keys_vec <- c("SYMBOL", "GENENAME", "REFSEQ", "ENTREZID")
 ## Define links to tables containing species-specific annotation info ##
 
 ref_tab_link <-
-    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
+    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
 
 
 #########################################################################
@@ -135,7 +136,7 @@ target_species_designation <- ref_table %>%
 ## Define link to Ensembl annotation gtf file for the target organism ##
 
 gtf_link <- ref_table %>%
-    filter(Organism == target_species_designation) %>%
+    filter(species == target_species_designation) %>%
     pull(gtf)
 
 ## Create output files names ##
@@ -164,10 +165,6 @@ if ( file.exists(out_table_filename) ) {
 ######## Load Annotation Databases and Retrieve Unique Gene IDs #########
 #########################################################################
 
-
-## Change link to Ensembl annotation gtf file to be https if it's currently http ##
-
-gtf_link <- str_replace(gtf_link, "http:", "https:")
 
 ## Import Ensembl annotation gtf file for the target organism ##
 
