@@ -82,7 +82,7 @@ def _parse_args():
 
 def main():
     args = _parse_args()
-    max_flag_code = args.max_flag_code
+    max_flag_code = int(args.max_flag_code)
 
     # invert requested components
     # this is because these are supplied as skips
