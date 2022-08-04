@@ -2,15 +2,6 @@
  * Different Gene Expression Analysis Processes
  */
 process DGE_BY_DESEQ2 {
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/04-DESeq2_NormCounts",
-    mode: params.publish_dir_mode,
-    pattern: "norm_counts_output/*", saveAs: { "${file(it).getName()}" }
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/05-DESeq2_DGE",
-    mode: params.publish_dir_mode,
-    pattern: "dge_output/*", saveAs: { "${file(it).getName()}" }
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/05-DESeq2_DGE",
-    mode: params.publish_dir_mode,
-    pattern: "dge_output_ercc/*", saveAs: { "ERCC_NormDGE/${file(it).getName()}" }
 
   input:
     path("runsheet.csv")
@@ -30,13 +21,13 @@ process DGE_BY_DESEQ2 {
           path("dge_output/visualization_output_table.csv"),
           path("dge_output/visualization_PCA_table.csv"), emit: dge
 
+    tuple path("norm_counts_output/ERCC_Normalized_Counts.csv"),
+          path("norm_counts_output/ERCC_SampleTable.csv"), optional: true, emit: norm_counts_ercc
+
     tuple path("dge_output_ercc/ERCCnorm_contrasts.csv"),
           path("dge_output_ercc/ERCCnorm_differential_expression.csv"),
           path("dge_output_ercc/visualization_output_table_ERCCnorm.csv"),
-          path("dge_output_ercc/visualization_PCA_table_ERCCnorm.csv"), optional: true, emit: norm_counts_ercc
-
-    tuple path("norm_counts_output/ERCC_Normalized_Counts.csv"),
-          path("norm_counts_output/ERCC_SampleTable.csv"), optional: true, emit: dge_ercc
+          path("dge_output_ercc/visualization_PCA_table_ERCCnorm.csv"), optional: true, emit: dge_ercc
 
     path("versions.txt"), emit: version
 
