@@ -39,9 +39,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 |Program|Version|Relevant Links|
 |:------|:------:|:-------------|
-|R|4.2.0|[https://www.r-project.org/](https://www.r-project.org/)|
-|Bioconductor|3.15.0|[https://bioconductor.org](https://bioconductor.org)|
-|tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
+|R|4.2.1|[https://www.r-project.org/](https://www.r-project.org/)|
+|Bioconductor|3.15.2|[https://bioconductor.org](https://bioconductor.org)|
+|tidyverse|1.3.2|[https://www.tidyverse.org](https://www.tidyverse.org)|
 |STRINGdb|2.8.4|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
 |PANTHER.db|1.0.11|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
 |rtracklayer|1.56.1|[https://bioconductor.org/packages/release/bioc/html/rtracklayer.html](https://bioconductor.org/packages/release/bioc/html/rtracklayer.html)
@@ -167,7 +167,7 @@ wanted_keys_vec <- c("SYMBOL", "GENENAME", "REFSEQ", "ENTREZID")
 ## Define links to tables containing species-specific annotation info ##
 
 ref_tab_link <-
-    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
+    "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
 
 ```
 
@@ -203,7 +203,7 @@ target_species_designation <- ref_table %>%
 ## Define link to Ensembl annotation gtf file for the target organism ##
 
 gtf_link <- ref_table %>%
-    filter(Organism == target_species_designation) %>%
+    filter(species == target_species_designation) %>%
     pull(gtf)
 
 ## Create output files names ##
@@ -236,10 +236,6 @@ if ( file.exists(out_table_filename) ) {
 ## 3. Load Annotation Databases and Retrieve Unique Gene IDs
 
 ```R
-## Change link to Ensembl annotation gtf file to be https if it's currently http ##
-
-gtf_link <- str_replace(gtf_link, "http:", "https:")
-
 ## Import Ensembl annotation gtf file for the target organism ##
 
 gtf_obj <- import(gtf_link)
