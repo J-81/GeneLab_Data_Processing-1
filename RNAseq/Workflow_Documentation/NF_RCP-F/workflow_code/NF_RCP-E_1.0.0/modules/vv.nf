@@ -192,7 +192,10 @@ process VV_RSEQC {
     sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/02_geneBody_coverage '.geneBodyCoverage.r'
     # These are not in sub directories: sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/03_infer_experiment '_infer_expt.out'
     mv RSeQC_Analyses/*_infer_expt.out RSeQC_Analyses/03_infer_experiment
-    ${ meta.paired_end ? '' : '# Only for Paired end datasets: '}sort_into_subdirectories_by_sample.py RSeQC_Analyses/04_inner_distance RSeQC_Analyses/04_inner_distance ''
+    ${ meta.paired_end ? '' : '# Only for Paired end datasets: '} sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/04_inner_distance '.inner_distance_freq.txt'
+    ${ meta.paired_end ? '' : '# Only for Paired end datasets: '} sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/04_inner_distance '.inner_distance_plot.pdf'
+    ${ meta.paired_end ? '' : '# Only for Paired end datasets: '} sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/04_inner_distance '.inner_distance_plot.r'
+    ${ meta.paired_end ? '' : '# Only for Paired end datasets: '} sort_into_subdirectories_by_sample.py RSeQC_Analyses RSeQC_Analyses/04_inner_distance '.inner_distance.txt'
     # These are not in sub directories: sort_into_subdirectories_by_sample.py RSeQC_Analyses/05_read_distribution RSeQC_Analyses/05_read_distribution '_read_dist.out'
     mv RSeQC_Analyses/*_read_dist.out RSeQC_Analyses/05_read_distribution
 
