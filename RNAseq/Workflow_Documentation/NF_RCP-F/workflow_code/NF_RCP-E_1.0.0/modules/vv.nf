@@ -51,7 +51,8 @@ process VV_RAW_READS {
                           --run-components \\
                             'Metadata' \\
                             'Raw Reads' \\
-                            'Raw Reads By Sample'
+                            'Raw Reads By Sample' \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
     """
 }
@@ -103,7 +104,8 @@ process VV_TRIMMED_READS {
                             ${ meta.paired_end ? "'qc reports for paired end trimmed reads data'" : "'qc reports for single end trimmed reads data'"} \\
                           --run-components \\
                             'Trim Reads' \\
-                            'Trimmed Reads By Sample'
+                            'Trimmed Reads By Sample' \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
     """
 }
@@ -148,7 +150,8 @@ process VV_STAR_ALIGNMENTS {
                             'STAR alignments' \\
                           --run-components \\
                             'STAR Alignments' \\
-                            'STAR Alignments By Sample'
+                            'STAR Alignments By Sample' \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
     """
 
@@ -203,7 +206,8 @@ process VV_RSEQC {
                             ${ meta.paired_end ? "'RSeQC output for paired end data'" : "'RSeQC output for single end data'"} \\
                           --run-components \\
                             'RSeQC' \\
-                            'RSeQC By Sample'
+                            'RSeQC By Sample' \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
 
     # Remove all placeholder files and empty directories to prevent publishing
@@ -252,7 +256,8 @@ process VV_RSEM_COUNTS {
                           --data-asset-sets  \\
                             'RSEM counts' \\
                           --run-components \\
-                            'RSEM Counts'
+                            'RSEM Counts' \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
     """
 }
@@ -286,31 +291,6 @@ process VV_DESEQ2_ANALYSIS {
     path("05-DESeq2_DGE")
     path("VV_log.tsv"), optional: params.skipVV, emit: log
   
-  stub:
-    // SET MAX FLAG CODE TO ONLY HALT ON DEVELOPER LEVEL FLAGS
-    """
-    # move from VV_INPUT to task directory
-    # This allows detection as output files for publishing
-    mv VV_INPUT/* .
-
-    # Run V&V unless user requests to skip V&V
-    if ${ !params.skipVV} ; then
-      VV_data_assets.py   --root-path . \\
-                          --accession ${ params.gldsAccession } \\
-                          --runsheet-path Metadata/*_runsheet.csv \\
-                          --data-asset-sets  \\
-                            'RSEM Output' \\
-                            'DGE Output' \\
-                            ${ meta.has_ercc ? "'ERCC DGE Output'" : ''} \\
-                          --run-components \\
-                            'DGE Metadata' \\
-                            ${ meta.has_ercc ? "'DGE Metadata ERCC'" : '' } \\
-                            'DGE Output' \\
-                            ${ meta.has_ercc ? "'DGE Output ERCC'" : '' } \\
-                          --max-flag-code 81
-    fi
-    """
-
   script:
     """
     # move from VV_INPUT to task directory
@@ -330,7 +310,8 @@ process VV_DESEQ2_ANALYSIS {
                             'DGE Metadata' \\
                             ${ meta.has_ercc ? "'DGE Metadata ERCC'" : '' } \\
                             'DGE Output' \\
-                            ${ meta.has_ercc ? "'DGE Output ERCC'" : '' }
+                            ${ meta.has_ercc ? "'DGE Output ERCC'" : '' } \\
+                          --max-flag-code ${ params.max_flag_code }
     fi
     """
 }
