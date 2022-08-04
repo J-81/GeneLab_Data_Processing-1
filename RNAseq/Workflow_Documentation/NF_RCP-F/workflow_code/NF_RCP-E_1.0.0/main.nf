@@ -308,7 +308,8 @@ workflow {
             not appropriate for non-genelab datasets 
             as supplied via a direct runsheet
          */
-        POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
+        // POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
+        // Moving to outside workflow
       }
 
       // Generate final versions output
