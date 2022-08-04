@@ -58,7 +58,13 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # Annotation table build overview with example commands  
 
-> Current GeneLab annotation tables are available on [figshare](https://figshare.com/), exact links for each reference organism are provided in the [GL-DPPD-7110_annotations.csv](GL-DPPD-7110_annotations.csv) file.
+> Current GeneLab annotation tables are available on [figshare](https://figshare.com/), exact links for each reference organism are provided in the [GL-DPPD-7110_annotations.csv](GL-DPPD-7110_annotations.csv) file.  
+> 
+> [Ensembl Reference Files](https://www.ensembl.org/index.html) Used:
+> - Animals: Ensembl release 107
+> - Plants: Ensembl plants release 54
+> - Bacteria: Ensembl bacteria release 54
+
 
 ---
 
