@@ -303,18 +303,12 @@ workflow {
                                                     VV_RSEM_COUNTS.out.log,
                                                     VV_DESEQ2_ANALYSIS.out.log,
                                                     ) | collect )
-        
-      // VV_CONCAT_FILTER( 
-      //   ch_vv_log_01 | mix(
-      //                 ch_vv_log_02,
-      //                 ch_vv_log_03,
-      //                 ch_vv_log_04,
-      //                 ch_vv_log_05,
-      //                 ch_vv_log_06
-      //               ) | collect
-        
       if (!params.runsheetPath) {
-        // POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
+        /* Genelab specific post processing, 
+            not appropriate for non-genelab datasets 
+            as supplied via a direct runsheet
+         */
+        POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
       }
 
       // Generate final versions output
