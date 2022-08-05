@@ -14,7 +14,7 @@ The current GeneLab Reference Annotation Table (GL_RefAnnotTable) pipeline is im
 
 ### 1. Install R and R packages
 
-We recomment installing R via the [Comprehensice R Archive Network (CRAN)](https://cran.r-project.org/) as follows: 
+We recommend installing R via the [Comprehensive R Archive Network (CRAN)](https://cran.r-project.org/) as follows: 
 
 1. Select the [CRAN Mirror](https://cran.r-project.org/mirrors.html) closest to your location.
 2. Click the link under the "Download and Install R" section that's consistent with your machine.
@@ -30,15 +30,13 @@ R
 Within an active R environment, run the following commands to install the required R packages:
 
 ```R
-install.packages("tidyverse", version = 1.3.1)
+install.packages("tidyverse", version = 1.3.1, repos = "http://cran.us.r-project.org")
 
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(version = "3.15")
+install.packages("BiocManager", version = 3.15, repos = "http://cran.us.r-project.org")
 
-BiocManager::install("STRINGdb", version = 2.8.4)
-BiocManager::install("PANTHER.db", version = 1.0.11)
-BiocManager::install("rtracklayer", version = 1.56.1)
+BiocManager::install("STRINGdb", version = 3.15)
+BiocManager::install("PANTHER.db", version = 3.15)
+BiocManager::install("rtracklayer", version = 3.15)
 ```
 
 <br>
@@ -70,7 +68,7 @@ Rscript GL-DPPD-7110_build-genome-annots-tab.R MOUSE
 
 **Input data:**
 
-- No input files required, but a target organism must be specified as a positional command line argument, `MOUSE` is used in the example above. Current possible arguments include: MOUSE | HUMAN | ARABIDOPSIS | FLY | RAT | BACSU | WORM | ZEBRAFISH | ECOLI | YEAST
+- No input files required, but a target organism must be specified as a positional command line argument, `MOUSE` is used in the example above. Run `Rscript GL-DPPD-7110_build-genome-annots-tab.R` with no positional arugments to see the list of currently available organisms. 
 
 **Output data:**
 
