@@ -40,7 +40,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |Program|Version|Relevant Links|
 |:------|:------:|:-------------|
 |R|4.2.1|[https://www.r-project.org/](https://www.r-project.org/)|
-|Bioconductor|3.15.2|[https://bioconductor.org](https://bioconductor.org)|
+|Bioconductor|3.15|[https://bioconductor.org](https://bioconductor.org)|
 |tidyverse|1.3.2|[https://www.tidyverse.org](https://www.tidyverse.org)|
 |STRINGdb|2.8.4|[https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html](https://www.bioconductor.org/packages/release/bioc/html/STRINGdb.html)|
 |PANTHER.db|1.0.11|[https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html](https://bioconductor.org/packages/release/data/annotation/html/PANTHER.db.html)|
