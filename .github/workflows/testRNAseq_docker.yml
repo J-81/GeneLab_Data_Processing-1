@@ -1,4 +1,4 @@
-name: Runs the NF_RCP on a minimal datasets
+name: Minimal WF test using Docker
 
 # Controls when the workflow will run
 on:

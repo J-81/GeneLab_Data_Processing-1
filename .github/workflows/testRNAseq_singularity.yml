@@ -1,4 +1,4 @@
-name: Runs the NF_RCP on a minimal datasets
+name: Minimal WF test using Singularity
 
 # Controls when the workflow will run
 on:
@@ -48,11 +48,14 @@ jobs:
 
       - name: Pre-pull singularity
         run: |
+          export PATH=/usr/share/miniconda/bin:$PATH
           bash "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/bin/prepull_singularity.sh"
-          export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 
       - name: Run pipeline with test data
         run: |
+          export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
+          export PATH=/usr/share/miniconda/bin:$PATH
+
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -ansi-log false  \
