@@ -4,7 +4,7 @@
 
 ---
 
-**Date:** July XX, 2022  
+**Date:** July 26, 2022  
 **Revision:** -  
 **Document Number:** GL-DPPD-7110  
 
