@@ -40,11 +40,19 @@ jobs:
         with:
           version: "${{ matrix.NXF_VER }}"
 
-      - name: Run pipeline with test data
+      - name: Install Singularity
         run: |
           conda install -c conda-forge singularity -y
           export PATH=/usr/share/miniconda/bin:$PATH
           which singularity
+
+      - name: Pre-pull singularity
+        run: |
+          bash "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/bin/prepull_singularity.sh"
+          export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
+
+      - name: Run pipeline with test data
+        run: |
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -ansi-log false  \
