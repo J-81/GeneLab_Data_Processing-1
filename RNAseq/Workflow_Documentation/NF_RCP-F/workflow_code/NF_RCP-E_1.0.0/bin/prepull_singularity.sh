@@ -29,4 +29,3 @@ while IFS= read -r line; do
 done < $TMPFILE
 
 cd $CURDIR
-~          
