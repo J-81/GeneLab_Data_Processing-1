@@ -71,26 +71,55 @@ process GENERATE_METASHEET {
     """
 }
 
-process POST_PROCESSING {
+process GENERATE_MD5SUMS {
   // Generates tabular data indicating genelab standard publishing files, md5sum generation, and tool version table formatting
   tag "${ params.gldsAccession }"
   publishDir "${ params.outputDir }/${ params.gldsAccession }/GeneLab",
     mode: params.publish_dir_mode
 
   input:
-    path("runsheet.csv")
-    val(LAST_PROCESS_MARKER) // Unused in task, but used in workflow definition to ensure this process is last regardless of whether V&V is used
-    val(LAST_PROCESS_MARKER_2) // Unused in task, but used in workflow definition to ensure this process follows metasheet generation
+    val(meta)
+    path(data_dir)
+    path(runsheet)
+    path("DONE_SIGNAL.placeholder")
 
   output:
-    path("updated_curation_tables") // directory containing extended ISA tables
     path("*md5sum*")
 
   script:
-    root_out_dir = "${ workflow.launchDir}/${ params.outputDir }/${ params.gldsAccession }"
     """
-    generate_md5sum_files.py --root-path ${ root_out_dir } --accession ${ params.gldsAccession }
-    update_curation_table.py --root-path ${ root_out_dir } --accession ${ params.gldsAccession }
+    generate_md5sum_files.py  --root-path ${ data_dir } \\
+                              --accession ${ params.gldsAccession } \\
+                              --runsheet-path ${ runsheet } \\
+                              --data-asset-sets \\
+                                ${ meta.paired_end ? "'is paired end full'" : "'is single end full'"}
+                                ${ meta.has_ercc ? "'is paired end full'" : "'is single end full'"}
+    """
+}
+
+process UPDATE_ISA_TABLES {
+  // Generates tabular data indicating genelab standard publishing files, md5sum generation, and tool version table formatting
+  tag "${ params.gldsAccession }"
+  publishDir "${ params.outputDir }/${ params.gldsAccession }/GeneLab",
+    mode: params.publish_dir_mode
+
+  input:
+    val(meta)
+    path(data_dir)
+    path(runsheet)
+    path("DONE_SIGNAL.placeholder")
+
+  output:
+    path("updated_curation_tables") // directory containing extended ISA tables
+
+  script:
+    """
+    update_curation_table.py  --root-path ${ data_dir } \\
+                              --accession ${ params.gldsAccession } \\
+                              --runsheet-path ${ runsheet } \\
+                              --data-asset-sets \\
+                                ${ meta.paired_end ? "'is paired end full'" : "'is single end full'"}
+                                ${ meta.has_ercc ? "'is paired end full'" : "'is single end full'"}
     """
 }
 

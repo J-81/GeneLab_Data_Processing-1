@@ -31,7 +31,8 @@ include { VV_RAW_READS;
           VV_DESEQ2_ANALYSIS;
           VV_CONCAT_FILTER } from './modules/vv.nf'
 include { GET_MAX_READ_LENGTH } from './modules/fastqc.nf'
-include { POST_PROCESSING;
+include { UPDATE_ISA_TABLES;
+          GENERATE_MD5SUMS;
           SOFTWARE_VERSIONS } from './modules/genelab.nf'
 
 /**************************************************
@@ -129,7 +130,7 @@ include { staging as STAGING } from './stage_analysis.nf'
 include { references as REFERENCES } from './references.nf'
 include { strandedness as STRANDEDNESS } from './strandedness.nf'
 
-workflow {
+workflow RCP{
 	main:
     STAGING( ch_glds_accession )
     if ( params.stageLocal ) {
@@ -303,18 +304,16 @@ workflow {
                                                     VV_RSEM_COUNTS.out.log,
                                                     VV_DESEQ2_ANALYSIS.out.log,
                                                     ) | collect )
-      if (!params.runsheetPath) {
-        /* Genelab specific post processing, 
-            not appropriate for non-genelab datasets 
-            as supplied via a direct runsheet
-         */
-        // POST_PROCESSING(STAGING.out.runsheet, VV_CONCAT_FILTER.out, STAGING.out.metasheet)
-        // Moving to outside workflow
-      }
 
       // Generate final versions output
       SOFTWARE_VERSIONS(ch_final_software_versions)
+
+
     }
+    emit:
+      meta = ch_meta 
+      runsheet = STAGING.out.runsheet 
+      done = SOFTWARE_VERSIONS.out 
 }
 
 workflow.onComplete {
@@ -325,4 +324,12 @@ workflow.onComplete {
       println "V&V logs location: ${ params.outputDir }/${ params.gldsAccession }/VV_Log"
       println "Pipeline tracing/visualization files location: ${ params.tracedir }/${ params.gldsAccession }${c_reset}"
     }
+}
+
+workflow POST_PROCESSING {
+  main:
+    RCP() // Must be completed first to ensure all publish transfers are completed!
+    ch_processed_directory = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }")
+    GENERATE_MD5SUMS(RCP.out.meta, ch_processed_directory, RCP.out.runsheet, RCP.out.done)
+    UPDATE_ISA_TABLES(RCP.out.meta, ch_processed_directory, RCP.out.runsheet, RCP.out.done)
 }
