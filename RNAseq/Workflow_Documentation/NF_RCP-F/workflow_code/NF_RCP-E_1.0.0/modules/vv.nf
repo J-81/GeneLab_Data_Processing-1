@@ -272,7 +272,7 @@ process VV_DESEQ2_ANALYSIS {
     saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
-    pattern: '03-RSEM_Counts',
+    pattern: '{04-DESeq2_NormCounts,05-DESeq2_DGE}',
     mode: params.publish_dir_mode
 
   label 'VV'
@@ -316,11 +316,15 @@ process VV_DESEQ2_ANALYSIS {
                             ${ meta.has_ercc ? "'DGE Output ERCC'" : '' } \\
                           --max-flag-code ${ params.max_flag_code }
     fi
+
+    # Remove all placeholder files and empty directories to prevent publishing
+    find . -type f,l -name *.placeholder -delete
+    find . -empty -type d -delete
     """
 }
 
 process VV_CONCAT_FILTER {
-  publishDir "${ params.RootDirForVV }/VV_Logs",
+  publishDir "${ params.outputDir }/${ params.gldsAccession }/VV_Logs",
     mode: params.publish_dir_mode
 
   label 'VV'
