@@ -13,7 +13,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   test:
-    name: Run pipeline with test data
+    name: Test_WF
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -26,7 +26,6 @@ jobs:
           - "-profile test194,docker"
           - "-profile test207,docker"
           - "-profile test251,docker"
-          - "-profile test48,singularity" # Test Singularity runtime, this has been observed to have intermittent failures relating to pulling images. Reference: https://github.com/nextflow-io/nextflow/issues/1210
     ## TODO: Set up tracking via tower for tests
     #environment: Nextflow_Tower
     #env:
