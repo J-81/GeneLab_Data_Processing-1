@@ -1,8 +1,10 @@
 #!/usr/bin/env Rscript
 
-# Maintained by Mike Lee 
-# GeneLab script for generating organism ENSEMBLE annotation tables
+# Maintained by Mike Lee
+# GeneLab script for generating organism ENSEMBL annotation tables
 # Example usage: Rscript GL-DPPD-7110_build-genome-annots-tab.R MOUSE
+
+GL_DPPD_ID <- "GL-DPPD-7110"
 
 #########################################################################
 ############### Pull In and Check Command Line Arguments ################
@@ -58,23 +60,34 @@ if ( ! target_organism %in% currently_accepted_orgs ) {
 }
 
 
+## checking for required packages other than the org-specific db ##
+
+# helper function for pointing to GL setup page if missing a package
+report_package_needed <- function(package_name) {
+    cat(paste0("\n  The package '", package_name, "' is required. Please see:\n"))
+    cat("    https://github.com/asaravia-butler/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Workflow_Documentation/GL_RefAnnotTable/README.md\n\n")
+    quit()
+}
+
+# checking and reporting
+if (!requireNamespace("tidyverse", quietly = TRUE))
+    report_package_needed("tidyverse")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    report_package_needed("BiocManager")
+
+if (!requireNamespace("STRINGdb", quietly = TRUE))
+    report_package_needed("STRINGdb")
+
+if (!requireNamespace("PANTHER.db", quietly = TRUE))
+    report_package_needed("PANTHER.db")
+
+if (!requireNamespace("rtracklayer", quietly = TRUE))
+    report_package_needed("rtracklayer")
+
 #########################################################################
 ######################## Set Up Environment #############################
 #########################################################################
-
-
-## Install required R packages if not already installed ##
-## Install commands can be commented out after running this script the first time by adding a # in front of lines 69-77 ##
-
-install.packages("tidyverse")
-
-source("https://bioconductor.org/biocLite.R")
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-
-BiocManager::install("STRINGdb")
-BiocManager::install("PANTHER.db")
-BiocManager::install("rtracklayer")
 
 ## Import libraries ##
 
@@ -197,8 +210,6 @@ library(ann.dbi, character.only = TRUE)
 ######################## Build Annotation Table #########################
 #########################################################################
 
-
-
 ## Begin annotation table using unique IDs of the primary keytype ##
 
 annot <- data.frame(unique_IDs)
@@ -222,7 +233,6 @@ for ( key in wanted_keys_vec ) {
 #########################################################################
 ########################### Add STRING IDs ##############################
 #########################################################################
-
 
 ## Retrieve target organism STRING protein-protein interaction database and create STRING ID map to the primary keytype ##
 
@@ -338,21 +348,21 @@ for ( curr_row in 1:dim(annot)[1] ) {
 ############# Export Annotation Table and Build Info ####################
 #########################################################################
 
-
 ## Sort the annotation table based on primary keytype gene IDs ##
 
 annot <- annot %>% arrange(.[[1]])
 
-## Export the annotation table using the file name defined in Step 2 ##
+## Export the annotation table ##
 
 write.table(annot, out_table_filename, sep = "\t", quote = FALSE, row.names = FALSE)
 
-## Define the date the annotation table was generated ## 
+## Define the date the annotation table was generated ##
 
 date_generated <- format(Sys.time(), "%d-%B-%Y")
 
-## Export annotation table build info using the file name defined in Step 2 ##
+## Export annotation table build info ##
 
+writeLines(paste(c("Based on:\n    ", GL_DPPD_ID), collapse = ""), out_log_filename)
 writeLines(paste(c("Build done on:\n    ", date_generated), collapse = ""), out_log_filename)
 write(paste(c("\nUsed gtf file:\n    ", gtf_link), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed ", ann.dbi, " version:\n    ", packageVersion(ann.dbi) %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
@@ -361,4 +371,3 @@ write(paste(c("\nUsed PANTHER.db version:\n    ", packageVersion("PANTHER.db") %
 
 write("\n\nAll session info:\n", out_log_filename, append = TRUE)
 write(capture.output(sessionInfo()), out_log_filename, append = TRUE)
-
