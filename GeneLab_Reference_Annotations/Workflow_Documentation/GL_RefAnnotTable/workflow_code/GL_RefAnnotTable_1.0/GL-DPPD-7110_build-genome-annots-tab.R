@@ -24,9 +24,9 @@ currently_accepted_orgs <- c("ARABIDOPSIS",
                              "RAT",
                              "WORM",
                              # "YEAST", (no stringdb found, looked for: https://stringdb-static.org/download/protein.aliases.v11.0/559292.protein.aliases.v11.0.txt.gz)
-                             "ZEBRAFISH",
-                             "BACSU",
-                             "ECOLI")
+                             "ZEBRAFISH")
+                             # "BACSU", # need to work out links to ref fasta and gtf files
+                             # "ECOLI") # need to work out links to ref fasta and gtf files
 
 ## Check that at least one positional command line argument was provided ##
 
