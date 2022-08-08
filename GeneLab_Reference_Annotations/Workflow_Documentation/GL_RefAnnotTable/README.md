@@ -1,7 +1,7 @@
 # GL_RefAnnotTable Workflow Information and Usage Instructions
 
 ## General workflow info
-The current GeneLab Reference Annotation Table (GL_RefAnnotTable) pipeline is implemented as an R workflow that can be run from a command line interface (CLI) using bash. The workflow can be used even if you are unfamiliar with R, but if you want to learn more about R, visit the [R-project about page here](https://www.r-project.org/about.html). Additionally, an introduction to R along with instalation help and information about using R for bioinformatics can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/R/basics).  
+The current GeneLab Reference Annotation Table (GL_RefAnnotTable) pipeline is implemented as an R workflow that can be run from a command line interface (CLI) using bash. The workflow can be used even if you are unfamiliar with R, but if you want to learn more about R, visit the [R-project about page here](https://www.r-project.org/about.html). Additionally, an introduction to R along with installation help and information about using R for bioinformatics can be found [here at Happy Belly Bioinformatics](https://astrobiomike.github.io/R/basics).  
 
 ## Utilizing the workflow
 
@@ -30,7 +30,7 @@ R
 Within an active R environment, run the following commands to install the required R packages:
 
 ```R
-install.packages("tidyverse", version = 1.3.1, repos = "http://cran.us.r-project.org")
+install.packages("tidyverse", version = 1.3.2, repos = "http://cran.us.r-project.org")
 
 install.packages("BiocManager", version = 3.15, repos = "http://cran.us.r-project.org")
 
