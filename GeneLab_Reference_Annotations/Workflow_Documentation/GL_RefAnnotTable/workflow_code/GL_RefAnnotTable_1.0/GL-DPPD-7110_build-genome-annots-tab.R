@@ -15,9 +15,18 @@ GL_DPPD_ID <- "GL-DPPD-7110"
 
 args <- commandArgs(trailingOnly = TRUE)
 
-## Define acceptable command line arguments ##
+## Define currently acceptable input organisms (matching names in ref organisms.csv table) ##
 
-currently_accepted_orgs <- c("MOUSE", "HUMAN", "ARABIDOPSIS", "FLY", "RAT", "BACSU", "WORM", "ZEBRAFISH", "ECOLI", "YEAST")
+currently_accepted_orgs <- c("ARABIDOPSIS",
+                             "FLY",
+                             "HUMAN",
+                             "MOUSE",
+                             "RAT",
+                             "WORM",
+                             # "YEAST", (no stringdb found, looked for: https://stringdb-static.org/download/protein.aliases.v11.0/559292.protein.aliases.v11.0.txt.gz)
+                             "ZEBRAFISH",
+                             "BACSU",
+                             "ECOLI")
 
 ## Check that at least one positional command line argument was provided ##
 
@@ -236,7 +245,7 @@ for ( key in wanted_keys_vec ) {
 
 ## Retrieve target organism STRING protein-protein interaction database and create STRING ID map to the primary keytype ##
 
-string_db <- STRINGdb$new(version = "11", species = target_taxid, score_threshold = 0)
+string_db <- STRINGdb$new(version = "11.5", species = target_taxid, score_threshold = 0)
 string_map <- string_db$map(annot, primary_keytype, removeUnmappedRows = FALSE, takeFirst = FALSE)
 
 ## Add a blank line for spacing ## 
@@ -363,7 +372,7 @@ date_generated <- format(Sys.time(), "%d-%B-%Y")
 ## Export annotation table build info ##
 
 writeLines(paste(c("Based on:\n    ", GL_DPPD_ID), collapse = ""), out_log_filename)
-write(paste(c("Build done on:\n    ", date_generated), collapse = ""), out_log_filename, append = TRUE)
+write(paste(c("\nBuild done on:\n    ", date_generated), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed gtf file:\n    ", gtf_link), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed ", ann.dbi, " version:\n    ", packageVersion(ann.dbi) %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed STRINGdb version:\n    ", packageVersion("STRINGdb") %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
