@@ -206,7 +206,7 @@ for ( key in wanted_keys_vec ) {
 
 ```R
 ## Retrieve target organism STRING protein-protein interaction database and create STRING ID map to the primary keytype ##
-string_db <- STRINGdb$new(version = "11", species = target_taxid, score_threshold = 0)
+string_db <- STRINGdb$new(version = "11.5", species = target_taxid, score_threshold = 0)
 string_map <- string_db$map(annot, primary_keytype, removeUnmappedRows = FALSE, takeFirst = FALSE)
 
 ## Create a table using the gene IDs of the primary keytype as row names and a column containing STRING IDs. ##
