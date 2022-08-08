@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Maintained by Mike Lee
+# Maintained by Mike Lee 
 # GeneLab script for generating organism ENSEMBL annotation tables
 # Example usage: Rscript GL-DPPD-7110_build-genome-annots-tab.R MOUSE
 
@@ -363,7 +363,7 @@ date_generated <- format(Sys.time(), "%d-%B-%Y")
 ## Export annotation table build info ##
 
 writeLines(paste(c("Based on:\n    ", GL_DPPD_ID), collapse = ""), out_log_filename)
-writeLines(paste(c("Build done on:\n    ", date_generated), collapse = ""), out_log_filename)
+write(paste(c("Build done on:\n    ", date_generated), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed gtf file:\n    ", gtf_link), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed ", ann.dbi, " version:\n    ", packageVersion(ann.dbi) %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
 write(paste(c("\nUsed STRINGdb version:\n    ", packageVersion("STRINGdb") %>% as.character()), collapse = ""), out_log_filename, append = TRUE)
