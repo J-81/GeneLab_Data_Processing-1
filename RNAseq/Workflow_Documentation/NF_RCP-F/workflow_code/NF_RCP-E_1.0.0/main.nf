@@ -328,8 +328,8 @@ workflow.onComplete {
 
 workflow POST_PROCESSING {
   main:
-    RCP() // Must be completed first to ensure all publish transfers are completed!
     ch_processed_directory = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }")
-    GENERATE_MD5SUMS(RCP.out.meta, ch_processed_directory, RCP.out.runsheet, RCP.out.done)
-    UPDATE_ISA_TABLES(RCP.out.meta, ch_processed_directory, RCP.out.runsheet, RCP.out.done)
+    ch_runsheet = Channel.fromPath("${ params.runsheetPath }")
+    GENERATE_MD5SUMS(ch_processed_directory, ch_runsheet )
+    UPDATE_ISA_TABLES(ch_processed_directory, ch_runsheet )
 }

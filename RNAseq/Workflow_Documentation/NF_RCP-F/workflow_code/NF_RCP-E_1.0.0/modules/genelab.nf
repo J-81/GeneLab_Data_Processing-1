@@ -77,10 +77,8 @@ process GENERATE_MD5SUMS {
     mode: params.publish_dir_mode
 
   input:
-    val(meta)
     path(data_dir)
     path(runsheet)
-    path("DONE_SIGNAL.placeholder")
 
   output:
     path("*md5sum*")
@@ -89,10 +87,7 @@ process GENERATE_MD5SUMS {
     """
     generate_md5sum_files.py  --root-path ${ data_dir } \\
                               --accession ${ params.gldsAccession } \\
-                              --runsheet-path ${ runsheet } \\
-                              --data-asset-sets \\
-                                ${ meta.paired_end ? "'is paired end full'" : "'is single end full'"}
-                                ${ meta.has_ercc ? "'is paired end full'" : "'is single end full'"}
+                              --runsheet-path ${ runsheet }
     """
 }
 
@@ -103,10 +98,8 @@ process UPDATE_ISA_TABLES {
     mode: params.publish_dir_mode
 
   input:
-    val(meta)
     path(data_dir)
     path(runsheet)
-    path("DONE_SIGNAL.placeholder")
 
   output:
     path("updated_curation_tables") // directory containing extended ISA tables
@@ -115,10 +108,7 @@ process UPDATE_ISA_TABLES {
     """
     update_curation_table.py  --root-path ${ data_dir } \\
                               --accession ${ params.gldsAccession } \\
-                              --runsheet-path ${ runsheet } \\
-                              --data-asset-sets \\
-                                ${ meta.paired_end ? "'is paired end full'" : "'is single end full'"}
-                                ${ meta.has_ercc ? "'is paired end full'" : "'is single end full'"}
+                              --runsheet-path ${ runsheet }
     """
 }
 
