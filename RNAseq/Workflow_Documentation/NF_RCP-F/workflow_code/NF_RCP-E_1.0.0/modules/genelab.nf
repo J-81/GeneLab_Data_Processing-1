@@ -16,8 +16,7 @@ process RNASEQ_RUNSHEET_FROM_GLDS {
 
   script:
     """
-    dpt-get-isa-archive --accession ${ glds_accession }\
-      --alternate-url
+    dpt-get-isa-archive --accession ${ glds_accession }
 
     dpt-isa-to-runsheet --accession ${ glds_accession } \
       --config-type bulkRNASeq --isa-archive *.zip
