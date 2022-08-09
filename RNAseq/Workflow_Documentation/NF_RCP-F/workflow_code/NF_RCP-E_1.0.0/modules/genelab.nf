@@ -107,7 +107,6 @@ process UPDATE_ISA_TABLES {
   script:
     """
     update_curation_table.py  --root-path ${ data_dir } \\
-                              --accession ${ params.gldsAccession } \\
                               --runsheet-path ${ runsheet }
     """
 }
