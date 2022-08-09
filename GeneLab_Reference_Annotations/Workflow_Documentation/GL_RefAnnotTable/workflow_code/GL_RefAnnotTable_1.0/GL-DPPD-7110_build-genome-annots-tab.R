@@ -23,7 +23,7 @@ currently_accepted_orgs <- c("ARABIDOPSIS",
                              "MOUSE",
                              "RAT",
                              "WORM",
-                             # "YEAST", (no stringdb found, looked for: https://stringdb-static.org/download/protein.aliases.v11.0/559292.protein.aliases.v11.0.txt.gz)
+                             "YEAST",
                              "ZEBRAFISH")
                              # "BACSU", # need to work out links to ref fasta and gtf files
                              # "ECOLI") # need to work out links to ref fasta and gtf files
@@ -175,7 +175,7 @@ if ( file.exists(out_table_filename) ) {
 
     cat("\n-------------------------------------------------------------------------------------------------\n")
     cat(paste0("\n  The file that would be created, '", out_table_filename, "', exists already.\n"))
-    cat(paste0("\n  We don't want to overwrite it accidentally. Move it and run this again if wanting to proceed.\n"))
+    cat(paste0("  We don't want to overwrite it accidentally. Move it and run this again if wanting to proceed.\n"))
     cat("\n-------------------------------------------------------------------------------------------------\n")
 
     quit()
@@ -235,6 +235,11 @@ for ( key in wanted_keys_vec ) {
         # they come as lists when we accept the multiple hits, so converting to character strings here
         annot[[key]] <- sapply(new_list, paste, collapse = "|")
 
+    } else {
+
+        # if the annotation DB didn't have any of the wanted key types, that column will be missing
+        # adding in here as an empty column
+        annot[key] <- NA
     }
 }
 
@@ -245,10 +250,16 @@ for ( key in wanted_keys_vec ) {
 
 ## Retrieve target organism STRING protein-protein interaction database and create STRING ID map to the primary keytype ##
 
+# for YEAST, the only one in STRINGdb is the primary taxid 4932, so switching to that here
+if ( target_organism == "YEAST" ) {
+    target_taxid <- 4932
+}
+
 string_db <- STRINGdb$new(version = "11.5", species = target_taxid, score_threshold = 0)
 string_map <- string_db$map(annot, primary_keytype, removeUnmappedRows = FALSE, takeFirst = FALSE)
 
-## Add a blank line for spacing ## 
+
+## Adding some blank lines just for spacing on print-out ##
 cat("\n\n")
 
 ## Create a table using the gene IDs of the primary keytype as row names and a column containing STRING IDs. For genes containig multiple STRING IDs, combine all STRING IDs for each gene into one row and separate each ID with a '|' ##
@@ -360,6 +371,9 @@ for ( curr_row in 1:dim(annot)[1] ) {
 ## Sort the annotation table based on primary keytype gene IDs ##
 
 annot <- annot %>% arrange(.[[1]])
+
+## Replacing any blank cells with NA ##
+annot[annot == ""] <- NA
 
 ## Export the annotation table ##
 

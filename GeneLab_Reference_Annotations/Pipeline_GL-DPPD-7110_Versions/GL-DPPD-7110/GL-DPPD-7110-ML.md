@@ -194,6 +194,12 @@ for ( key in wanted_keys_vec ) {
         # they come as lists when we accept the multiple hits, so converting to character strings here
         annot[[key]] <- sapply(new_list, paste, collapse = "|")
 
+    } else {
+
+        # if the annotation DB didn't have any of the wanted key types, that column will be missing
+        # adding in here as an empty column
+        annot[key] <- NA
+
     }
 }
 
@@ -324,6 +330,9 @@ for ( curr_row in 1:dim(annot)[1] ) {
 ```R
 ## Sort the annotation table based on primary keytype gene IDs ##
 annot <- annot %>% arrange(.[[1]])
+
+## Replacing any blank cells with NA ##
+annot[annot == ""] <- NA
 
 ## Export the annotation table using the file name defined in Step 1 ##
 write.table(annot, out_table_filename, sep = "\t", quote = FALSE, row.names = FALSE)
