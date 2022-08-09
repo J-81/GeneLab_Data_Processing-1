@@ -329,7 +329,7 @@ workflow.onComplete {
 workflow POST_PROCESSING {
   main:
     ch_processed_directory = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }")
-    ch_runsheet = Channel.fromPath("${ params.runsheetPath }")
+    ch_runsheet = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }/Metadata/*_runsheet.csv")
     GENERATE_MD5SUMS(ch_processed_directory, ch_runsheet )
     UPDATE_ISA_TABLES(ch_processed_directory, ch_runsheet )
 }
