@@ -42,9 +42,7 @@ jobs:
 
       - name: Run pipeline with test data
         run: |
-          conda install -c conda-forge singularity -y
           export PATH=/usr/share/miniconda/bin:$PATH
-          which singularity
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -entry RCP  -ansi-log false  \
