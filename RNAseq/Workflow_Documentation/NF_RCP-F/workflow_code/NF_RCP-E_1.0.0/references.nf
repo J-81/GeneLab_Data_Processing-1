@@ -42,9 +42,10 @@ workflow references{
       } else {
         // use assets table to find current fasta and gtf urls
         organism_sci | map{ org -> get_reference_urls( file(params.reference_table), org ) } | DOWNLOAD_GUNZIP_REFERENCES
-        organism_sci | map{ org -> get_annotation_url( file(params.reference_table), org ) } | set{ ch_gene_annotations_url }
         DOWNLOAD_GUNZIP_REFERENCES.out | set{ genome_annotations_pre_subsample }
       }
+      // use assets table to find current annotations file
+      organism_sci | map{ org -> get_annotation_url( file(params.reference_table), org ) } | set{ ch_gene_annotations_url }
 
       // SUBSAMPLING STEP : USED FOR DEBUG/TEST RUNS
       if ( params.genomeSubsample ) {
