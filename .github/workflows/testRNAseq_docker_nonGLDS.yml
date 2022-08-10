@@ -22,7 +22,7 @@ jobs:
           - "21.10.6"
         # MUST use earlier version affected by this issue: https://github.com/nextflow-io/nextflow/issues/3023  - "latest-everything"
         RUN_PARAMS:
-          - "-profile local,docker" 
+          - "-profile test_nonGLDS,docker" 
     ## TODO: Set up tracking via tower for tests
     #environment: Nextflow_Tower
     #env:
@@ -39,9 +39,7 @@ jobs:
 
       - name: Run pipeline with test data
         run: |
-          conda install -c conda-forge singularity -y
           export PATH=/usr/share/miniconda/bin:$PATH
-          which singularity
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -entry RCP  -ansi-log false  \
