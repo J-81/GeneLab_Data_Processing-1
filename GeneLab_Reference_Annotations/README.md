@@ -8,7 +8,7 @@
 * [**Pipeline_GL-DPPD-7110_Versions**](Pipeline_GL-DPPD-7110_Versions)
 
   - Contains the current and previous GeneLab reference annotation table pipeline versions documentation
-    > * Links to GeneLab reference annotation tables for each model organism is provided in the \*_annotations.csv file within each pipeline version sub-directory, and the \*_build-info.txt files hold all version information and the date of the build
+    > * Links to GeneLab reference annotation tables for each model organism is provided in the `genelab_annots_link` column of the \*_annotations.csv file within each pipeline version sub-directory. The respective link in the `genelab_annots_info_link` column of the \*_annotations.csv file holds the exact processing script, build info, and date the reference annotation table for each model organism was created. 
 
 * [**Workflow_Documentation**](Workflow_Documentation)
 
