@@ -7,9 +7,26 @@ include { CONCAT_ERCC;
           TO_PRED;
           TO_BED } from './modules/genome.nf'
 
-include { DOWNLOAD_GENOME_ANNOTATIONS as DOWNLOAD_TOPLEVEL_REF } from './modules/download.nf' addParams(ref_target: "toplevel")
 
-include { DOWNLOAD_GENOME_ANNOTATIONS as DOWNLOAD_PRIMARY_ASSEMBLY_REF } from './modules/download.nf' addParams(ref_target: "primary_assembly")
+include { DOWNLOAD_GUNZIP_REFERENCES } from './modules/download.nf' addParams(ref_target: "primary_assembly")
+
+def get_reference_urls(csv_table, organism_sci) {
+    def organisms = [:]
+      csv_table.splitEachLine(",") {fields ->
+          organisms[fields[1]] = fields
+    }
+    target_row = organisms[organism_sci.capitalize().replace("_"," ")]
+    return tuple(organism_sci, target_row[2], target_row[3])
+}
+
+def get_annotation_url(csv_table, organism_sci) {
+    def organisms = [:]
+      csv_table.splitEachLine(",") {fields ->
+          organisms[fields[1]] = fields
+    }
+    target_row = organisms[organism_sci.capitalize().replace("_"," ")]
+    return target_row[6]
+}
 
 /**************************************************
 * ACTUAL WORKFLOW  ********************************
@@ -22,22 +39,12 @@ workflow references{
       if (params.ref_fasta && params.ref_gtf) {
         genome_annotations_pre_subsample = Channel.fromPath([params.ref_fasta, params.ref_gtf], checkIfExists: true).toList()
         genome_annotations_pre_subsample | view
-      } else if ( params.ref_order == 'primary_assemblyELSEtoplevel' ) {
-        annotations = Channel.empty()
-        DOWNLOAD_PRIMARY_ASSEMBLY_REF( organism_sci ) | map { it -> ( it[0].name.startsWith("D.N.E.") ) ? [-1, it] : [2, it] } // assign priority value, -1 if this is a DNE marker file, 2 otherwise
-                                                      | view { "Primary Assembly Channel: $it" }
-                                                      | set{pa}
-        DOWNLOAD_TOPLEVEL_REF( organism_sci ) | map { it -> [1, it] } | set{tl}
-
-        annotations | mix(pa,tl)
-                    | view
-                    | max { it[0] }
-                    | map { it[1] }
-                    | set { genome_annotations_pre_subsample }
-        
-      } else if (params.ref_order == 'toplevel' ) {
-      	DOWNLOAD_TOPLEVEL_REF( organism_sci ) | set { genome_annotations_pre_subsample }
-      } 
+      } else {
+        // use assets table to find current fasta and gtf urls
+        organism_sci | map{ org -> get_reference_urls( file(params.reference_table), org ) } | DOWNLOAD_GUNZIP_REFERENCES
+        organism_sci | map{ org -> get_annotation_url( file(params.reference_table), org ) } | set{ ch_gene_annotations_url }
+        DOWNLOAD_GUNZIP_REFERENCES.out | set{ genome_annotations_pre_subsample }
+      }
 
       // SUBSAMPLING STEP : USED FOR DEBUG/TEST RUNS
       if ( params.genomeSubsample ) {
@@ -58,4 +65,5 @@ workflow references{
   emit:
       genome_annotations = genome_annotations
       genome_bed = TO_BED.out
+      gene_annotations = ch_gene_annotations_url
 }

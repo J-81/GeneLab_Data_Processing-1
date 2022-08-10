@@ -200,17 +200,16 @@ workflow RCP{
 
       QUANTIFY_RSEM_GENES( ch_samples_txt, rsem_ch )
 
-      organism_ch = channel.fromPath( params.organismCSV )
+      organism_ch = channel.fromPath( params.reference_table )
 
       // Note: This is loaded as a zip file to ensure correct caching (directories don't seem to yield identical hases)
       ch_r_scripts = channel.fromPath( "${ projectDir }/bin/dge_annotation_R_scripts.zip" ) 
-      ch_annotation_path = channel.fromPath( params.annotation_path )
 
       DGE_BY_DESEQ2(STAGING.out.runsheet, 
                     organism_ch, 
                     COUNT_ALIGNED.out.gene_counts | toSortedList, 
                     ch_meta, 
-                    ch_annotation_path, 
+                    REFERENCES.out.gene_annotations, 
                     ch_r_scripts
                     )
 
