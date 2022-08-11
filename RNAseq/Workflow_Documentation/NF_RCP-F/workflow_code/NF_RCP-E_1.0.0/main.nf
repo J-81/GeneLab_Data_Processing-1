@@ -329,8 +329,8 @@ workflow STAGING_ONLY {
 
 workflow POST_PROCESSING {
   main:
-    ch_processed_directory = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }")
-    ch_runsheet = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }/Metadata/*_runsheet.csv")
+    ch_processed_directory = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }", checkIfExists: true)
+    ch_runsheet = Channel.fromPath("${ params.outputDir }/${ params.gldsAccession }/Metadata/*_runsheet.csv", checkIfExists: true)
     GENERATE_MD5SUMS(ch_processed_directory, ch_runsheet )
     UPDATE_ISA_TABLES(ch_processed_directory, ch_runsheet )
 }
