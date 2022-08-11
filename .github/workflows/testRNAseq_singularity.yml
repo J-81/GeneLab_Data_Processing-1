@@ -59,6 +59,9 @@ jobs:
         run: |
           export PATH=/usr/share/miniconda/bin:$PATH
           bash "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/bin/prepull_singularity.sh" "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/config/software/by_docker_image.config"
+          ls -l
+          pwd
+
       - name: Run pipeline with test data
         run: |
           export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
