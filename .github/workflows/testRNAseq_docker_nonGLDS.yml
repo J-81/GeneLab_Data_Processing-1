@@ -51,4 +51,4 @@ jobs:
         if: always()
         with:
           name: workflow-logs
-          path: /*/Resource_Usage
+          path: /CustomAnalysis/Resource_Usage
