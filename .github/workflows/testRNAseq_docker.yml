@@ -45,7 +45,7 @@ jobs:
           export PATH=/usr/share/miniconda/bin:$PATH
           MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
-                  -name "GH_CI_$(date '+%s')" -entry RCP  -ansi-log false  \
+                  -name "GH_CI_$(date '+%s')" -ansi-log false  \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; } 
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -entry POST_PROCESSING  -ansi-log false  \
@@ -56,4 +56,6 @@ jobs:
         if: always()
         with:
           name: workflow-logs
-          path: "${GITHUB_WORKSPACE}/GLDS*/{Resource_Usage,VV_Logs}/*"
+          path: |
+            ${{ github.workspace }}/GLDS-*/VV_Logs/*
+            ${{ github.workspace }}/GLDS-*/Resource_Usage/*

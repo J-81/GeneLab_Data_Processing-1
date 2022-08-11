@@ -130,7 +130,7 @@ include { staging as STAGING } from './stage_analysis.nf'
 include { references as REFERENCES } from './references.nf'
 include { strandedness as STRANDEDNESS } from './strandedness.nf'
 
-workflow RCP{
+workflow {
 	main:
     STAGING( ch_glds_accession, params.stageLocal )
     // This process can use a single meta and a collection of read paths
