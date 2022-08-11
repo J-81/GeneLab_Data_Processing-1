@@ -24,15 +24,13 @@ def _parse_args():
 
     parser.add_argument("--root-path", required=True, help="Root data path")
 
-    parser.add_argument("--accession", required=True, help="Accession number")
-
     parser.add_argument("--runsheet-path", required=True, help="Runsheet path")
 
     args = parser.parse_args()
     return args
 
 
-def main(root_dir: Path, accession: str, runsheet_path: Path):
+def main(root_dir: Path, runsheet_path: Path):
     # Use runsheet to determine if paired end
     is_paired_end = all(pd.read_csv(runsheet_path)["paired_end"].unique())
     has_ERCC = all(pd.read_csv(runsheet_path)["has_ERCC"].unique())
@@ -74,8 +72,15 @@ def main(root_dir: Path, accession: str, runsheet_path: Path):
         df_subset = df.loc[df["tags"].apply(lambda l: tag in l)].drop(
             "tags", axis="columns"
         )
-        df_subset.to_csv(f"{accession}_{tag}_md5sum.tsv", sep="\t", index=False)
+        df_subset.to_csv(f"{tag}_md5sum.tsv", sep="\t", index=False)
 
+    # Log missing files
+    print(df.columns)
+    missing_files = df.loc[df['md5sum'] == "USER MUST ADD MANUALLY!"]["filename"].to_list()
+    if missing_files:
+        with open("Missing_md5sum_files.txt", "w") as f:
+            for missing in missing_files:
+                f.write(missing+"\n")
 
 if __name__ == "__main__":
     import logging
@@ -83,4 +88,4 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log = logging.getLogger(__name__)
     args = _parse_args()
-    main(Path(args.root_path), accession=args.accession, runsheet_path=Path(args.runsheet_path))
+    main(Path(args.root_path), runsheet_path=Path(args.runsheet_path))

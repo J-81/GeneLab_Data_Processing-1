@@ -82,11 +82,11 @@ process GENERATE_MD5SUMS {
 
   output:
     path("*md5sum*")
+    path("Missing_md5sum_files.txt"), optional: true
 
   script:
     """
     generate_md5sum_files.py  --root-path ${ data_dir } \\
-                              --accession ${ params.gldsAccession } \\
                               --runsheet-path ${ runsheet }
     """
 }
