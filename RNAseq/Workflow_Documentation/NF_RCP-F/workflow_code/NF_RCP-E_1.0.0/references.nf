@@ -56,7 +56,8 @@ workflow references{
       }
 
       // ERCC STEP : ADD ERCC Fasta and GTF to genome files
-      CONCAT_ERCC( genome_annotations_pre_ercc, DOWNLOAD_ERCC(), organism_sci, has_ercc )
+      DOWNLOAD_ERCC(has_ercc).ifEmpty([file("ERCC92.fa"), file("ERCC92.gtf")]) | set { ch_maybe_ercc_refs }
+      CONCAT_ERCC( genome_annotations_pre_ercc, ch_maybe_ercc_refs, organism_sci, has_ercc )
       .ifEmpty { genome_annotations_pre_ercc.value }  | set { genome_annotations }
 
 

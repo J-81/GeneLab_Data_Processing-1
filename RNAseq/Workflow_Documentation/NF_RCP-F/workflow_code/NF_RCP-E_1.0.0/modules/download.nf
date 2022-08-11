@@ -29,9 +29,13 @@ process DOWNLOAD_ERCC {
   storeDir "${params.referenceStorePath}/ERCC_thermofisher"
 
   input:
+    val(has_ercc)
 
   output:
     tuple path("ERCC92.fa"), path("ERCC92.gtf")
+
+  when:
+    has_ercc
 
   script:
     """
