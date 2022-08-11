@@ -46,11 +46,19 @@ jobs:
           export PATH=/usr/share/miniconda/bin:$PATH
           which singularity
 
-      - name: Pre-pull singularity
+      - name: Cache Singularity Images
+        id: cache-singularity-images
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./singularity
+          key: Singularity_Image_Cache-${{ hashFiles('./singularity/*') }}
+
+      - if: ${{ steps.cache-singularity-images.outputs.cache-hit == 'false' }}
+        name: Pre-pull singularity
         run: |
           export PATH=/usr/share/miniconda/bin:$PATH
           bash "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/bin/prepull_singularity.sh" "${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/config/software/by_docker_image.config"
-
       - name: Run pipeline with test data
         run: |
           export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
