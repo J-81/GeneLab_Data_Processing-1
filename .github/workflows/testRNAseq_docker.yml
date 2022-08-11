@@ -50,3 +50,10 @@ jobs:
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -entry POST_PROCESSING  -ansi-log false  \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; } 
+
+      - name: Archive Workflow Logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: workflow-logs
+          path: */Resource_Usage
