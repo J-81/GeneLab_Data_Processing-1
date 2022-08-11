@@ -51,4 +51,4 @@ jobs:
         if: always()
         with:
           name: workflow-logs
-          path: /CustomAnalysis/Resource_Usage
+          path: ${GITHUB_WORKSPACE}/CustomAnalysis/{Resource_Usage,VV_Logs}
