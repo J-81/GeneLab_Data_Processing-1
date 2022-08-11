@@ -45,3 +45,10 @@ jobs:
                   -name "GH_CI_$(date '+%s')" -entry RCP  -ansi-log false  \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; }
           ls -l
+
+      - name: Archive Workflow Logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: workflow-logs
+          path: /*/Resource_Usage
