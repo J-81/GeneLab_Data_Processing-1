@@ -51,10 +51,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ./singularity
-          key: Singularity_Image_Cache-${{ hashFiles('./singularity/*') }}
+            singularity
+          key: Singularity_Image_Cache-${{ hashFiles('singularity/*') }}
 
-      - if: ${{ steps.cache-singularity-images.outputs.cache-hit == 'false' }}
+      - if: steps.cache-singularity-images.outputs.cache-hit != 'true'
         name: Pre-pull singularity
         run: |
           export PATH=/usr/share/miniconda/bin:$PATH
