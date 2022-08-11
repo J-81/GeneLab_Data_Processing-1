@@ -9,7 +9,7 @@ process VV_RAW_READS {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: '00-RawData/**',
@@ -61,7 +61,7 @@ process VV_TRIMMED_READS {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: '01-TG_Preproc/**',
@@ -114,7 +114,7 @@ process VV_STAR_ALIGNMENTS {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: '02-STAR_Alignment',
@@ -160,7 +160,7 @@ process VV_RSEQC {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: 'RSeQC_Analyses',
@@ -225,7 +225,7 @@ process VV_RSEM_COUNTS {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: '03-RSEM_Counts',
@@ -269,7 +269,7 @@ process VV_DESEQ2_ANALYSIS {
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern:  "VV_log.tsv" ,
     mode: params.publish_dir_mode,
-    saveAs: { "VV_Logs/VV_log_${ task.process }.tsv" }
+    saveAs: { "VV_Logs/VV_log_${ task.process.replace(":","-") }.tsv" }
   // V&V'ed data publishing
   publishDir "${ params.outputDir }/${ params.gldsAccession }",
     pattern: '{04-DESeq2_NormCounts,05-DESeq2_DGE}',
