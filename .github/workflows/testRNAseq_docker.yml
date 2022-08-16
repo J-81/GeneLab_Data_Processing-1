@@ -42,7 +42,7 @@ jobs:
       - name: Run pipeline with test data
         run: |
           export PATH=/usr/share/miniconda/bin:$PATH
-          MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-E_1.0.0/main.nf"
+          MAIN_NF="${GITHUB_WORKSPACE}/RNAseq/Workflow_Documentation/NF_RCP-F/workflow_code/NF_RCP-F_1.0.0/main.nf"
           nextflow run ${MAIN_NF}  ${{ matrix.RUN_PARAMS }} \
                   -name "GH_CI_$(date '+%s')" -ansi-log false  \
                   || { ORIG_ERROR=$?; cat .nextflow.log; exit ORIG_ERROR; } 
