@@ -68,20 +68,20 @@ We recommend installing Singularity on a system wide level as per the associated
 
 Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
 
-### 2. Download the Workflow Files and Singularity Image
-All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. 
+### 2. Download the Workflow Files
+All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory.
 
-The code is most easily downloaded from the release page. 
+The code is most easily downloaded from the release page.
 
 An example of downloading and unzipping the code is provided below:
 
-```bash 
+```bash
 wget https://github.com/asaravia-butler/GeneLab_Data_Processing/releases/download/NF_RCP-F_1.0.0/NF_RCP-F_1.0.0.zip
 
 unzip NF_RCP-F_1.0.0.zip
 ```
 
-#### 4. Fetch Singularity Images
+### 3. Fetch Singularity Images
 
 While Nextflow is able to manage fetching Singularity images from url. This feature currently causes frequent intermittent issues ([nextflow-issue #1210](https://github.com/nextflow-io/nextflow/issues/1210)).
 
@@ -99,7 +99,7 @@ This will create a 'singularity' folder containing the Singularity images.  This
 export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 ```
 
-### 5. Run the Workflow
+### 4. Run the Workflow
 
 While in the NF_RCP-F workflow directory, you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
