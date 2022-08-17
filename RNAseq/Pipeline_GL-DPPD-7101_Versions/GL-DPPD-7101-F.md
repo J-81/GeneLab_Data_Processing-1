@@ -1,6 +1,6 @@
 # GeneLab bioinformatics processing pipeline for Illumina RNA-sequencing data
 
-> **This page holds an overview and instructions for how GeneLab processes RNAseq datasets. Exact processing commands and GL-DPPD-7101 version used for specific datasets are available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and processed data output files are provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This page holds an overview and instructions for how GeneLab processes RNAseq datasets. Exact processing commands and GL-DPPD-7101 version used for specific datasets are available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory and processed data output files are provided in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -21,7 +21,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 ## Updates from previous version
 
-Updated [Ensembl Reference Files](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-F_ensembl_refs.csv) now used:
+Updated [Ensembl Reference Files](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) now use:
 - Animals: Ensembl release 107
 - Plants: Ensembl plants release 54
 - Bacteria: Ensembl bacteria release 54
@@ -30,7 +30,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 
 - A separate sub-step, [step 9a](#9a-create-sample-runsheet), was added to use the [dp_tools](https://github.com/J-81/dp_tools) program to create a runsheet containing all the metadata needed for running DESeq2, including ERCC spike-in status and sample grouping. This runsheet is imported in the DESeq2 script in place of parsing the ISA.zip file associated with the GLDS dataset. 
 
-- GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version GL-DPPD-71XX](https://github.com/asaravia-butler/GeneLab_Data_Processing/tree/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX) is now imported in the DESeq2 script to add gene annotations in [step 9f](#9f-prepare-genelab-dge-tables-with-annotations-on-datasets-with-ercc-spike-in) and [step 9i](#9i-prepare-genelab-dge-tables-with-annotations-on-datasets-without-ercc-spike-in). 
+- GeneLab now creates a custom reference annotation table as detailed in the [GeneLab_Reference_Annotations](../../GeneLab_Reference_Annotations) directory. The GeneLab Reference Annotation tables for each model organism created with [version GL-DPPD-7110](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110) is now imported in the DESeq2 script to add gene annotations in [step 9f](#9f-prepare-genelab-dge-tables-with-annotations-on-datasets-with-ercc-spike-in) and [step 9i](#9i-prepare-genelab-dge-tables-with-annotations-on-datasets-without-ercc-spike-in). 
 
 - Added the `ERCCnorm_SampleTable.csv` output file in [step 9g](#9g-export-genelab-dge-tables-with-annotations-for-datasets-with-ercc-spike-in) to indicate the samples used in the DESeq2 Normalization and DGE step for datasets with ERCC spike-in.
   > Note: In most cases, the ERCCnorm_SampleTable.csv and SampleTable.csv files are the same. They will only differ when, for the ERCC-based analysis, samples are removed due to a lack of detectable Group B ERCC spike-in genes.
@@ -76,7 +76,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
     - [8b. Compile RSEM Count Logs](#8b-compile-rsem-count-logs)
     - [8c. Calculate Total Number of Genes Expressed Per Sample in R](#8c-calculate-total-number-of-genes-expressed-per-sample-in-r)
   - [9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
-    - [9a. Create Sample Runsheet](#9a-create-sample-runsheet)
+    - [9a. Create Sample RunSheet](#9a-create-sample-runsheet)
     - [9b. Environment Set Up](#9b-environment-set-up)
     - [9c. Configure Metadata, Sample Grouping, and Group Comparisons](#9c-configure-metadata-sample-grouping-and-group-comparisons)
     - [9d. Import RSEM GeneCounts](#9d-import-rsem-genecounts)
@@ -115,14 +115,15 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
-|dp_tools|TODO:XXX|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|dp_tools|1.1.0|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|singularity|3.9|[https://sylabs.io/](https://sylabs.io/)|
 
 ---
 
 # General processing overview with example commands  
 
-> Exact processing commands for specific datasets are provided in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory.
->  
+> Exact processing commands for specific datasets are provided in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory.
+> 
 > All output files marked with a \# are published for each RNAseq processed dataset in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects). 
 
 ---
@@ -295,8 +296,8 @@ STAR --runThreadN NumberOfThreads \
 
 **Input Data:**
 
-- *.fasta ([genome sequence](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
-- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
+- *.fasta (genome sequence, this scRCP version uses the Ensembl fasta file indicated in the `fasta` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
+- *.gtf (genome annotation, this scRCP version uses the Ensembl gtf file indicated in the `gtf` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
 
 **Output Data:**
 
@@ -391,8 +392,8 @@ STAR --twopassMode Basic \
 - *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
 - *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
-- *Log.out
-- *Log.progress.out
+- *Log.out (main log file containint detailed info about the STAR run)
+- *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, % of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
 - *_STARgenome (directory containing the following:)
   - sjdbInfo.txt
@@ -486,8 +487,8 @@ sessionInfo()
 
 ```bash
 samtools sort -m 3G \
-  --threads NumberOfThreads \
-  -o /path/to/*Aligned.sortedByCoord_sorted.out.bam \
+	--threads NumberOfThreads \
+	-o /path/to/*Aligned.sortedByCoord_sorted.out.bam \
   /path/to/*Aligned.sortedByCoord.out.bam
 ```
 
@@ -516,7 +517,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 **Parameter Definitions:**
 
 - `-@` - number of threads available on server node to index the sorted alignment files
-- `/path/to/*Aligned.sortedByCoord_sorted.out.bam` – the path to the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [Step 4d](#4d-sort-aligned-reads), provided as a positional argument
+- `/path/to/*Aligned.sortedByCoord_sorted.out.bam` – the path to the sorted *Aligned.sortedByCoord_sorted.out.bam output files from the [step 4d](#4d-sort-aligned-reads), provided as a positional argument
 
 **Input Data:**
 
@@ -549,7 +550,7 @@ gtfToGenePred /path/to/annotation/gtf/file \
 
 **Input Data:**
 
-- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
+- *.gtf (genome annotation, this scRCP version uses the Ensembl gtf file indicated in the `gtf` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
 
 **Output Data:**
 
@@ -677,7 +678,7 @@ multiqc --interactive -n genebody_cov_multiqc -o /path/to/geneBody_coverage_mult
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/geneBody_coverage/output/files` – the directory holding the geneBody_coverage output files from [Step 6c](#6c-evaluate-genebody-coverage), provided as a positional argument
+- `/path/to/geneBody_coverage/output/files` – the directory holding the geneBody_coverage output files from [step 6c](#6c-evaluate-genebody-coverage), provided as a positional argument
 
 **Input Data:**
 
@@ -818,8 +819,8 @@ rsem-prepare-reference --gtf /path/to/annotation/gtf/file \
 
 **Input Data:**
 
-- *.fasta ([genome sequence](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
-- *.gtf ([genome annotation](../GeneLab_Reference_and_Annotation_Files/GL-DPPD-7101-E_ensembl_refs.csv))
+- *.fasta (genome sequence, this scRCP version uses the Ensembl fasta file indicated in the `fasta` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
+- *.gtf (genome annotation, this scRCP version uses the Ensembl gtf file indicated in the `gtf` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
 
 **Output Data:**
 
@@ -971,31 +972,30 @@ sessionInfo()
 
 <br>
 
-### 9a. Create Sample Runsheet
+### 9a. Create Sample RunSheet
 
-This document describes the creation of Runsheets from GLDS ISA Archives using a script from dp_tools.
-
-Runsheets may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
+> Note: Rather than running the command below to create the runsheet needed for processing, the runsheet may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
 
 ```bash
-dpt-isa-to-runsheet --accession GLDS-194 \
-                    --config-type bulkRNASeq --isa-archive /path/to/ISAArchiveZip
+dpt-isa-to-runsheet --accession GLDS-### \
+ --config-type bulkRNASeq \
+ --isa-archive /path/to/*ISA.zip
 ```
 
 **Parameter Definitions:**
 
-- `--accession` - GLDS accession ID, used to retrieve the urls for raw reads hosted on the GeneLab Repository
-- `GLDS-194` - An example GLDS accession ID, should be replaced with the accession ID that corresponds to the ISA archive a runsheet is to be prepared from
-- `--config-type` - Instructs the script to extract the metadata required for bulkRNASeq processing from the ISA archive
-- `--isa-archive` - The ISA archive to extract metadata from
+- `--accession GLDS-###` - GLDS accession ID (replace ### with the GLDS number being processed), used to retrieve the urls for raw reads hosted on the GeneLab Repository
+- `--config-type` - Instructs the script to extract the metadata required for bulk RNAseq processing from the ISA archive
+- `--isa-archive` - Specifies the path to the \*ISA.zip file for the respective GLDS dataset 
+
 
 **Input Data:**
 
-- ISAArchiveZip (ISA Archive file for the GLDS entry)
+- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
 
 **Output Data:**
 
-- {GLDS-Accession-ID}_bulkRNASeq_v{version}.csv\# (table containing metadata required for analysis, version denotes the internal dp_tools schema used to specify the metadata to extract from the ISA archive)
+- {GLDS-Accession-ID}_bulkRNASeq_v{version}.csv\# (table containing metadata required for processing, version denotes the dp_tools schema used to specify the metadata to extract from the ISA archive)
 
 <br>
 
@@ -1006,7 +1006,6 @@ dpt-isa-to-runsheet --accession GLDS-194 \
 
 
 install.packages("tidyverse")
-install.packages("stringr")
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install(version = "3.14")
@@ -1030,7 +1029,7 @@ organism <- "organism_that_samples_were_derived_from"
 
 ### Define the location of the input data and where the ouput data will be printed to ###
 
-runsheet_path="/path/to/directory/containing/runsheet.csv/file" ## This is the runsheet created in step 9a above
+runsheet_path="/path/to/directory/containing/runsheet.csv/file" ## This is the runsheet created in Step 9a above
 work_dir="/path/to/working/directory/where/script/is/executed/from" 
 counts_dir="/path/to/directory/containing/RSEM/counts/files"
 norm_output="/path/to/normalized/counts/output/directory"
@@ -1038,10 +1037,10 @@ DGE_output="/path/to/DGE/output/directory"
 DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed for datasets with ERCC spike-in
 
 
-### Pull in the GeneLab annotation table (GL-DPPD-71XX) organisms.csv file ###
+### Pull in the GeneLab annotation table (GL-DPPD-7110) organisms.csv file ###
 
 ###### TODO: CHANGE THIS TO OFFICIAL NASA GITHUB
-org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv"
+org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_organisms.csv"
 
 org_table <- read.table(org_table_link, sep = ",", header = TRUE)
 
@@ -1062,7 +1061,7 @@ setwd(file.path(work_dir))
 ### 9c. Configure Metadata, Sample Grouping, and Group Comparisons
 
 ```R
-### Pull all factors for each sample in the study from the runsheet created in step 9a ###
+### Pull all factors for each sample in the study from the runsheet created in Step 9a ###
 
 compare_csv_from_runsheet <- function(runsheet_path) {
     df = read.csv(runsheet_path)
@@ -1137,7 +1136,6 @@ txi.rsem$length[txi.rsem$length == 0] <- 1
 <br>
 
 ### 9e. Perform DGE on Datasets With ERCC Spike-In
-
 > Note: For datasets that do not contain ERCC spike-in, skip to [Step 9h](#9h-perform-dge-on-datasets-without-ercc-spike-in)
 
 ```R
@@ -1844,9 +1842,10 @@ sessionInfo()
 
 **Input Data:**
 
-- *runsheet.csv file (table containing metadata required for analysis, output from [Step 9a](#9a-create-sample-runSheet))
-- [GL-DPPD-71XX_organisms.csv](https://github.com/asaravia-butler/GeneLab_Data_Processing/blob/amanda-branch/GeneLab_Reference_Annotations/GL-DPPD-71XX_Versions/GL-DPPD-71XX/GL-DPPD-71XX_organisms.csv) (csv file containing link to GeneLab annotations)
+- *runsheet.csv file (table containing metadata required for analysis, output from [step 9a](#9a-create-sample-runsheet))
+- [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
+
 
 **Output Data for Datasets with ERCC Spike-In:**
 
@@ -1857,7 +1856,7 @@ Output data without considering ERCC spike-in genes:
 - SampleTable.csv\# (table containing samples and their respective groups)
 - visualization_output_table.csv (file used to generate GeneLab DGE visualizations)
 - visualization_PCA_table.csv (file used to generate GeneLab PCA plots)
-- differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
+- differential_expression.csv\# (table containing normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations) 
 - contrasts.csv\# (table containing all pairwise comparisons)
 
 Output data with considering ERCC spike-in genes:
@@ -1887,8 +1886,7 @@ Output data with considering ERCC spike-in genes:
 
 ---
 
-## 10. Evaluate ERCC Spike-In Data
-
+## 10. Evaluate ERCC Spike-In Data 
 > Note: This is only applicable for datasets with ERCC spike-in
 
 <br>
