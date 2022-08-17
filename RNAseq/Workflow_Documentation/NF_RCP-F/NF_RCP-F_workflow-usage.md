@@ -149,7 +149,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
     | Homo sapiens                                     | 107            | ensembl          |
     | Mus musculus                                     | 107            | ensembl          |
     | Rattus norvegicus                                | 107            | ensembl          |
-    | Saccharomy cescerevisiae(strainATCC204508/S288c) | 107            | ensembl          |
+    | Saccharomyces cerevisiae (strainATCC204508/S288c) | 107            | ensembl          |
 
 #### **Approach 2**: Run the workflow on GLDS datasets using local Ensembl reference fasta and gtf files
 
