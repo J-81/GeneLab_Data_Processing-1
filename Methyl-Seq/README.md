@@ -1,6 +1,6 @@
 # GeneLab bioinformatics processing pipeline for Methylation Sequencing (Methyl-Seq) data
 
-> **The document [`GL-DPPD-XXXX.md`](Pipeline_GL-DPPD-XXXX_Versions/GL-DPPD-XXXX.md) holds an overview and example commands for how GeneLab processes Methylation Sequencing (Methyl-Seq) data generated using the reduced-representation bisulfite sequencing (RRBS-Seq) process. Processed data output files and a GeneLab data processing summary is provided for each GLDS dataset in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects). 
+> **The document [`GL-DPPD-XXXX.md`](Pipeline_GL-DPPD-XXXX_Versions/GL-DPPD-XXXX.md) holds an overview and example commands for how GeneLab processes Methylation Sequencing (Methyl-Seq) data generated using the reduced-representation bisulfite sequencing (RRBS-Seq) process. Processed data output files and a GeneLab data processing summary is provided for each GLDS dataset in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).** 
 
 ---
 
