@@ -4,7 +4,7 @@
 
 ---
 
-** Note: The [`GL-DPPD-XXXX.md`](Pipeline_GL-DPPD-XXXX_Versions/GL-DPPD-XXXX.md) pipeline is currently in a draft form ready for review. Example output files for reviewers can be found [here](https://drive.google.com/drive/folders/11fEFOn1Br6wJ4g_zBJ0ZkOGPEUxl07ZE?usp=sharing).**
+**Note: The [`GL-DPPD-XXXX.md`](Pipeline_GL-DPPD-XXXX_Versions/GL-DPPD-XXXX.md) pipeline is currently in a draft form ready for review. Example output files for reviewers can be found [here](https://drive.google.com/drive/folders/11fEFOn1Br6wJ4g_zBJ0ZkOGPEUxl07ZE?usp=sharing).**
 
 ---
 
