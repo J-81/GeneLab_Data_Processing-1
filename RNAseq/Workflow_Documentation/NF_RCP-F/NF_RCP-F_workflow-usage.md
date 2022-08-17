@@ -81,6 +81,7 @@ We recommend installing Singularity on a system wide level as per the associated
 Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
 
 ### 2. Download the Workflow Files
+
 All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory.
 
 The code is most easily downloaded from the release page.
@@ -228,33 +229,32 @@ The outputs from the Analysis Staging and V&V Pipeline Subworkflows are describe
 
 **Analysis Staging Subworkflow**
 
-   - Output:
-     - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
-     - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
-     - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
-   
-   
+- Output:
+  - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
+  - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
+  - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
+
 **V&V Pipeline Subworkflow**
 
-   - Output:
-     - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
-     - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag level >= 30)
-     - VV_Logs/VV_log_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
-     - VV_Logs/VV_log_VV_TRIMMED_READS.tsv (table containing V&V flags for trimmed reads checks ONLY)
-     - VV_Logs/VV_log_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags for alignment file checks ONLY)
-     - VV_Logs/VV_log_VV_RSEQC.tsv (table containing V&V flags for RSeQC file checks ONLY)
-     - VV_Logs/VV_log_VV_RSEM_COUNTS.tsv (table containing V&V flags for RSEM raw count file checks ONLY)
-     - VV_Logs/VV_log_VV_DESEQ2_ANALYSIS.tsv (table containing V&V flags for DESeq2 Analysis output checks ONLY)
+- Output:
+  - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
+  - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag level >= 30)
+  - VV_Logs/VV_log_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
+  - VV_Logs/VV_log_VV_TRIMMED_READS.tsv (table containing V&V flags for trimmed reads checks ONLY)
+  - VV_Logs/VV_log_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags for alignment file checks ONLY)
+  - VV_Logs/VV_log_VV_RSEQC.tsv (table containing V&V flags for RSeQC file checks ONLY)
+  - VV_Logs/VV_log_VV_RSEM_COUNTS.tsv (table containing V&V flags for RSEM raw count file checks ONLY)
+  - VV_Logs/VV_log_VV_DESEQ2_ANALYSIS.tsv (table containing V&V flags for DESeq2 Analysis output checks ONLY)
 
 Standard Nextflow resource usage logs are also produced as follows:
 Further details about these logs can also found within this Nextflow documentation [page](https://www.nextflow.io/docs/latest/tracing.html#execution-report).
 
 **Nextflow Resource Usage Logs**
 
-   - Output:
-     - Resource_Usage/execution_report_{timestamp}.html (an html report containing many useful metrics about a workflow execution including computational resources and exact workflow process commands)
-     - Resource_Usage/execution_timeline_{timestamp}.html (an html timeline for all processes executed in your pipeline)
-     - Resource_Usage/execution_trace_{timestamp}.txt (an tsv file that contains useful information about each process executed in your pipeline script, including: submission time, start time, completion time, cpu and memory used, machine-readable output)
+- Output:
+  - Resource_Usage/execution_report_{timestamp}.html (an html report containing many useful metrics about a workflow execution including computational resources and exact workflow process commands)
+  - Resource_Usage/execution_timeline_{timestamp}.html (an html timeline for all processes executed in your pipeline)
+  - Resource_Usage/execution_trace_{timestamp}.txt (an tsv file that contains useful information about each process executed in your pipeline script, including: submission time, start time, completion time, cpu and memory used, machine-readable output)
 
 ---
 
@@ -262,6 +262,6 @@ Further details about these logs can also found within this Nextflow documentati
 
 #### Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of files from GeneLab Repository
 
-- [Github Issue Link](https://github.com/nextflow-io/nextflow/issues/2918)
+- [nextflow-issue #2918](https://github.com/nextflow-io/nextflow/issues/2918)
 - This will be fixed in an upcoming release of Nextflow. In the meantime, the workflow should work with Nextflow Version 21.10.6, which predates the introduction of the bug.
   - We recommend setting the environment variable 'NXF_VER=21.10.6' to allow Nextflow to automatically update/downgrade to that version on launch.
