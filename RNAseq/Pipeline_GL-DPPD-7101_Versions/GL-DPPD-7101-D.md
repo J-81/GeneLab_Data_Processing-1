@@ -42,29 +42,31 @@ Added "Stat_" column containing the Wald Statistic (similar to a Z-score) to the
 
 # Table of contents  
 
-- [GeneLab bioinformatics processing pipeline for Illumina RNA-sequencing data](#genelab-bioinformatics-processing-pipeline-for-illumina-rna-sequencing-data)
-  - [Updates from previous revision](#updates-from-previous-revision)
-- [Table of contents](#table-of-contents)
-- [Software used](#software-used)
-- [General processing overview with example commands](#general-processing-overview-with-example-commands)
-  - [1a. Raw Data QC](#1a-raw-data-qc)
-  - [1b. Compile Raw Data QC](#1b-compile-raw-data-qc)
-  - [2a. Trim/Filter Raw Data](#2a-trimfilter-raw-data)
-  - [2b. Trimmed Data QC](#2b-trimmed-data-qc)
-  - [2c. Compile Trimmed Data QC](#2c-compile-trimmed-data-qc)
-  - [3. Build STAR Reference](#3-build-star-reference)
-  - [4a. Align Reads to Reference Genome with STAR](#4a-align-reads-to-reference-genome-with-star)
-  - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
-  - [4c. Index Aligned Reads](#4c-index-aligned-reads)
-  - [5a. Convert GTF to genePred File](#5a-convert-gtf-to-genepred-file)
-  - [5b. Convert genePred to BED File](#5b-convert-genepred-to-bed-file)
-  - [6a. Determine Read Strandedness](#6a-determine-read-strandedness)
-  - [6b. Compile Strandedness Reports](#6b-compile-strandedness-reports)
-  - [7. Build RSEM Reference](#7-build-rsem-reference)
-  - [8. Count Aligned Reads with RSEM](#8-count-aligned-reads-with-rsem)
-  - [9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
-    - [9a. For Datasets with ERCC Spike-In](#9a-for-datasets-with-ercc-spike-in)
-    - [9b. For Datasets without ERCC Spike-In](#9b-for-datasets-without-ercc-spike-in)
+- [**Software used**](#software-used)
+- [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
+  - **1. Raw Data QC**
+    - [**1a. Raw Data QC**](#1a-raw-data-qc)
+    - [**1b. Compile Raw Data QC**](#1b-compile-raw-data-qc)
+  - **2. Trim/Filter Raw Data and Trimmed Data QC**
+    - [**2a. Trim/Filter Raw Data**](#2a-trimfilter-raw-data)
+    - [**2b. Trimmed Data QC**](#2b-trimmed-data-qc)
+    - [**2c. Compile Trimmed Data QC**](#2c-compile-trimmed-data-qc)
+  - [**3. Build STAR Reference**](#3-build-star-reference)
+  - **4. Align Reads to Reference Genome then Index**
+    - [**4a. Align Reads to Reference Genome with STAR**](#4a-align-reads-to-reference-genome-with-star)
+    - [**4b. Compile Alignment Logs**](#4b-compile-alignment-logs)
+    - [**4c. Index Aligned Reads**](#4c-index-aligned-reads)
+  - **5. Create Reference BED File**
+    - [**5a. Convert GTF to genePred File**](#5a-convert-gtf-to-genepred-file)
+    - [**5b. Convert genePred to BED File**](#5b-convert-genepred-to-bed-file)
+  - **6. Assess Strandedness**
+    - [**6a. Determine Read Strandedness**](#6a-determine-read-strandedness)
+    - [**6b. Compile Strandedness Reports**](#6b-compile-strandedness-reports)
+  - [**7. Build RSEM Reference**](#7-build-rsem-reference)
+  - [**8. Count Aligned Reads with RSEM**](#8-count-aligned-reads-with-rsem)
+  - [**9. Normalize Read Counts, Perform Differential Gene Expression Analysis, and Add Gene Annotations in R**](#9-normalize-read-counts-perform-differential-gene-expression-analysis-and-add-gene-annotations-in-r)
+    - [**9a. For Datasets with ERCC Spike-In**](#9a-for-datasets-with-ercc-spike-in)
+    - [**9b. For Datasets without ERCC Spike-In**](#9b-for-datasets-without-ercc-spike-in)
   
 ---
 
