@@ -57,8 +57,8 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 2. [Download the Workflow Files](#2-download-the-workflow-files)  
 3. [Fetch Singularity Images](#3-fetch-singularity-images)  
 4. [Run the Workflow](#4-run-the-workflow)  
-   4a. [Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files](#4a-approach-1-run-the-workflow-on-a-geneLab-RNAseq-dataset with automatic retrieval of Ensembl reference fasta and gtf files)  
-   4b. [Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files](#4b-Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files)  
+   4a. [Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files](#4a-approach-1-run-the-workflow-on-a-genelab-rnaseq-dataset-with-automatic-retrieval-of-ensembl-reference-fasta-and-gtf-files)  
+   4b. [Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files](#4b-approach-2-run-the-workflow-on-a-genelab-rnaseq-dataset-using-local-ensembl-reference-fasta-and-gtf-files)  
    4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet)  
 5. [Additional Output Files](#5-additional-output-files)  
 6. [Known Issues to Look Out For](#6-known-issues-to-look-out-for)  
@@ -137,7 +137,9 @@ export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 
 While in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files), you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
-   
+
+<br>
+
 #### 4a. Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files
 
 ```bash
@@ -179,7 +181,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 * `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
 * `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
 * `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
-  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
+  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
 
 <br>
 
