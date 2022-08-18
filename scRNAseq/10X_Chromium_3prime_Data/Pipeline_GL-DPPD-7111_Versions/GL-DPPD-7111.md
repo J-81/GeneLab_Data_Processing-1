@@ -1,4 +1,4 @@
-# GeneLab bioinformatics processing pipeline for single cell RNA-sequencing data
+# GeneLab bioinformatics processing pipeline for 10X Chromium 3' single cell RNA-sequencing data
 
 > **This page holds an overview and instructions for how GeneLab processes single cell RNA-sequencing (scRNAseq) datasets. Exact processing commands and GL-DPPD-7111 version used for specific datasets are available in the 
 [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory and processed data output files are provided in the [GeneLab Data Systems 
