@@ -8,7 +8,7 @@ include { CONCAT_ERCC;
           TO_BED } from './modules/genome.nf'
 
 
-include { DOWNLOAD_GUNZIP_REFERENCES } from './modules/download.nf' addParams(ref_target: "primary_assembly")
+include { DOWNLOAD_GUNZIP_REFERENCES } from './modules/download.nf'
 
 def get_reference_urls(csv_table, organism_sci) {
     def organisms = [:]
