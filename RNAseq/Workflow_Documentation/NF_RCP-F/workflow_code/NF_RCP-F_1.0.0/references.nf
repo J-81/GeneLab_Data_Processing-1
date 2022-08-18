@@ -63,9 +63,13 @@ workflow references{
         genome_annotations_pre_subsample | view
         Channel.fromValue( [params.ref_version, params.ref_source] ) | set { ch_ref_source_version }
       } else {
-        // use assets table to find current fasta and gtf urls
+        // use assets table to find current fasta and gtf urls and associated metadata about those reference files
         PARSE_ANNOTATIONS_TABLE( params.reference_table, organism_sci)
-        PARSE_ANNOTATIONS_TABLE.out.reference_genome_urls | DOWNLOAD_GUNZIP_REFERENCES
+        
+        DOWNLOAD_GUNZIP_REFERENCES( 
+          PARSE_ANNOTATIONS_TABLE.out.reference_genome_urls,
+          PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source,
+          )
         DOWNLOAD_GUNZIP_REFERENCES.out | set{ genome_annotations_pre_subsample }
         PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source | set { ch_ref_source_version }
       }
@@ -74,7 +78,7 @@ workflow references{
 
       // SUBSAMPLING STEP : USED FOR DEBUG/TEST RUNS
       if ( params.genomeSubsample ) {
-        SUBSAMPLE_GENOME( genome_annotations_pre_subsample, organism_sci )
+        SUBSAMPLE_GENOME( genome_annotations_pre_subsample, organism_sci, ch_ref_source_version )
         SUBSAMPLE_GENOME.out.build | set { genome_annotations_pre_ercc }
       } else {
         genome_annotations_pre_subsample | set { genome_annotations_pre_ercc }
@@ -82,12 +86,20 @@ workflow references{
 
       // ERCC STEP : ADD ERCC Fasta and GTF to genome files
       DOWNLOAD_ERCC(has_ercc).ifEmpty([file("ERCC92.fa"), file("ERCC92.gtf")]) | set { ch_maybe_ercc_refs }
-      CONCAT_ERCC( genome_annotations_pre_ercc, ch_maybe_ercc_refs, organism_sci, has_ercc )
+      CONCAT_ERCC( genome_annotations_pre_ercc, ch_maybe_ercc_refs, organism_sci, has_ercc, PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source )
       .ifEmpty { genome_annotations_pre_ercc.value }  | set { genome_annotations }
 
 
-      TO_PRED( genome_annotations | map { it[1] }, organism_sci )
-      TO_BED( TO_PRED.out, organism_sci )
+      TO_PRED( 
+        genome_annotations | map { it[1] }, 
+        organism_sci,
+        PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source
+        )
+      TO_BED( 
+        TO_PRED.out, 
+        organism_sci,
+        PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source
+        )
 
   emit:
       genome_annotations = genome_annotations

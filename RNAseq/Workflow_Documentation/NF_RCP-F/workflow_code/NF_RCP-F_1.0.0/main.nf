@@ -169,7 +169,12 @@ workflow {
     REFERENCES( ch_meta | map { it.organism_sci }, ch_meta | map { it.has_ercc } )
     REFERENCES.out.genome_annotations | set { genome_annotations }      
 
-    BUILD_STAR( genome_annotations, ch_meta, max_read_length_ch)
+    BUILD_STAR( 
+      genome_annotations, 
+      ch_meta, 
+      max_read_length_ch,
+      REFERENCES.out.reference_version_and_source
+    )
 
     TRIMGALORE.out.reads | combine( BUILD_STAR.out.build ) | ALIGN_STAR
 
@@ -177,7 +182,11 @@ workflow {
     STRANDEDNESS ( ALIGN_STAR.out.bam_by_coord, REFERENCES.out.genome_bed, ch_samples_txt ) 
     STRANDEDNESS.out.strandedness | map { it.text.split(":")[0] } | set { strandedness_ch }
 
-    BUILD_RSEM( genome_annotations, ch_meta)
+    BUILD_RSEM( 
+      genome_annotations, 
+      ch_meta,
+      REFERENCES.out.reference_version_and_source
+      )
 
     ALIGN_STAR.out.bam_to_transcriptome | combine( BUILD_RSEM.out.build ) | set { aligned_ch }
     QUANTIFY_STAR_GENES( 
