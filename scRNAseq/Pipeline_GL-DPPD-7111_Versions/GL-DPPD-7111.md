@@ -23,17 +23,19 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # Table of contents  
 
-- [**Software used**](#software-used)
-- [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
-  - [**1. Raw Data QC**](#1-raw-data-qc)
+- [GeneLab bioinformatics processing pipeline for single cell RNA-sequencing data](#genelab-bioinformatics-processing-pipeline-for-single-cell-rna-sequencing-data)
+- [Table of contents](#table-of-contents)
+- [Software used](#software-used)
+- [General processing overview with example commands](#general-processing-overview-with-example-commands)
+  - [1. Raw Data QC](#1-raw-data-qc)
     - [1a. Raw Data QC](#1a-raw-data-qc)
     - [1b. Compile Raw Data QC](#1b-compile-raw-data-qc)
-  - [**2. Trim/Filter Raw Data and Trimmed Data QC**](#2-trimfilter-raw-data-and-trimmed-data-qc)
+  - [2. Trim/Filter Raw Data and Trimmed Data QC](#2-trimfilter-raw-data-and-trimmed-data-qc)
     - [2a. Trim/Filter Raw Data](#2a-trimfilter-raw-data)
     - [2b. Trimmed Data QC](#2b-trimmed-data-qc)
     - [2c. Compile Trimmed Data QC](#2c-compile-trimmed-data-qc)
-  - [**3. Build STAR Reference**](#3-build-star-reference)
-  - [**4. Align Reads to Reference Genome**](#4-align-reads-to-reference-genome)
+  - [3. Build STAR Reference](#3-build-star-reference)
+  - [4. Align Reads to Reference Genome](#4-align-reads-to-reference-genome)
     - [4a. Align Reads to Reference Genome with STARsolo](#4a-align-reads-to-reference-genome-with-starsolo)
     - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
 
@@ -124,9 +126,9 @@ trim_galore --gzip \
   --phred33 \
   --illumina \ # if adapters are not illumina, replace with adapters used
   --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for PE studies, remove this paramater if raw data are SE
+  --paired \ # only for studies with CB and UMI in a separate read from the cDNA read, remove this paramater if CB, UMI, and cDNA are all in the same read
   sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
-# if SE, replace the last line with only the forward reads (R1) of each sample
+# if CB, UMI, and cDNA are all in the same read, replace the last line with only the reads containg the CB, UMI, and cDNA sequence 
 
 ```
 
@@ -138,9 +140,9 @@ trim_galore --gzip \
 - `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
 - `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
 - `--output_dir` - the output directory to store results
-- `--paired` - indicates paired-end reads - both reads, forward (R1) and reverse (R2) must pass length threshold or else both reads are removed
-- `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, paired-end read files are listed pairwise such that the forward reads (*R1_raw.fastq.gz) are 
-immediately followed by the respective reverse reads (*R2_raw.fastq.gz) for each sample
+- `--paired` - indicates paired-end reads - for scRNAseq, CB and UMI are in a separate read from the respective cDNA read, - both the CB and UMI read and the cDNA read must pass length threshold or else both reads are removed
+- `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, the CB and UMI read and the cDNA read files are listed pairwise such that the CB/UMI reads (*R1_raw.fastq.gz) are 
+immediately followed by the respective cDNA reads (*R2_raw.fastq.gz) for each sample (or vice versa, depending on the scRNAseq kit used)
 
 **Input Data:**
 

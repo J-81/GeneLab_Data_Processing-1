@@ -19,7 +19,8 @@
 
 * [**GeneLab_Reference_and_Annotation_Files**](GeneLab_Reference_and_Annotation_Files)
 
-  - Contains links to the fasta and gtf annotation files used to process RNAseq datasets using the GeneLab RCP 
+  - Contains links to the fasta and gtf annotation files used to process RNAseq datasets using the GeneLab RCP, versions A-E
+    > Note: Reference annotation files used from RCP version F and onward are documented in [GeneLab_Reference_Annotations](../GeneLab_Reference_Annotations)
 
 * [**Workflow_Documentation**](Workflow_Documentation)
 
@@ -28,7 +29,7 @@
 
 * [**GLDS_Processing_Scripts**](GLDS_Processing_Scripts)
 
-  - Contains the exact processing commands and RCP version used for specific GLDS datasets that have been released are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
+  - Contains the exact processing commands and RCP version used for specific GLDS datasets that have been released and are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
 
 ---
 **Developed and maintained by:**  
