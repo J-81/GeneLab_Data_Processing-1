@@ -86,7 +86,10 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ### 1b. Compile Raw Data QC  
 
 ```bash
-multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+multiqc --interactive \ 
+  -n raw_multiqc \ 
+  -o /path/to/raw_multiqc/output/directory \   
+  /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
@@ -288,7 +291,10 @@ of mapped reads etc.)
 ### 3b. Compile Alignment Logs
 
 ```bash
-multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
+multiqc --interactive \  
+  -n align_multiqc \  
+  -o /path/to/aligned_multiqc/output/directory \   
+  /path/to/*Log.final.out/files
 ```
 
 **Parameter Definitions:**
