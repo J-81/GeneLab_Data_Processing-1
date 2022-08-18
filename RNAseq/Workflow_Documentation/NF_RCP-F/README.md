@@ -116,12 +116,12 @@ unzip NF_RCP-F_1.0.0.zip
 Although Nextflow can fetch Singularity images from a url, doing so may cause issues as detailed [here](https://github.com/nextflow-io/nextflow/issues/1210).
 
 To avoid this issue, run the following command to fetch the Singularity images prior to running the NF_RCP-F workflow:
-> Note: This command should be run in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files) above. 
+> Note: This command should be run in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files) above. Depending on your network speed, fetching the images will take ~20 minutes.  
 
 ```bash
 bash NF_RCP-F_1.0.0/bin/prepull_singularity.sh NF_RCP-F_1.0.0/config/software/by_docker_image.config
 ```
-> Note: Depending on your network speed, fetching the images will take ~20 minutes.
+
 
 Once complete, a `singularity` folder containing the Singularity images will be created. Run the following command to export this folder as a Nextflow configuration environment variable to ensure Nextflow can locate the fetched images:
 
