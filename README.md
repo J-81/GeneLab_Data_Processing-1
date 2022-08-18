@@ -1,5 +1,5 @@
 <img src="images/NASA_GeneLab_logo-2019.png" align="left" alt=""/>
-Hello
+
 
 # GeneLab_Data_Processing
 

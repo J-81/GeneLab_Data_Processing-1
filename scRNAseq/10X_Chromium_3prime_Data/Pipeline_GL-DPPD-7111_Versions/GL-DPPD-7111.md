@@ -3,10 +3,12 @@
 > **This page holds an overview and instructions for how GeneLab processes single cell RNA-sequencing (scRNAseq) datasets. Exact processing commands and GL-DPPD-7111 version used for specific datasets are available in the 
 [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory and processed data output files are provided in the [GeneLab Data Systems 
 (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+>  
+  > Note: Unlike [bulkRNAseq](../../../RNAseq), for scRNAseq trimming is performed during the [STARsolo alignment step](#3a-align-reads-to-reference-genome-with-starsolo) of the pipeline.
 
 ---
 
-**Date:** July XX, 2022  
+**Date:** August 18, 2022  
 **Revision:** -  
 **Document Number:** GL-DPPD-7111  
 
@@ -84,7 +86,10 @@ fastqc -o /path/to/raw_fastqc/output/directory *.fastq.gz
 ### 1b. Compile Raw Data QC  
 
 ```bash
-multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /path/to/directory/containing/raw_fastqc/files
+multiqc --interactive \ 
+  -n raw_multiqc \ 
+  -o /path/to/raw_multiqc/output/directory \   
+  /path/to/directory/containing/raw_fastqc/files
 ```
 
 **Parameter Definitions:**
@@ -136,8 +141,8 @@ log2(GenomeLength)/2 - 1). For example, for a 1 megaBase genome this value would
 
 **Input Data:**
 
-- *.fasta (genome sequence, this scRCP version uses the Ensembl fasta file indicated in the `fasta` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
-- *.gtf (genome annotation, this scRCP version uses the Ensembl gtf file indicated in the `gtf` column of the [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
+- *.fasta (genome sequence, this scRCP version uses the Ensembl fasta file indicated in the `fasta` column of the [GL-DPPD-7110_annotations.csv](../../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
+- *.gtf (genome annotation, this scRCP version uses the Ensembl gtf file indicated in the `gtf` column of the [GL-DPPD-7110_annotations.csv](../../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) GeneLab Annotations file)
 
 **Output Data:**
 
@@ -286,7 +291,10 @@ of mapped reads etc.)
 ### 3b. Compile Alignment Logs
 
 ```bash
-multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
+multiqc --interactive \  
+  -n align_multiqc \  
+  -o /path/to/aligned_multiqc/output/directory \   
+  /path/to/*Log.final.out/files
 ```
 
 **Parameter Definitions:**

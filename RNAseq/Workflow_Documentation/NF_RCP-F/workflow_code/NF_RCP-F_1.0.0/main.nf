@@ -38,7 +38,6 @@ include { UPDATE_ISA_TABLES;
 /**************************************************
 * HELP MENU  **************************************
 **************************************************/
-allowed_ref_order = ['toplevel','primary_assemblyELSEtoplevel']
 if (params.help) {
   println("┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅")
   println("┇ RNASeq Consensus Pipeline: $workflow.manifest.version  ┇")
@@ -67,7 +66,6 @@ if (params.help) {
   println("  --truncateTo n        limit number of reads downloaded and processed to *n* reads , for paired end limits number of reverse and forward read files to *n* reads each.")
   println("  --force_single_end    forces analysis to use single end processing.  For paired end datasets, this means only R1 is used.  For single end studies, this should have no effect.")
   println("  --stageLocal          download the raw reads files for the supplied GLDS accession id.  Set to false to retrieve metadata and generate a runsheet for GLDS datasets to disable raw read download and processing.  Default: true")
-  println("  --ref_order           specifies the reference to use from ensembl.  Allowed values:  ['toplevel','primary_assemblyELSEtoplevel']. 'toplevel' : use toplevel.  'primary_assemblyELSEtoplevel' : use primary assembly, but use toplevel if primary assembly doesn't exist. Default: 'primary_assemblyELSEtoplevel'")  
   println("  --ref_fasta           specifies a reference fasta from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl")  
   println("  --ref_gtf             specifies a reference gtf from a local path. This an is an alternative approach from the automatic retrieval of reference files from ensembl")  
   println("  --referenceStorePath  specifies the directory where fetched reference files are downloaded to")  
@@ -90,7 +88,6 @@ println "Storing any newly generated derived reference files here: ${params.deri
 if ( params.gldsAccession ) {ch_glds_accession = Channel.from( params.gldsAccession )} else { exit 1, "Missing Required Parameter: gldsAccession. Example for setting on CLI: --gldsAccession GLDS-194"}
 if ( !params.ensemblVersion ) { exit 1, "Missing Required Parameter: ensemblVersion. Example for setting on CLI: --ensemblVersion 96" }
 
-if ( !allowed_ref_order.contains(params.ref_order ) ) { exit 1, "Invalid ref_order param.  Must be either 'toplevel' or 'primary_assembly,toplevel'" }
 if ( !params.outputDir ) {  params.outputDir = "$workflow.launchDir" }
 
 ch_multiqc_config = params.multiqcConfig ? Channel.fromPath( params.multiqcConfig ) : Channel.fromPath("NO_FILE")
@@ -172,7 +169,12 @@ workflow {
     REFERENCES( ch_meta | map { it.organism_sci }, ch_meta | map { it.has_ercc } )
     REFERENCES.out.genome_annotations | set { genome_annotations }      
 
-    BUILD_STAR( genome_annotations, ch_meta, max_read_length_ch)
+    BUILD_STAR( 
+      genome_annotations, 
+      ch_meta, 
+      max_read_length_ch,
+      REFERENCES.out.reference_version_and_source
+    )
 
     TRIMGALORE.out.reads | combine( BUILD_STAR.out.build ) | ALIGN_STAR
 
@@ -180,7 +182,11 @@ workflow {
     STRANDEDNESS ( ALIGN_STAR.out.bam_by_coord, REFERENCES.out.genome_bed, ch_samples_txt ) 
     STRANDEDNESS.out.strandedness | map { it.text.split(":")[0] } | set { strandedness_ch }
 
-    BUILD_RSEM( genome_annotations, ch_meta)
+    BUILD_RSEM( 
+      genome_annotations, 
+      ch_meta,
+      REFERENCES.out.reference_version_and_source
+      )
 
     ALIGN_STAR.out.bam_to_transcriptome | combine( BUILD_RSEM.out.build ) | set { aligned_ch }
     QUANTIFY_STAR_GENES( 
@@ -317,8 +323,8 @@ workflow.onComplete {
     println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
     if ( workflow.success ) {
       println "Raw and Processed data location: ${ params.outputDir }/${ params.gldsAccession }"
-      println "V&V logs location: ${ params.outputDir }/${ params.gldsAccession }/VV_Log"
-      println "Pipeline tracing/visualization files location: ${ params.tracedir }/${ params.gldsAccession }${c_reset}"
+      println "V&V logs location: ${ params.outputDir }/${ params.gldsAccession }/VV_Logs"
+      println "Pipeline tracing/visualization files location:  ${ params.outputDir }/${ params.gldsAccession }/Resource_Usage${c_reset}"
     }
 }
 
