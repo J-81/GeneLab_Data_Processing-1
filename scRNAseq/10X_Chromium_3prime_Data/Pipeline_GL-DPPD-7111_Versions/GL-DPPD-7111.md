@@ -3,6 +3,7 @@
 > **This page holds an overview and instructions for how GeneLab processes single cell RNA-sequencing (scRNAseq) datasets. Exact processing commands and GL-DPPD-7111 version used for specific datasets are available in the 
 [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory and processed data output files are provided in the [GeneLab Data Systems 
 (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+>  
   > Note: Unlike [bulkRNAseq](../../../RNAseq), for scRNAseq trimming is performed during the [STARsolo alignment step](#3a-align-reads-to-reference-genome-with-starsolo) of the pipeline.
 
 ---
