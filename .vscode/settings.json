@@ -92,5 +92,6 @@
         "urlopen",
         "urlretrieve",
         "zipfile"
-    ]
+    ],
+    "markdown.extension.toc.updateOnSave" : false
 }
