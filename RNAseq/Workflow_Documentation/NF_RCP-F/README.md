@@ -57,9 +57,9 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 2. [Download the Workflow Files](#2-download-the-workflow-files)  
 3. [Fetch Singularity Images](#3-fetch-singularity-images)  
 4. [Run the Workflow](#4-run-the-workflow)  
-   4a. [Approach 1: Run the workflow on a [GeneLab RNAseq dataset]() with automatic retrieval of Ensembl reference fasta and gtf files]()  
-   4b. [Approach 2: Run the workflow on a [GeneLab RNAseq dataset]() using local Ensembl reference fasta and gtf files]()  
-   4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet]()  
+   4a. [Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files](#4a-approach-1-run-the-workflow-on-a-geneLab-RNAseq-dataset with automatic retrieval of Ensembl reference fasta and gtf files)  
+   4b. [Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files](#4b-Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files)  
+   4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet)  
 5. [Additional Output Files](#5-additional-output-files)  
 6. [Known Issues to Look Out For](#6-known-issues-to-look-out-for)  
 
@@ -138,7 +138,7 @@ export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 While in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files), you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
    
-#### 4a. Approach 1: Run the workflow on a [GeneLab RNAseq dataset](https://genelab-data.ndc.nasa.gov/genelab/projects) with automatic retrieval of Ensembl reference fasta and gtf files
+#### 4a. Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
@@ -158,7 +158,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 
 <br>
 
-#### 4b. Approach 2: Run the workflow on a [GeneLab RNAseq dataset](https://genelab-data.ndc.nasa.gov/genelab/projects) using local Ensembl reference fasta and gtf files
+#### 4b. Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
@@ -214,7 +214,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 **Required Arguments:**
 
 * `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)  
-  > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](), to process a non-GLDS dataset.
+  > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet), to process a non-GLDS dataset.
       
 * `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument)
   
@@ -296,7 +296,7 @@ Standard Nextflow resource usage logs are also produced as follows:
 
 **Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of files from the GeneLab Repository.**
 
-- [Github Issue Link](https://github.com/nextflow-io/nextflow/issues/2918)
+- [Nextflow Issue 2918 Link](https://github.com/nextflow-io/nextflow/issues/2918)
 - This will be fixed in an upcoming release of Nextflow. In the meantime, the workflow should work with Nextflow Version 21.10.6, which predates the introduction of the bug.
    - We recommend setting the environment variable 'NXF_VER=21.10.6' to allow Nextflow to automatically update/downgrade to that version on launch.
   
