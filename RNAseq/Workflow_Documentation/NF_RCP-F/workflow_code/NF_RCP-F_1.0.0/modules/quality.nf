@@ -6,9 +6,6 @@
 process FASTQC {
   // FastQC performed on reads
   tag "Sample: ${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }",
-    mode: params.publish_dir_mode,
-    pattern: "*_fastqc*"
 
   input:
     tuple val(meta), path(reads)
@@ -28,10 +25,6 @@ process FASTQC {
 }
 
 process MULTIQC {
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }",
-    mode: params.publish_dir_mode,
-    pattern: "*_multiqc**"
-
   label "fastLocal"
 
   input:
@@ -43,6 +36,7 @@ process MULTIQC {
     path("${ params.MQCLabel }_multiqc_report/${ params.MQCLabel }_multiqc.html"), emit: html
     path("${ params.MQCLabel }_multiqc_report/${ params.MQCLabel }_multiqc_data"), emit: data
     path("${ params.MQCLabel }_multiqc_report.zip"), emit: zipped_report
+    path("${ params.MQCLabel }_multiqc_report"), emit: unzipped_report
     path("versions.txt"), emit: version
 
   script:
@@ -61,12 +55,6 @@ process MULTIQC {
 
 process TRIMGALORE {
   tag "Sample: ${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/01-TG_Preproc/Fastq",
-    mode: params.publish_dir_mode,
-    pattern: "*trimmed.fastq.gz"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/01-TG_Preproc/Trimming_Reports",
-    mode: params.publish_dir_mode,
-    pattern: "*_trimming_report.txt"
 
   input:
     tuple val(meta), path(reads)

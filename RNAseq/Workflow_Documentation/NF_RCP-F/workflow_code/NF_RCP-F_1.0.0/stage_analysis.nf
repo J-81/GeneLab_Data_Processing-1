@@ -26,6 +26,7 @@ include { RNASEQ_RUNSHEET_FROM_GLDS as GENERATE_RUNSHEET;
 workflow staging{
   take:
     ch_glds_accession
+    stageLocal
   main:
     sample_limit = params.limitSamplesTo ? params.limitSamplesTo : -1 // -1 in take means no limit
 
@@ -43,7 +44,7 @@ workflow staging{
                 | take( sample_limit )
                 | set{ ch_samples }
 
-    if ( params.stageLocal && params.truncateTo ) {
+    if ( stageLocal && params.truncateTo ) {
       // download truncated raw reads
       // download full raw reads
       ch_samples | map { it -> it[0].paired_end ? [it[0], it[1][0], it[1][1]] : [it[0], it[1][0]]}
@@ -70,7 +71,7 @@ workflow staging{
       // Moves the truncated files to expected raw read locations as per samplesheet
       ch_raw_reads | STAGE_RAW_READS
 
-    } else if ( params.stageLocal && !params.truncateTo ) {
+    } else if ( stageLocal && !params.truncateTo ) {
       // download full raw reads
       ch_samples | map { it -> it[0].paired_end ? [it[0], [ it[1][0], it[1][1] ]] : [it[0], [it[1][0]]]}
                  | set { ch_raw_reads }
@@ -84,7 +85,7 @@ workflow staging{
 
 
     emit:
-      raw_reads = params.stageLocal ? STAGE_RAW_READS.out : null
+      raw_reads = stageLocal ? STAGE_RAW_READS.out : null
       isa = params.runsheetPath ? null : GENERATE_RUNSHEET.out.isazip
       runsheet = ch_runsheet
       metasheet = params.runsheetPath ? null : GENERATE_METASHEET.out.metasheet
