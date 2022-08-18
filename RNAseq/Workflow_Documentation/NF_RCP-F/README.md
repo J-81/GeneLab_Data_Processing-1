@@ -83,6 +83,12 @@ Nextflow can be installed either through [Anaconda](https://anaconda.org/biocond
 > nextflow self-update
 > ```
 
+After installation, the Nextflow version should be set as follows to address [Known Issues with the latest Nextflow versions](#6-known-issues-to-look-out-for).
+
+```bash
+export NXF_VER=21.10.6
+```
+
 <br>
 
 #### 1b. Install Singularity
