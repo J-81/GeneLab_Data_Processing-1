@@ -1,4 +1,4 @@
-# GeneLab bioinformatics processing pipeline for single cell RNA-sequencing data
+# GeneLab bioinformatics processing pipeline for 10X Chromium 3' single cell RNA-sequencing data
 
 > **This page holds an overview and instructions for how GeneLab processes single cell RNA-sequencing (scRNAseq) datasets. Exact processing commands and GL-DPPD-7111 version used for specific datasets are available in the 
 [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory and processed data output files are provided in the [GeneLab Data Systems 
@@ -28,14 +28,10 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [**1. Raw Data QC**](#1-raw-data-qc)
     - [1a. Raw Data QC](#1a-raw-data-qc)
     - [1b. Compile Raw Data QC](#1b-compile-raw-data-qc)
-  - [**2. Trim/Filter Raw Data and Trimmed Data QC**](#2-trimfilter-raw-data-and-trimmed-data-qc)
-    - [2a. Trim/Filter Raw Data](#2a-trimfilter-raw-data)
-    - [2b. Trimmed Data QC](#2b-trimmed-data-qc)
-    - [2c. Compile Trimmed Data QC](#2c-compile-trimmed-data-qc)
-  - [**3. Build STAR Reference**](#3-build-star-reference)
-  - [**4. Align Reads to Reference Genome**](#4-align-reads-to-reference-genome)
-    - [4a. Align Reads to Reference Genome with STARsolo](#4a-align-reads-to-reference-genome-with-starsolo)
-    - [4b. Compile Alignment Logs](#4b-compile-alignment-logs)
+  - [**2. Build STAR Reference**](#2-build-star-reference)
+  - [**3. Align Reads to Reference Genome**](#3-align-reads-to-reference-genome)
+    - [3a. Align Reads to Reference Genome with STARsolo](#3a-align-reads-to-reference-genome-with-starsolo)
+    - [3b. Compile Alignment Logs](#3b-compile-alignment-logs)
 
 ---
 
@@ -111,97 +107,8 @@ multiqc --interactive -n raw_multiqc -o /path/to/raw_multiqc/output/directory /p
 
 ---
 
-## 2. Trim/Filter Raw Data and Trimmed Data QC
 
-<br>
-
-### 2a. Trim/Filter Raw Data  
-
-```bash
-trim_galore --gzip \
-  --path_to_cutadapt /path/to/cutadapt \
-  --cores NumberOfThreads \
-  --phred33 \
-  --illumina \ # if adapters are not illumina, replace with adapters used
-  --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for studies with CB and UMI in a separate read from the cDNA read, remove this paramater if CB, UMI, and cDNA are all in the same read
-  sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
-# if CB, UMI, and cDNA are all in the same read, replace the last line with only the reads containg the CB, UMI, and cDNA sequence 
-
-```
-
-**Parameter Definitions:**
-
-- `--gzip` – compress the output files with `gzip`
-- `--path_to_cutadapt` - specify path to cutadapt software if it is not in your `$PATH`
-- `--cores` - specify the number of threads available on the server node to perform trimming
-- `--phred33` - instructs cutadapt to use ASCII+33 quality scores as Phred scores for quality trimming
-- `--illumina` - defines the adapter sequence to be trimmed as the first 13bp of the Illumina universal adapter `AGATCGGAAGAGC`
-- `--output_dir` - the output directory to store results
-- `--paired` - indicates paired-end reads - for scRNAseq, CB and UMI are in a separate read from the respective cDNA read, - both the CB and UMI read and the cDNA read must pass length threshold or else both reads are removed
-- `sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz` – the input reads are specified as a positional argument, the CB and UMI read and the cDNA read files are listed pairwise such that the CB/UMI reads (*R1_raw.fastq.gz) are 
-immediately followed by the respective cDNA reads (*R2_raw.fastq.gz) for each sample (or vice versa, depending on the scRNAseq kit used)
-
-**Input Data:**
-
-- *fastq.gz (raw reads)
-
-**Output Data:**
-
-- *fastq.gz\# (trimmed reads)
-- *trimming_report.txt\# (trimming report)
-
-<br>
-
-### 2b. Trimmed Data QC  
-
-```bash
-fastqc -o /path/to/trimmed_fastqc/output/directory *.fastq.gz
-```
-
-**Parameter Definitions:**
-
-- `-o` – the output directory to store results
-- `*.fastq.gz` – the input reads are specified as a positional argument, and can be given all at once with wildcards like this, or as individual arguments with spaces inbetween them
-
-**Input Data:**
-
-- *fastq.gz (trimmed reads, output from [Step 2a](#2a-trimfilter-raw-data))
-
-**Output Data:**
-
-- *fastqc.html (FastQC report)
-- *fastqc.zip (FastQC data)
-
-<br>
-
-### 2c. Compile Trimmed Data QC  
-
-```bash
-multiqc --interactive -n trimmed_multiqc -o /path/to/trimmed_multiqc/output/directory /path/to/directory/containing/trimmed_fastqc/files
-```
-
-**Parameter Definitions:**
-
-- `--interactive` - force reports to use interactive plots
-- `-n` - prefix name for output files
-- `-o` – the output directory to store results
-- `/path/to/directory/containing/trimmed_fastqc/files` – the directory holding the output data from the fastqc run, provided as a positional argument
-
-**Input Data:**
-
-- *fastqc.zip (FastQC data, output from [Step 2b](#2b-trimmed-data-qc))
-
-**Output Data:**
-
-- trimmed_multiqc.html\# (multiqc report)
-- /trimmed_multiqc_data\# (directory containing multiqc data)
-
-<br>
-
----
-
-## 3. Build STAR Reference  
+## 2. Build STAR Reference  
 
 ```bash
 STAR --runThreadN NumberOfThreads \
@@ -256,16 +163,18 @@ STAR genome reference, which consists of the following files:
 
 ---
 
-## 4. Align Reads to Reference Genome
+## 3. Align Reads to Reference Genome
 
 <br>
 
-### 4a. Align Reads to Reference Genome with STARsolo
+### 3a. Align Reads to Reference Genome with STARsolo
 
 ```bash
 STAR --runThreadN <NumberOfThreads> \
   --genomeDir /path/to/STAR/genome/directory \
   --soloType CB_UMI_Simple \ # Used for 10X Chromium data 
+  --clipAdapterType CellRanger4 \  
+  --outFilterScoreMin 30 \  
   --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
   --soloUMIfiltering MultiGeneUMI_CR \
   --soloUMIdedup 1MM_CR \
@@ -289,9 +198,11 @@ STAR --runThreadN <NumberOfThreads> \
 - `--runThreadN` - indicates the number of threads to be used for STAR alignment and should be set to the number of available cores on the server node
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
 - `--soloType CB_UMI_Simple` - Activates the STAR solo algorithm for 10X Chromium data 
-- `--soloCBmatchWLtype` - cell barcode and UMI collapsing parameter, a value of `1MM_multi_Nbase_pseudocounts` is used to get the best agreement between STARsolo and CellRanger 3.x.x
-- `--soloUMIfiltering` - cell barcode and UMI collapsing parameter, a value of `MultiGeneUMI_CR` is used to get the best agreement between STARsolo and CellRanger 3.x.x 
-- `--soloUMIdedup` - cell barcode and UMI collapsing parameter, a value of `1MM_CR` is used to get the best agreement between STARsolo and CellRanger 3.x.x
+- `--clipAdapterType` - specifies the type of trimming to perform, a value of `CellRanger4` is used to match CellRanger >= 4.0 such that the TSO adapter sequence is clipped from the 5' end of the cDNA read and the polyA-tail is trimmed from the 3' end
+- `--outFilterScoreMin` - specifies the Q score to use for quality trimming, a value of Q`30` is used to match CellRanger >= 4.0
+- `--soloCBmatchWLtype` - cell barcode and UMI collapsing parameter, a value of `1MM_multi_Nbase_pseudocounts` is used to get the best agreement between STARsolo and CellRanger >= 3.0
+- `--soloUMIfiltering` - cell barcode and UMI collapsing parameter, a value of `MultiGeneUMI_CR` is used to get the best agreement between STARsolo and CellRanger >= 3.0 
+- `--soloUMIdedup` - cell barcode and UMI collapsing parameter, a value of `1MM_CR` is used to get the best agreement between STARsolo and CellRanger >= 3.0
 - `--soloUMIlen` - barcode length, a value of `12` is used to work for 10X Chromium V3 data
 - `--soloCellFilter` - specifices the type of cell filtering to perform (ExpectedCells = number of expected cells), a value of `EmptyDrops_CR <ExpectedCells> 0.99 10 45000 90000 500 0.01 20000 0.01 10000` instructs STAR to use the CellRanger 3.0.0 advanced filtering based on the [EmptyDrop algorithm](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y) 
 - `--soloMultiMappers` - specifies the algorithm used to handle multi-mapped reads, a value of `EM` instructs STAR to use the Maximum Likelihood Estimation (MLE) to distribute multi-gene UMIs among their genes, taking into account other UMIs (both unique- and multi-gene) from the same cell (i.e. with the same CB).
@@ -310,8 +221,8 @@ STAR --runThreadN <NumberOfThreads> \
 
 **Input Data:**
 
-- STAR genome reference (output from [Step 3](#3-build-star-reference))
-- *fastq.gz (trimmed reads, output from [Step 2a](#2a-trimfilter-raw-data))
+- STAR genome reference (output from [Step 2](#2-build-star-reference))
+- *fastq.gz (raw reads)
 
 **Output Data:**
 
@@ -372,7 +283,7 @@ of mapped reads etc.)
 
 <br>
 
-### 4b. Compile Alignment Logs
+### 3b. Compile Alignment Logs
 
 ```bash
 multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/directory /path/to/*Log.final.out/files
@@ -383,11 +294,11 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 - `--interactive` - force reports to use interactive plots
 - `-n` - prefix name for output files
 - `-o` – the output directory to store results
-- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#4a-align-reads-to-reference-genome-with-starsolo), provided as a positional argument
+- `/path/to/*Log.final.out/files` – the directory holding the *Log.final.out output files from the [STAR alignment step](#3a-align-reads-to-reference-genome-with-starsolo), provided as a positional argument
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-starsolo))
+- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 3a](#3a-align-reads-to-reference-genome-with-starsolo))
 
 **Output Data:**
 

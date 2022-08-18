@@ -39,54 +39,68 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
         **V&V Flags**:
 
-      | Flag Name             |Interpretation                  |
-      |-----------------------|-------------------------|
-      | GREEN                 |Indicates the check passed all validation conditions                         |  
-      | YELLOW                |Indicates the check was flagged for minor issues (e.g. slight outliers)                         |
-      | RED                   |Indicates the check was flagged for moderate issues (e.g. major outliers)                               |
-      | HALT                  |Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data)                         |
+       |Flag Codes|Flag Name|Interpretation|
+       |:---------|:--------|:-------------|
+       | 20    | GREEN   | Indicates the check passed all validation conditions |
+       | 30    | YELLOW  | Indicates the check was flagged for minor issues (e.g. slight outliers) |
+       | 50    | RED     | Indicates the check was flagged for moderate issues (e.g. major outliers) |
+       | 80    | HALT    | Indicates the check was flagged for severe issues that trigger a processing halt (e.g. missing data) |
 
 <br>
 
 
 ---
+## Utilizing the Workflow
 
-## Utilizing the Workflow <!-- omit in toc -->
+1. [Install Nextflow and Singularity](#1-install-nextflow-and-singularity)  
+   1a. [Install Nextflow](#1a-install-nextflow)  
+   1b. [Install Singularity](#1b-install-singularity)
+2. [Download the Workflow Files](#2-download-the-workflow-files)  
+3. [Fetch Singularity Images](#3-fetch-singularity-images)  
+4. [Run the Workflow](#4-run-the-workflow)  
+   4a. [Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files](#4a-approach-1-run-the-workflow-on-a-genelab-rnaseq-dataset-with-automatic-retrieval-of-ensembl-reference-fasta-and-gtf-files)  
+   4b. [Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files](#4b-approach-2-run-the-workflow-on-a-genelab-rnaseq-dataset-using-local-ensembl-reference-fasta-and-gtf-files)  
+   4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet)  
+5. [Additional Output Files](#5-additional-output-files)  
+6. [Known Issues to Look Out For](#6-known-issues-to-look-out-for)  
 
-- [1. Install Nextflow and Singularity](#1-install-nextflow-and-singularity)
-  - [1a. Installing Nextflow](#1a-installing-nextflow)
-  - [1b. Installing Singularity](#1b-installing-singularity)
-- [2. Download the Workflow Files](#2-download-the-workflow-files)
-- [3. Fetch Singularity Images](#3-fetch-singularity-images)
-- [4. Run the Workflow](#4-run-the-workflow)
-  - [**Approach 1**: Run the workflow with automatic retrieval of the same Ensembl reference fasta and gtf files used by GeneLab](#approach-1-run-the-workflow-with-automatic-retrieval-of-the-same-ensembl-reference-fasta-and-gtf-files-used-by-genelab)
-  - [**Approach 2**: Run the workflow on GLDS datasets using local Ensembl reference fasta and gtf files](#approach-2-run-the-workflow-on-glds-datasets-using-local-ensembl-reference-fasta-and-gtf-files)
-  - [**Approach 3**: Run the workflow with user-created runsheet](#approach-3-run-the-workflow-with-user-created-runsheet)
-- [5. Additional Output Files](#5-additional-output-files)
-- [6. Known Issues to Look Out For](#6-known-issues-to-look-out-for)
-  - [Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of files from GeneLab Repository](#recent-nextflow-versions-introduced-a-bug-that-causes-the-workflow-to-fail-during-retrieval-of-files-from-genelab-repository)
+<br>
+
+---
 
 ### 1. Install Nextflow and Singularity
 
-#### 1a. Installing Nextflow
+#### 1a. Install Nextflow
 
-Nextflow can be installed either through [Anaconda](https://anaconda.org/bioconda/nextflow) or as documented on the Nextflow documentation [page](https://www.nextflow.io/docs/latest/getstarted.html).
+Nextflow can be installed either through [Anaconda](https://anaconda.org/bioconda/nextflow) or as documented on the [Nextflow documentation page](https://www.nextflow.io/docs/latest/getstarted.html).
 
-#### 1b. Installing Singularity
+> Note: If you want to install Anaconda, we recommend installing a Miniconda, Python3 version appropriate for your system, as instructed by [Happy Belly Bioinformatics](https://astrobiomike.github.io/unix/conda-intro#getting-and-installing-conda).  
+> 
+> Once conda is installed on your system, you can install the latest version of Nextflow by running the following commands:
+> 
+> ```bash
+> conda install -c bioconda nextflow
+> nextflow self-update
+> ```
 
-Singularity is a container platform that allows usage of containerized software. This enables the workflow to retrieve and use all software required during the processing pipeline without needing to directly install the processing software directly to the user system.
+<br>
+
+#### 1b. Install Singularity
+
+Singularity is a container platform that allows usage of containerized software. This enables the GeneLab RCP workflow to retrieve and use all software required for processing without the need to install the software directly on the user's system.
 
 We recommend installing Singularity on a system wide level as per the associated [documentation](https://docs.sylabs.io/guides/3.10/admin-guide/admin_quickstart.html).
 
-Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
+> Note: Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
+
+<br>
+
+---
 
 ### 2. Download the Workflow Files
 
-All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory.
-
-The code is most easily downloaded from the release page.
-
-An example of downloading and unzipping the code is provided below:
+All files required for utilizing the NF_RCP-F GeneLab workflow for processing RNASeq data are in the [workflow_code](workflow_code) directory. To get a 
+copy of latest NF_RCP-F version on to your system, the code can be downloaded as a zip file from the release page then unzipped after downloading by running the following commands: 
 
 ```bash
 wget https://github.com/asaravia-butler/GeneLab_Data_Processing/releases/download/NF_RCP-F_1.0.0/NF_RCP-F_1.0.0.zip
@@ -94,131 +108,149 @@ wget https://github.com/asaravia-butler/GeneLab_Data_Processing/releases/downloa
 unzip NF_RCP-F_1.0.0.zip
 ```
 
+<br>
+
+---
+
 ### 3. Fetch Singularity Images
 
-While Nextflow is able to manage fetching Singularity images from url. This feature currently causes frequent intermittent issues ([nextflow-issue #1210](https://github.com/nextflow-io/nextflow/issues/1210)).
+Although Nextflow can fetch Singularity images from a url, doing so may cause issues as detailed [here](https://github.com/nextflow-io/nextflow/issues/1210).
 
-To address this issue, Singularity images should be fetched using the following bash script before running the workflow as follows:
+To avoid this issue, run the following command to fetch the Singularity images prior to running the NF_RCP-F workflow:
+> Note: This command should be run in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files) above. Depending on your network speed, fetching the images will take ~20 minutes.  
 
 ```bash
 bash NF_RCP-F_1.0.0/bin/prepull_singularity.sh NF_RCP-F_1.0.0/config/software/by_docker_image.config
 ```
 
-Fetching takes around 20 minutes depending on your network speed.  Once fetched, the images can be reused across workflow runs.
 
-This will create a 'singularity' folder containing the Singularity images.  This folder should be exported as an Nextflow configuration env variable as follows to ensure Nextflow can locate the fetched images.
+Once complete, a `singularity` folder containing the Singularity images will be created. Run the following command to export this folder as a Nextflow configuration environment variable to ensure Nextflow can locate the fetched images:
 
 ```bash
 export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 ```
 
+<br>
+
+---
+
 ### 4. Run the Workflow
 
-Below are three examples of how to run the NF_RCP-F workflow:
+While in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files), you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
 
-#### **Approach 1**: Run the workflow with automatic retrieval of the same Ensembl reference fasta and gtf files used by GeneLab
+<br>
+
+#### 4a. Approach 1: Run the workflow on a GeneLab RNAseq dataset with automatic retrieval of Ensembl reference fasta and gtf files
 
 ```bash
-nextflow run NF_RCP-F_1.0.0/main.nf \
-  -profile singularity \
-  --gldsAccession GLDS-194 \
-  --ensemblVersion 107 \
-  --ref_source ensembl
+nextflow run NF_RCP-F_1.0.0/main.nf \ 
+   -profile singularity \
+   --gldsAccession GLDS-194 \
+   --ensemblVersion 107 \
+   --ref_source ensembl
 ```
 
 **Parameter Definitions:**
 
-- `NF_RCP-F_1.0.0/main.nf` - The nextflow workflow file
-- `--gldsAccession` - The GLDS accession ID to process
-- `-profile` – Designates the configuration profile(s) to load
-- `singularity` - A configuration profile to setup and use singularity for all software
-- `--ensemblVersion` – Indicates the Ensembl Release Version used. This is used to organize the storage of reference genome files.
-- `107` - The Ensembl Release Version GeneLab uses for Mus Musculus.
-  - Other organisms currently use the following versions:
-- `--ref_source` – Indicates the reference genome source. This is used to organize the storage of reference genome and indices files.
-- `ensembl` - The Ensembl Release Version GeneLab uses for Mus Musculus.
-  - Organisms currently supported through the entire workflow use the following versions:
+* `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
+* `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
+* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number, `GLDS-194` is used in this example) 
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
+* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
 
-    | Organism                                         | ensemblVersion | ref_source       |
-    | :----------------------------------------------- | :------------- | :--------------- |
-    | Arabidopsis thaliana                             | 54             | ensembl_plants   |
-    | Bacillus subtilis (strain168)                    | 54             | ensembl_bacteria |
-    | Caenorhabditis elegans                           | 107            | ensembl          |
-    | Danio rerio                                      | 107            | ensembl          |
-    | Drosophila melanogaster                          | 107            | ensembl          |
-    | Homo sapiens                                     | 107            | ensembl          |
-    | Mus musculus                                     | 107            | ensembl          |
-    | Rattus norvegicus                                | 107            | ensembl          |
-    | Saccharomyces cerevisiae (strainATCC204508/S288c) | 107            | ensembl          |
+<br>
 
-#### **Approach 2**: Run the workflow on GLDS datasets using local Ensembl reference fasta and gtf files
+#### 4b. Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files
 
 ```bash
-nextflow run NF_RCP-F_1.0.0/main.nf \
-  -profile singularity \
-  --gldsAccession GLDS-194 \
-  --ensemblVersion 107 \
-  --ref_source ensembl \
-  --ref_fasta </path/to/fasta> \
-  --ref_gtf </path/to/gtf>
-```
-
-> Note on ERCC References: ERCC references will still be concatenated during processing for studies that include ERCC spike-in
-
-**Warning on Gene Annotations**: gene annotations are pulled from the current GeneLab annotation [tables](../../../Annotation_Database_Table_Generation/Gene_Annotations). This means that Ensembl/TAIR IDs that are not shared in common between the current GeneLab Ensembl version and the user supplied reference genome files  will **not** include additional gene annotations.
-
-**Parameter Definitions:**
-
-- `NF_RCP-F_1.0.0/main.nf` - The nextflow workflow file
-- `--gldsAccession` - The GLDS accession ID to process
-- `-profile` – Designates the configuration profile(s) to load
-- `singularity` - A configuration profile to setup and use singularity
-- `--ensemblVersion` – Indicates the Ensembl Release Version used. This is used to organize the storage of reference genome files.
-- `107` - Example value, actual version should match the locally supplied gtf and fasta files.
-- `--ref_source` – Indicates the reference genome source. This is used to organize the storage of reference genome and indices files.
-- `ensembl` - Example reference source label.
-- `--ref_fasta` – Path to a reference genome fasta file
-- `--ref_gtf` – Path to a reference genome gtf file
-
-#### **Approach 3**: Run the workflow with user-created runsheet
-
-Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
-
-```bash
-nextflow run NF_RCP-F_1.0.0/main.nf \
-  -profile singularity \
-  --runsheetPath </path/to/runsheet> \
-  --ensemblVersion 107 \
-  --ref_source ensembl \
-  --ref_fasta </path/to/fasta> \
-  --ref_gtf </path/to/gtf>
-
+nextflow run NF_RCP-F_1.0.0/main.nf \ 
+   -profile singularity \
+   --gldsAccession GLDS-194 \
+   --ensemblVersion 107 \
+   --ref_source ensembl \ 
+   --ref_fasta </path/to/fasta> \ 
+   --ref_gtf </path/to/gtf> 
 ```
 
 **Parameter Definitions:**
 
-- `NF_RCP-F_1.0.0/main.nf` - The nextflow workflow file
-- `--runsheetPath` - Indicates usage of user created runsheet, replaces GeneLab accession ID
-- `</path/to/runsheet>` - Path to the user created runsheet
-- `-profile` – Designates the configuration profile(s) to load
-- `singularity` - A configuration profile to setup and use singularity for all software
-- `--ensemblVersion` – Indicates the Ensembl Release Version used. This is used to organize the storage of reference genome files.
-- `107` - Example value, actual version should match the locally supplied gtf and fasta files.
-- `--ref_source` – Indicates the reference genome source. This is used to organize the storage of reference genome and indices files.
-- `ensembl` - Example reference source label.
-- `--ref_fasta` – Path to a reference genome fasta file
-- `--ref_gtf` – Path to a reference genome gtf file
+* `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
+* `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
+* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number, `GLDS-194` is used in this example) 
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
+* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
+* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
+* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
+  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
+
+<br>
+
+#### 4c. Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet
+
+> Note: Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
+
+```bash
+nextflow run NF_RCP-F_1.0.0/main.nf \ 
+   -profile singularity \
+   --runsheetPath </path/to/runsheet> \
+   --ensemblVersion 107 \
+   --ref_source ensembl \ 
+   --ref_fasta </path/to/fasta> \ 
+   --ref_gtf </path/to/gtf> 
+```
+
+**Parameter Definitions:**
+
+* `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
+* `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
+* `--runsheetPath` - specifies the path to a local runsheet created by the user 
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
+* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
+* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
+* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
+  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
+
+   
+**TODO**: make a decision to list arguments for each approach as indicated above or remove them from each approach and just list them at the end as follows:
+   
+**Required Arguments:**
+
+* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)  
+  > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet), to process a non-GLDS dataset.
+      
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument)
+  
+  
+**Optional Arguments:**
+
+* `--help` – show the NF_RCP-F workflow help menu  
+  > Note: The help menu shows arguments in addition to those detailed here that can be used for workflow testing and debugging.  
+
+* `--skipVV` - skip the automated V&V processes (Default: the automated V&V processes are active) 
+* `--outputDir` - specifies the directory to save the raw and processed data files (Default: files are saved in the launch directory)
+* `--limitSamplesTo` - specifies the number of samples to process (Default: all samples in the GLDS dataset indicated are processed)
+* `--force_single_end` - forces the analysis to use single end processing; for paired end datasets, this means only R1 is used; for single end datasets, this should have no effect
+* `--stageLocal TRUE|FALSE` - TRUE = download the raw reads files for the GLDS dataset indicated, FALSE = disable raw reads download and processing (Default: TRUE)
+* `--ref_order toplevel|primary_assemblyELSEtoplevel` - specifies which Ensembl fasta file to use, toplevel = use the toplevel fasta, primary_assemblyELSEtoplevel = use the primary_assembly fasta if available but if not, use the toplevel fasta (Default: primary_assemblyELSEtoplevel)
+* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
+* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl)
+* `--referenceStorePath` - specifies the directory to store the Ensembl fasta and gtf files (Default: within the directory structure created by default in the launch directory)
+* `--derivedStorePath` - specifies the directory to store the tool-specific indices created during processing (Default: within the directory structure created by default in the launch directory)
+* `--runsheetPath` - specifies the path to a local runsheet (Default: a runsheet is automatically generated using the metadata on the GeneLab Repository for the GLDS dataset being processed) 
+   
 
 **Additional Optional Arguments:**
 
-These can be displayed as follows and include debug and storage related options not immediately useful for most users:
+Additional optional arguments for the RCP workflow, including debug and storage related options that may not be immediately useful for most users, can be viewed by running the following command:
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf --help
 ```
 
 See `nextflow run -h` and [Nextflow's CLI run command documentation](https://nextflow.io/docs/latest/cli.html#run) for more options and details common to all nextflow workflows.
+
+<br>
 
 ---
 
@@ -229,39 +261,45 @@ The outputs from the Analysis Staging and V&V Pipeline Subworkflows are describe
 
 **Analysis Staging Subworkflow**
 
-- Output:
-  - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
-  - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
-  - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
-
+   - Output:
+     - \*_bulkRNASeq_v1_runsheet.csv (table containing metadata required for processing, including the raw reads files location)
+     - \*-ISA.zip (the ISA archive of the GLDS datasets to be processed, downloaded from the GeneLab Data Repository)
+     - \*_metadata_table.txt (table that includes additional information about the GLDS dataset, not used for processing)
+   
+   
 **V&V Pipeline Subworkflow**
 
-- Output:
-  - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
-  - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag level >= 30)
-  - VV_Logs/VV_log_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
-  - VV_Logs/VV_log_VV_TRIMMED_READS.tsv (table containing V&V flags for trimmed reads checks ONLY)
-  - VV_Logs/VV_log_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags for alignment file checks ONLY)
-  - VV_Logs/VV_log_VV_RSEQC.tsv (table containing V&V flags for RSeQC file checks ONLY)
-  - VV_Logs/VV_log_VV_RSEM_COUNTS.tsv (table containing V&V flags for RSEM raw count file checks ONLY)
-  - VV_Logs/VV_log_VV_DESEQ2_ANALYSIS.tsv (table containing V&V flags for DESeq2 Analysis output checks ONLY)
+   - Output:
+     - VV_Logs/VV_log_final.tsv (table containing V&V flags for all checks performed)
+     - VV_Logs/VV_log_final_only_issues.tsv (table containing V&V flags ONLY for checks that produced a flag code >= 30)
+     - VV_Logs/VV_log_VV_RAW_READS.tsv (table containing V&V flags ONLY for raw reads checks)
+     - VV_Logs/VV_log_VV_TRIMMED_READS.tsv (table containing V&V flags for trimmed reads checks ONLY)
+     - VV_Logs/VV_log_VV_STAR_ALIGNMENTS.tsv (table containing V&V flags for alignment file checks ONLY)
+     - VV_Logs/VV_log_VV_RSEQC.tsv (table containing V&V flags for RSeQC file checks ONLY)
+     - VV_Logs/VV_log_VV_RSEM_COUNTS.tsv (table containing V&V flags for RSEM raw count file checks ONLY) 
+     - VV_Logs/VV_log_VV_DESEQ2_ANALYSIS.tsv (table containing V&V flags for DESeq2 Analysis output checks ONLY)
+
+<br>
 
 Standard Nextflow resource usage logs are also produced as follows:
-Further details about these logs can also found within this Nextflow documentation [page](https://www.nextflow.io/docs/latest/tracing.html#execution-report).
+> Further details about these logs can also found within [this Nextflow documentation page](https://www.nextflow.io/docs/latest/tracing.html#execution-report).
 
 **Nextflow Resource Usage Logs**
 
-- Output:
-  - Resource_Usage/execution_report_{timestamp}.html (an html report containing many useful metrics about a workflow execution including computational resources and exact workflow process commands)
-  - Resource_Usage/execution_timeline_{timestamp}.html (an html timeline for all processes executed in your pipeline)
-  - Resource_Usage/execution_trace_{timestamp}.txt (an tsv file that contains useful information about each process executed in your pipeline script, including: submission time, start time, completion time, cpu and memory used, machine-readable output)
+   - Output:
+     - Resource_Usage/execution_report_{timestamp}.html (an html report that includes metrics about the workflow execution including computational resources and exact workflow process commands)
+     - Resource_Usage/execution_timeline_{timestamp}.html (an html timeline for all processes executed in the workflow)
+     - Resource_Usage/execution_trace_{timestamp}.txt (an execution tracing file that contains information about each process executed in the workflow, including: submission time, start time, completion time, cpu and memory used, machine-readable output)
+
+<br>
 
 ---
 
 ### 6. Known Issues to Look Out For
 
-#### Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of files from GeneLab Repository
+**Recent Nextflow versions introduced a bug that causes the workflow to fail during retrieval of files from the GeneLab Repository.**
 
-- [nextflow-issue #2918](https://github.com/nextflow-io/nextflow/issues/2918)
+- [Nextflow Issue 2918 Link](https://github.com/nextflow-io/nextflow/issues/2918)
 - This will be fixed in an upcoming release of Nextflow. In the meantime, the workflow should work with Nextflow Version 21.10.6, which predates the introduction of the bug.
-  - We recommend setting the environment variable 'NXF_VER=21.10.6' to allow Nextflow to automatically update/downgrade to that version on launch.
+   - We recommend setting the environment variable 'NXF_VER=21.10.6' to allow Nextflow to automatically update/downgrade to that version on launch.
+  
