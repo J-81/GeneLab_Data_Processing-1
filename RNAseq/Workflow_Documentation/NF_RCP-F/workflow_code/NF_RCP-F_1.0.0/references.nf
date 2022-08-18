@@ -58,13 +58,15 @@ workflow references{
     organism_sci
     has_ercc
   main:
+      // Must run in any approach to find the appropriate annotations database table
+      PARSE_ANNOTATIONS_TABLE( params.reference_table, organism_sci)
+
       if (params.ref_fasta && params.ref_gtf) {
         genome_annotations_pre_subsample = Channel.fromPath([params.ref_fasta, params.ref_gtf], checkIfExists: true).toList()
         genome_annotations_pre_subsample | view
-        Channel.fromValue( [params.ref_version, params.ref_source] ) | set { ch_ref_source_version }
+        Channel.value( [params.ensemblVersion, params.ref_source] ) | set { ch_ref_source_version }
       } else {
         // use assets table to find current fasta and gtf urls and associated metadata about those reference files
-        PARSE_ANNOTATIONS_TABLE( params.reference_table, organism_sci)
         
         DOWNLOAD_GUNZIP_REFERENCES( 
           PARSE_ANNOTATIONS_TABLE.out.reference_genome_urls,
