@@ -1912,8 +1912,8 @@ import matplotlib.pyplot as plt
 
 accession = 'GLDS-NNN' # Replace Ns with GLDS number
 isaPath = 'path/to/GLDS-NNN-ISA.zip' # Replace with path to ISA archive file
-with zipfile.ZipFile(isaPath, "r") as zip_file_object:
-  list_of_ISA_files = zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
+zip_file_object =  zipfile.ZipFile(isaPath, "r")
+list_of_ISA_files = zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
 
 # There are datasets that have multiple assays (including microarray), so the RNAseq ISA files from the above output must be selected. 
 # Txt files outputted above are indexed as 0, 1, 2, etc. Fill in the indexed number corresponding to the sample (s_\*txt) and assay files for RNAseq (a_\*_(RNA-Seq).txt) in the code block below.
@@ -1929,11 +1929,11 @@ file = zip_file_object.open(assay_file)
 assay_table = pd.read_csv(zip_file_object.open(assay_file), sep='\t')
 
 # Check the sample table
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 print(sample_table.head(n=3))
 
 # Check the assay table
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 assay_table.head(n=3)
 
 
