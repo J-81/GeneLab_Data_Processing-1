@@ -56,14 +56,16 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
    1b. [Install Singularity](#1b-install-singularity)
 2. [Download the Workflow Files](#2-download-the-workflow-files)  
 3. [Fetch Singularity Images](#3-fetch-singularity-images)  
-4. [Run the Workflow](#4-run-the-workflow) 
-   4a. [Approach 1: Run the workflow on a [GeneLab RNAseq dataset]() with automatic retrieval of Ensembl reference fasta and gtf files]()
-   4b. [Approach 2: Run the workflow on a [GeneLab RNAseq dataset]() using local Ensembl reference fasta and gtf files]()
-   4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet]()
-5. [Additional Output Files](#5-additional-output-files)
-6. [Known Issues to Look Out For](#6-known-issues-to-look-out-for)
+4. [Run the Workflow](#4-run-the-workflow)  
+   4a. [Approach 1: Run the workflow on a [GeneLab RNAseq dataset]() with automatic retrieval of Ensembl reference fasta and gtf files]()  
+   4b. [Approach 2: Run the workflow on a [GeneLab RNAseq dataset]() using local Ensembl reference fasta and gtf files]()  
+   4c. [Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet]()  
+5. [Additional Output Files](#5-additional-output-files)  
+6. [Known Issues to Look Out For](#6-known-issues-to-look-out-for)  
 
 <br>
+
+---
 
 ### 1. Install Nextflow and Singularity 
 
@@ -80,6 +82,8 @@ Nextflow can be installed either through [Anaconda](https://anaconda.org/biocond
 > nextflow self-update
 > ```
 
+<br>
+
 #### 1b. Install Singularity
 
 Singularity is a container platform that allows usage of containerized software. This enables the GeneLab RCP workflow to retrieve and use all software required for processing without the need to install the software directly on the user's system.
@@ -89,6 +93,8 @@ We recommend installing Singularity on a system wide level as per the associated
 > Note: Singularity is also available through [Anaconda](https://anaconda.org/conda-forge/singularity).
 
 <br>
+
+---
 
 ### 2. Download the Workflow Files
 
@@ -102,6 +108,8 @@ unzip NF_RCP-F_1.0.0.zip
 ```
 
 <br>
+
+---
 
 ### 3. Fetch Singularity Images
 
@@ -123,12 +131,14 @@ export NXF_SINGULARITY_CACHEDIR=$(pwd)/singularity
 
 <br>
 
+---
+
 ### 4. Run the Workflow
 
 While in the location containing the `NF_RCP-F_1.0.0` directory that was downloaded in [step 2](#2-download-the-workflow-files), you are now able to run the workflow. Below are three examples of how to run the NF_RCP-F workflow:
 > Note: Nextflow commands use both single hyphen arguments (e.g. -help) that denote general nextflow arguments and double hyphen arguments (e.g. --ensemblVersion) that denote workflow specific parameters.  Take care to use the proper number of hyphens for each argument.
    
-#### 4a. Approach 1: Run the workflow on a [GeneLab RNAseq dataset]() with automatic retrieval of Ensembl reference fasta and gtf files
+#### 4a. Approach 1: Run the workflow on a [GeneLab RNAseq dataset](https://genelab-data.ndc.nasa.gov/genelab/projects) with automatic retrieval of Ensembl reference fasta and gtf files
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
@@ -148,7 +158,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 
 <br>
 
-#### 4b. Approach 2: Run the workflow on a [GeneLab RNAseq dataset]() using local Ensembl reference fasta and gtf files
+#### 4b. Approach 2: Run the workflow on a [GeneLab RNAseq dataset](https://genelab-data.ndc.nasa.gov/genelab/projects) using local Ensembl reference fasta and gtf files
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
@@ -169,7 +179,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 * `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
 * `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
 * `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
-> Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
+  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
 
 <br>
 
@@ -196,7 +206,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 * `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
 * `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
 * `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
-> Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
+  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
 
    
 **TODO**: make a decision to list arguments for each approach as indicated above or remove them from each approach and just list them at the end as follows:
