@@ -10,22 +10,44 @@ include { CONCAT_ERCC;
 
 include { DOWNLOAD_GUNZIP_REFERENCES } from './modules/download.nf'
 
-def get_reference_urls(csv_table, organism_sci) {
-    def organisms = [:]
-      csv_table.splitEachLine(",") {fields ->
-          organisms[fields[1]] = fields
-    }
-    target_row = organisms[organism_sci.capitalize().replace("_"," ")]
-    return tuple(organism_sci, target_row[2], target_row[3])
-}
+process PARSE_ANNOTATIONS_TABLE {
+  // Extracts data from this kind of table: 
+  // https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv
 
-def get_annotation_url(csv_table, organism_sci) {
+  input:
+    val(annotations_csv_url_string)
+    val(organism_sci)
+  
+  output:
+    tuple val(organism_sci), val(fasta_url), val(gtf_url), emit: reference_genome_urls
+    val(annotations_db_url), emit: annotations_db_url
+    tuple val(ensemblVersion), val(ensemblSource), emit: reference_version_and_source
+  
+  exec:
     def organisms = [:]
-      csv_table.splitEachLine(",") {fields ->
+    println "Fetching table from ${annotations_csv_url_string}"
+    
+    // download data to memory
+    annotations_csv_url_string.toURL().splitEachLine(",") {fields ->
           organisms[fields[1]] = fields
     }
-    target_row = organisms[organism_sci.capitalize().replace("_"," ")]
-    return target_row[6]
+    // extract required fields
+    organism_key = organism_sci.capitalize().replace("_"," ")
+    fasta_url = organisms[organism_key][5]
+    gtf_url = organisms[organism_key][6]
+    annotations_db_url = organisms[organism_key][9]
+    ensemblVersion = organisms[organism_key][3]
+    ensemblSource = organisms[organism_key][4]
+
+    println "PARSE_ANNOTATIONS_TABLE:"
+    println "Values parsed for '${organism_key}' using process:"
+    println "--------------------------------------------------"
+    println "- fasta_url: ${fasta_url}"
+    println "- gtf_url: ${gtf_url}"
+    println "- annotations_db_url: ${annotations_db_url}"
+    println "- ensemblVersion: ${ensemblVersion}"
+    println "- ensemblSource: ${ensemblSource}"
+    println "--------------------------------------------------"
 }
 
 /**************************************************
@@ -41,11 +63,12 @@ workflow references{
         genome_annotations_pre_subsample | view
       } else {
         // use assets table to find current fasta and gtf urls
-        organism_sci | map{ org -> get_reference_urls( file(params.reference_table), org ) } | DOWNLOAD_GUNZIP_REFERENCES
+        PARSE_ANNOTATIONS_TABLE( params.reference_table, organism_sci)
+        PARSE_ANNOTATIONS_TABLE.out.reference_genome_urls | DOWNLOAD_GUNZIP_REFERENCES
         DOWNLOAD_GUNZIP_REFERENCES.out | set{ genome_annotations_pre_subsample }
       }
       // use assets table to find current annotations file
-      organism_sci | map{ org -> get_annotation_url( file(params.reference_table), org ) } | set{ ch_gene_annotations_url }
+      PARSE_ANNOTATIONS_TABLE.out.annotations_db_url | set{ ch_gene_annotations_url }
 
       // SUBSAMPLING STEP : USED FOR DEBUG/TEST RUNS
       if ( params.genomeSubsample ) {
