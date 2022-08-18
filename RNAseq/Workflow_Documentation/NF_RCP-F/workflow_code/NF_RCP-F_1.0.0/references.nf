@@ -61,11 +61,13 @@ workflow references{
       if (params.ref_fasta && params.ref_gtf) {
         genome_annotations_pre_subsample = Channel.fromPath([params.ref_fasta, params.ref_gtf], checkIfExists: true).toList()
         genome_annotations_pre_subsample | view
+        Channel.fromValue( [params.ref_version, params.ref_source] ) | set { ch_ref_source_version }
       } else {
         // use assets table to find current fasta and gtf urls
         PARSE_ANNOTATIONS_TABLE( params.reference_table, organism_sci)
         PARSE_ANNOTATIONS_TABLE.out.reference_genome_urls | DOWNLOAD_GUNZIP_REFERENCES
         DOWNLOAD_GUNZIP_REFERENCES.out | set{ genome_annotations_pre_subsample }
+        PARSE_ANNOTATIONS_TABLE.out.reference_version_and_source | set { ch_ref_source_version }
       }
       // use assets table to find current annotations file
       PARSE_ANNOTATIONS_TABLE.out.annotations_db_url | set{ ch_gene_annotations_url }
@@ -91,4 +93,5 @@ workflow references{
       genome_annotations = genome_annotations
       genome_bed = TO_BED.out
       gene_annotations = ch_gene_annotations_url
+      reference_version_and_source = ch_ref_source_version
 }
