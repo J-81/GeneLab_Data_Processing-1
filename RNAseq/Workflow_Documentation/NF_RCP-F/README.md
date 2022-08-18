@@ -146,19 +146,8 @@ While in the location containing the `NF_RCP-F_1.0.0` directory that was downloa
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
    -profile singularity \
-   --gldsAccession GLDS-194 \
-   --ensemblVersion 107 \
-   --ref_source ensembl
+   --gldsAccession GLDS-194
 ```
-
-**Parameter Definitions:**
-
-* `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
-* `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
-* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number, `GLDS-194` is used in this example) 
-* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
-* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
-
 <br>
 
 #### 4b. Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files
@@ -173,19 +162,6 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
    --ref_gtf </path/to/gtf> 
 ```
 
-**Parameter Definitions:**
-
-* `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
-* `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
-* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number, `GLDS-194` is used in this example) 
-* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
-* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
-* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
-* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
-  > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
-
-<br>
-
 #### 4c. Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet
 
 > Note: Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
@@ -193,35 +169,25 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
    -profile singularity \
-   --runsheetPath </path/to/runsheet> \
-   --ensemblVersion 107 \
-   --ref_source ensembl \ 
-   --ref_fasta </path/to/fasta> \ 
-   --ref_gtf </path/to/gtf> 
+   --runsheetPath </path/to/runsheet>
 ```
 
 **Parameter Definitions:**
 
 * `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
 * `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
-* `--runsheetPath` - specifies the path to a local runsheet created by the user 
-* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument) 
+* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)  
+  > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet), to process a non-GLDS dataset.
+* `--runsheetPath` - specifies the path to a local runsheet created by the user
+
+**Arguments Required To Use Locally Supplied Reference Genome Files:**
+
+* `--ensemblVersion` - specifies the Ensembl version to used for the reference genome (Ensembl release `107` is used in this example)
 * `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
 * `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
 * `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
   > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
-
-   
-**TODO**: make a decision to list arguments for each approach as indicated above or remove them from each approach and just list them at the end as follows:
-   
-**Required Arguments:**
-
-* `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)  
-  > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet), to process a non-GLDS dataset.
-      
-* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (TODO: There should be a default ensemblVersion that is consistent with the ensembl version used for the RCP version the workflow is running, so this can become an optional argument)
-  
-  
+    
 **Optional Arguments:**
 
 * `--help` – show the NF_RCP-F workflow help menu  
