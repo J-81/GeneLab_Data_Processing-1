@@ -1854,7 +1854,7 @@ sessionInfo()
 - [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
-
+<a id=ERCCspikeOut></a>
 **Output Data for Datasets with ERCC Spike-In:**
 
 Output data without considering ERCC spike-in genes:
@@ -2460,7 +2460,7 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv')
 **Input Data:**
 
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, output from [Step 9a](#9a-create-sample-runsheet))
-- RSEM_Unnormalized_Counts.csv (RSEM counts table, output from [Step 9](<insert link to anchor for "Output Data for Datasets with ERCC Spike-In">))
+- RSEM_Unnormalized_Counts.csv (RSEM raw counts table, output from [Step 9](#ERCCspikeOut))
 
 **Output Data:**
 
