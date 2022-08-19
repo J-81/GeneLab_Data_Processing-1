@@ -2460,7 +2460,7 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv')
 **Input Data:**
 
 - *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, output from [Step 9a](#9a-create-sample-runsheet))
-- RSEM_Unnormalized_Counts.csv (RSEM raw counts table, output from [Step 9](ERCCspikeOut))
+- RSEM_Unnormalized_Counts.csv (RSEM raw counts table, output from [Step 9](#ERCCspikeOut))
 
 **Output Data:**
 
