@@ -19,11 +19,10 @@ All the yaml files required to install the conda environments needed to run the 
 copy of the yaml files on to your system, copy the github web address of the [scRNAseq_yaml_files directory](scRNAseq_yaml_files), then paste it into [GitZip here](http://kinolien.github.io/gitzip/), and click download.
 
 
-After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory, where you will find 4 yaml files:
+After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory, where you will find 3 yaml files:
 * [fastqc.yml](scRNAseq_yaml_files/fastqc.yml)
 * [multiqc.yml](scRNAseq_yaml_files/multiqc.yml)
 * [star.yml](scRNAseq_yaml_files/star.yml)
-* [trim_galore.yml](scRNAseq_yaml_files/trim_galore.yml)
 
 <br>
 
@@ -38,7 +37,7 @@ After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory
   ```
 
   Activate the fastqc conda environment with the following command:
-  > This environment needs to be activated to run steps [1a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1a-raw-data-qc) and [2b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2b-trimmed-data-qc) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
+  > This environment needs to be activated to run steps [1a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1a-raw-data-qc) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
   
   ```
   conda activate fastqc
@@ -53,26 +52,12 @@ After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory
   ```
 
   Activate the multiqc conda environment with the following command:
-  > This environment needs to be activated to run steps [1b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1b-compile-raw-data-qc), [2c](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2c-compile-trimmed-data-qc), and [4b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#4b-compile-alignment-logs) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
+  > This environment needs to be activated to run steps [1b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#1b-compile-raw-data-qc) and [3b](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#3b-compile-alignment-logs) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
   
   ```
   conda activate multiqc
   ```   
-  
-<br>
-
-#### Install the **trim_galore** conda environment by running the following command:
-
-  ```
-  conda env create -f trim_galore.yml
-  ```
-
-  Activate the trim_galore conda environment with the following command:
-  > This environment needs to be activated to run step [2a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2a-trimfilter-raw-data) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
-  
-  ```
-  conda activate trim_galore
-  ```   
+ 
   
 <br>
 
@@ -83,7 +68,7 @@ After download, unzip the scRNAseq_yaml_files.zip file and cd into the directory
   ```
 
   Activate the star conda environment with the following command:
-  > This environment needs to be activated to run steps [3](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#3-build-star-reference) and [4a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#4a-align-reads-to-reference-genome-with-starsolo) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
+  > This environment needs to be activated to run steps [2](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#2-build-star-reference) and [3a](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md#3a-align-reads-to-reference-genome-with-starsolo) of the [scRNAseq processing pipeline](../Pipeline_GL-DPPD-7111_Versions/GL-DPPD-7111.md).
   
   ```
   conda activate star

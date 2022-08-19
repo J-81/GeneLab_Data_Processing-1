@@ -10,13 +10,16 @@ The [NASA GeneLab](https://genelab.nasa.gov/) Data Processing team and [Analysis
 
 ## Assay Types
 Click on an assay type below for data processing information.  
+- [Create GeneLab Reference Annotations](GeneLab_Reference_Annotations)  
 - [Amplicon Sequencing](Amplicon) 
   - [Illumina](Amplicon/Illumina)  
   - [454 and Ion-Torrent](Amplicon/454-and-IonTorrent)  
 - [Metagenomics](Metagenomics)  
   - [Removing human reads](Metagenomics/Remove_human_reads_from_raw_data)  
   - [Illumina](Metagenomics/Illumina)  
-- [RNAseq](RNAseq)  
+- [(bulk) RNAseq](RNAseq)  
+- [single cell RNAseq](scRNAseq)  
+
 
 ---
 
@@ -28,14 +31,16 @@ We encourage all investigators working with space-relevant omics data to process
 ## Licenses
 
 The software for each pipeline is released under the NASA Open Source Agreement (NOSA) Version 1.3
-- [Amplicon License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
-- [Metagenomics License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)
+- [Amplicon License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)  
+- [Metagenomics License](Licenses/Amplicon_and_Metagenomics_NOSA_License.pdf)  
+- [RNAseq License](Licenses/RNAseq_NOSA_License.pdf)  
 
 ### 3rd Party Software Licenses
 
 Licenses for the 3rd party open source software utilized for each pipeline can be found by clicking the respective pipeline link below:
-- [Amplicon License](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Software.md)
-- [Metagenomics License](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Software.md)
+- [Amplicon Licenses](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Software.md)  
+- [Metagenomics Licenses](3rd_Party_Licenses/Amplicon_and_Metagenomics_3rd_Party_Software.md)  
+- [RNAseq Licenses](3rd_Party_Licenses/RNAseq_3rd_Party_Software.md)  
 
 ---
 

@@ -35,9 +35,9 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 3. **V&V Pipeline Subworkflow**
 
    - Description:
-     - This subworkflow performs validation and verification (V&V) on the raw and processed data files in real-time.  It performs a series of checks on the output files generated and flags the results, using the flag codes indicated in the table below, which are outputted as a series of log files.
-
-        **V&V Flags**:
+     - This subworkflow performs validation and verification (V&V) on the raw and processed data files in real-time.  It performs a series of checks on the output files generated and flags the results, using the flag codes indicated in the table below, which are outputted as a series of log files. 
+     
+       **V&V Flags**:
 
        |Flag Codes|Flag Name|Interpretation|
        |:---------|:--------|:-------------|
@@ -82,8 +82,9 @@ Nextflow can be installed either through [Anaconda](https://anaconda.org/biocond
 > conda install -c bioconda nextflow
 > nextflow self-update
 > ```
-
-After installation, the Nextflow version should be set as follows to address [Known Issues with the latest Nextflow versions](#6-known-issues-to-look-out-for).
+  
+  
+After Nextflow is installed, run the following command to set the Nextflow version to address [known issues with the latest Nextflow versions](#6-known-issues-to-look-out-for):
 
 ```bash
 export NXF_VER=21.10.6
@@ -152,8 +153,9 @@ While in the location containing the `NF_RCP-F_1.0.0` directory that was downloa
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
    -profile singularity \
-   --gldsAccession GLDS-194
+   --gldsAccession GLDS-194 
 ```
+
 <br>
 
 #### 4b. Approach 2: Run the workflow on a GeneLab RNAseq dataset using local Ensembl reference fasta and gtf files
@@ -168,6 +170,8 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
    --ref_gtf </path/to/gtf> 
 ```
 
+<br>
+
 #### 4c. Approach 3: Run the workflow on a non-GLDS dataset using a user-created runsheet
 
 > Note: Specifications for creating a runsheet manually are described [here](examples/runsheet/README.md).
@@ -175,45 +179,57 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf \ 
    -profile singularity \
-   --runsheetPath </path/to/runsheet>
+   --runsheetPath </path/to/runsheet> 
 ```
 
-**Parameter Definitions:**
+<br>
+
+**Required Parameters For All Approaches:**
 
 * `NF_RCP-F_1.0.0/main.nf` - Instructs Nextflow to run the NF_RCP-F workflow 
+
 * `-profile` - Specifies the configuration profile(s) to load, `singularity` instructs Nextflow to setup and use singularity for all software called in the workflow
+
 * `--gldsAccession GLDS-###` – specifies the GLDS dataset to process through the RCP workflow (replace ### with the GLDS number)  
   > Note: A manually-generated runsheet can be supplied with the `--runsheetPath` option in place of the `--gldsAccession GLDS-###`, as indicated in [Approach 3 above](#4c-approach-3-run-the-workflow-on-a-non-glds-dataset-using-a-user-created-runsheet), to process a non-GLDS dataset.
-* `--runsheetPath` - specifies the path to a local runsheet created by the user
 
-**Arguments Required To Use Locally Supplied Reference Genome Files:**
+<br>
 
-* `--ensemblVersion` - specifies the Ensembl version to used for the reference genome (Ensembl release `107` is used in this example)
-* `--ref_source` - specifies the source of the reference files used (the source indicated in this example is `ensembl`) 
-* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
-* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl) 
+**Additional Required Parameters For [Approach 2](#4b-approach-2-run-the-workflow-on-a-genelab-rnaseq-dataset-using-local-ensembl-reference-fasta-and-gtf-files):**
+
+* `--ensemblVersion` - specifies the Ensembl version to use for the reference genome (Ensembl release `107` is used in this example) 
+
+* `--ref_source` - specifies the source of the reference files used (the source indicated in the Approach 2 example is `ensembl`) 
+
+* `--ref_fasta` - specifices the path to a local fasta file 
+
+* `--ref_gtf` - specifices the path to a local gtf file  
+
   > Note: If the local reference files specified are different than the Ensembl reference files used to create the [GeneLab annotations table](https://github.com/nasa/GeneLab_Data_Processing/blob/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv), additional gene annotations associated with any Ensembl/TAIR IDs from the specified files that are not shared in the GeneLab annotations will not be added to the DGE output table(s). 
-    
-**Optional Arguments:**
 
-* `--help` – show the NF_RCP-F workflow help menu  
-  > Note: The help menu shows arguments in addition to those detailed here that can be used for workflow testing and debugging.  
+<br>
+
+**Optional Parameters:**
 
 * `--skipVV` - skip the automated V&V processes (Default: the automated V&V processes are active) 
-* `--outputDir` - specifies the directory to save the raw and processed data files (Default: files are saved in the launch directory)
-* `--limitSamplesTo` - specifies the number of samples to process (Default: all samples in the GLDS dataset indicated are processed)
-* `--force_single_end` - forces the analysis to use single end processing; for paired end datasets, this means only R1 is used; for single end datasets, this should have no effect
-* `--stageLocal TRUE|FALSE` - TRUE = download the raw reads files for the GLDS dataset indicated, FALSE = disable raw reads download and processing (Default: TRUE)
-* `--ref_fasta` - specifices the path to a local fasta file (Default: fasta file is downloaded from Ensembl)
-* `--ref_gtf` - specifices the path to a local gtf file (Default: gtf file is downloaded from Ensembl)
-* `--referenceStorePath` - specifies the directory to store the Ensembl fasta and gtf files (Default: within the directory structure created by default in the launch directory)
-* `--derivedStorePath` - specifies the directory to store the tool-specific indices created during processing (Default: within the directory structure created by default in the launch directory)
+
+* `--outputDir` - specifies the directory to save the raw and processed data files (Default: files are saved in the launch directory)  
+
+* `--force_single_end` - forces the analysis to use single end processing; for paired end datasets, this means only R1 is used; for single end datasets, this should have no effect  
+
+* `--stageLocal TRUE|FALSE` - TRUE = download the raw reads files for the GLDS dataset indicated, FALSE = disable raw reads download and processing (Default: TRUE)  
+
+* `--referenceStorePath` - specifies the directory to store the Ensembl fasta and gtf files (Default: within the directory structure created by default in the launch directory)  
+
+* `--derivedStorePath` - specifies the directory to store the tool-specific indices created during processing (Default: within the directory structure created by default in the launch directory) 
+
 * `--runsheetPath` - specifies the path to a local runsheet (Default: a runsheet is automatically generated using the metadata on the GeneLab Repository for the GLDS dataset being processed) 
    
+<br>
 
-**Additional Optional Arguments:**
+**Additional Optional Parameters:**
 
-Additional optional arguments for the RCP workflow, including debug and storage related options that may not be immediately useful for most users, can be viewed by running the following command:
+All parameters listed above and additional optional arguments for the RCP workflow, including debug related options that may not be immediately useful for most users, can be viewed by running the following command:
 
 ```bash
 nextflow run NF_RCP-F_1.0.0/main.nf --help
