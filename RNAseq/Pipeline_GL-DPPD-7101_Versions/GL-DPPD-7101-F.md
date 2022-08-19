@@ -1867,6 +1867,7 @@ Output data with considering ERCC spike-in genes:
 - ERCCnorm_differential_expression.csv\# (table containing ERCC-normalized counts for each sample, group statistics, DESeq2 DGE results for each pairwise comparison, and gene annotations)
 - ERCCnorm_contrasts.csv\# (table containing all pairwise comparisons for samples containing ERCC spike-in)
 
+
 **Output Data for Datasets without ERCC Spike-In:**
 
 - RSEM_Unnormalized_Counts.csv\# (table containing raw RSEM gene counts for each sample)
@@ -2443,6 +2444,7 @@ ERCCcounts.head()
 
 ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv') 
 ```
+
 
 **Input Data:**
 
