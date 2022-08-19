@@ -47,7 +47,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |FastQC|`fastqc -v`|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC|`multiqc -v`|[https://multiqc.info/](https://multiqc.info/)|
 |Cutadapt|`cutadapt --version`|[https://cutadapt.readthedocs.io/en/stable/](https://cutadapt.readthedocs.io/en/stable/)|
-|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)|
+|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/)|
 |vsearch|`vsearch --version`|[https://github.com/torognes/vsearch](https://github.com/torognes/vsearch)|
 |R|`R --version` (at command line) | [https://www.r-project.org/](https://www.r-project.org/)|
 |DECIPHER|`packageVersion("DECIPHER")`|[https://bioconductor.org/packages/release/bioc/html/DECIPHER.html](https://bioconductor.org/packages/release/bioc/html/DECIPHER.html)|
@@ -154,7 +154,7 @@ cutadapt -g AGAGTTTGATCCTGGCTCAG -a GCTGCCTCCCGTAGGAGT \
 ---
 
 ## 3. Quality filtering
-**Uses [bbduk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)**
+**Uses [bbduk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/)**
 
 ```
 bbduk.sh in=sample-1_trimmed.fastq.gz out=sample-1_filtered.fastq.gz \
