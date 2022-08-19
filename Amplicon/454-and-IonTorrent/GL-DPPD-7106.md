@@ -1,6 +1,6 @@
 # Bioinformatics pipeline for 454 and IonTorrent amplicon sequencing data  
 
-> **This page holds an overview and some example commands of how GeneLab processes 454 and IonTorrent amplicon datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This page holds an overview and some example commands of how GeneLab processes 454 and IonTorrent amplicon datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -66,7 +66,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # General processing overview with example commands
 
-> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
 
 ---
 
