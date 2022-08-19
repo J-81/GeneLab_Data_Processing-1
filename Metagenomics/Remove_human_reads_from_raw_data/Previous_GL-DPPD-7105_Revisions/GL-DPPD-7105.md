@@ -24,8 +24,8 @@ Jonathan Galazka (GeneLab Project Scientist)
 - [**Software used**](#software-used)
 - [**1. Build kraken2 database**](#1-build-kraken2-database)
 - [**2. Filter out human-classified reads**](#2-filter-out-human-classified-reads)
-  - [Example if paired-end reads](example-if-paired-end-reads)
-  - [Example if single-end reads](example-if-single-end-reads)
+  - [Example if paired-end reads](#example-if-paired-end-reads)
+  - [Example if single-end reads](#example-if-single-end-reads)
 - [**3. Generate a kraken2 summary report**](#3-generate-a-kraken2-summary-report)
 
 ---
