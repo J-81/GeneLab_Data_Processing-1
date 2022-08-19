@@ -13,7 +13,7 @@
 
   - Contains instructions and associated yaml files to install the conda environments containing tools used to process single cell RNAseq datasets using the GeneLab scRCP  
 
-* [**GLDS_Processing_Scripts**](GLDS_Processing_Scripts)
+* [**GLDS_Processing_Scripts**](../GLDS_Processing_Scripts)
 
   - Contains the exact processing commands and scRCP version used for specific GLDS datasets that have been released and are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
 
