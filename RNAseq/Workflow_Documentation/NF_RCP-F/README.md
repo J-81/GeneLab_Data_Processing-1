@@ -224,6 +224,7 @@ nextflow run NF_RCP-F_1.0.0/main.nf \
 
 * `--runsheetPath` - specifies the path to a local runsheet (Default: a runsheet is automatically generated using the metadata on the GeneLab Repository for the GLDS dataset being processed) 
    
+<br>
 
 **Additional Optional Parameters:**
 
