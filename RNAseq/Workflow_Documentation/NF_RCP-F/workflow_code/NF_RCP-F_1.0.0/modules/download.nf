@@ -4,12 +4,13 @@
 
 process DOWNLOAD_GUNZIP_REFERENCES {
   // Download and decompress genome and annotation files
-  tag "Organism: ${ organism_sci }  Ensembl Version: ${params.ensemblVersion}"
+  tag "Organism: ${ organism_sci }  Ensembl Version: ${ensemblVersion}"
   label 'networkBound'
-  storeDir "${params.referenceStorePath}/${params.ref_source}/${params.ensemblVersion}/${ organism_sci }"
+  storeDir "${params.referenceStorePath}/${ref_source}/${ensemblVersion}/${ organism_sci }"
 
   input:
     tuple val(organism_sci), val(fasta_url), val(gtf_url)
+    tuple val(ensemblVersion), val(ref_source)
   
   output:
     tuple path("*.fa"), path("*.gtf")
