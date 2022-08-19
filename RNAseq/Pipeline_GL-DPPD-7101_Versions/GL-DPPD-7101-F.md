@@ -1019,8 +1019,7 @@ library(tidyverse)
 library(stringr)
 
 
-### Define which organism is used in the study - this should be consistent with the name in the *organisms.csv file, which matches the abbreviations used in the Panther database for each organism ###
-## Organism options include: HUMAN|MOUSE|RAT|ZEBRAFISH|FLY|WORM|YEAST|ARABIDOPSIS|ECOLI|BACSU
+### Define which organism is used in the study - this should be consistent with the name in the "name" column of the GL-DPPD-7110_annotations.csv file, which matches the abbreviations used in the Panther database for each organism ###
 
 organism <- "organism_that_samples_were_derived_from"
 
@@ -1035,10 +1034,9 @@ DGE_output="/path/to/DGE/output/directory"
 DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed for datasets with ERCC spike-in
 
 
-### Pull in the GeneLab annotation table (GL-DPPD-7110) organisms.csv file ###
+### Pull in the GeneLab annotation table (GL-DPPD-7110_annotations.csv) file ###
 
-###### TODO: CHANGE THIS TO OFFICIAL NASA GITHUB
-org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_organisms.csv"
+org_table_link <- "https://raw.githubusercontent.com/nasa/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
 
 org_table <- read.table(org_table_link, sep = ",", header = TRUE)
 
@@ -1435,17 +1433,17 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 ### Combine annotations table and the (non-ERCC) DGE table ###
 
-output_table_1 <- merge(annot, output_table_1, by=0, all=FALSE)
+output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_1 <- merge(annot, reduced_output_table_1, by=0, all=FALSE)
+reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
@@ -1559,17 +1557,17 @@ PCA_raw_ERCCnorm <- prcomp(t(exp_raw_ERCCnorm), scale = FALSE)
 
 ### Combine annotations table and the ERCC-normalized DGE table ###
 
-output_table_2 <- merge(annot, output_table_2, by=0, all=FALSE)
+output_table_2 <- merge(annot, output_table_2, by='row.names', all.y=TRUE)
 output_table_2 <- output_table_2 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_2 <- merge(annot, reduced_output_table_2, by=0, all=FALSE)
+reduced_output_table_2 <- merge(annot, reduced_output_table_2, by='row.names', all.y=TRUE)
 reduced_output_table_2 <- reduced_output_table_2 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 ```
@@ -1783,17 +1781,17 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 ### Combine annotations table and the DGE table ###
 
-output_table_1 <- merge(annot, output_table_1, by=0, all=FALSE)
+output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_1 <- merge(annot, reduced_output_table_1, by=0, all=FALSE)
+reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 ```
