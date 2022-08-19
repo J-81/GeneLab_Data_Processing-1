@@ -1259,6 +1259,7 @@ dds_1 <- dds[-c(ercc_rows),] ## remove ERCCs from full counts table
 
 dds_2 <- dds[,colSums(counts(ercc_dds_gpB)) > 0] ## samples that do not contain ERCC group B counts are removed
 sampleTable_sub <- data.frame(condition=factor(group_sub)) ## create a new sampleTable only with samples that contain ERCC group B counts
+rownames(sampleTable_sub) <- rownames(study_sub)
 dds_2$condition <- sampleTable_sub$condition ## reassign the dds_2 condition to the subset condition containing only samples with ERCC group B counts
 summary(dds_2)
 dim(dds_2)
