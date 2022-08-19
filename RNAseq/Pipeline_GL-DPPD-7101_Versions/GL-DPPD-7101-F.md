@@ -975,12 +975,12 @@ sessionInfo()
 > Note: Rather than running the command below to create the runsheet needed for processing, the runsheet may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
 
 ```bash
-### Download the \*ISA.zip file from the GeneLab Repository ###
+### Download the *ISA.zip file from the GeneLab Repository ###
 
 dpt-get-isa-archive \
  --accession GLDS-###
 
-### Parse the metadata from the \*ISA.zip file to create a sample runsheet ###
+### Parse the metadata from the *ISA.zip file to create a sample runsheet ###
 
 dpt-isa-to-runsheet --accession GLDS-### \
  --config-type bulkRNASeq \
@@ -998,7 +998,7 @@ dpt-isa-to-runsheet --accession GLDS-### \
 
 **Input Data:**
 
-- No input data required, only the GLDS accession ID needs to be indicated, which is used to download the ISA archive 
+- No input data required but the GLDS accession ID needs to be indicated, which is used to download the respective ISA archive 
 
 **Output Data:**
 
