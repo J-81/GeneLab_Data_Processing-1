@@ -27,7 +27,7 @@
   - Contains instructions for installing and running the GeneLab RCP workflow
     > Note: The RCP workflow was implemented beginning with RCP version F 
 
-* [**GLDS_Processing_Scripts**](../GLDS_Processing_Scripts)
+* [**GLDS_Processing_Scripts**](GLDS_Processing_Scripts)
 
   - Contains the exact processing commands and RCP version used for specific GLDS datasets that have been released and are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
 
