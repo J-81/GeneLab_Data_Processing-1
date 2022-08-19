@@ -1,6 +1,6 @@
 # Bioinformatics pipeline for 454 and IonTorrent amplicon sequencing data  
 
-> **This page holds an overview and some example commands of how GeneLab processes 454 and IonTorrent amplicon datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This page holds an overview and some example commands of how GeneLab processes 454 and IonTorrent amplicon datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -47,7 +47,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |FastQC|`fastqc -v`|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC|`multiqc -v`|[https://multiqc.info/](https://multiqc.info/)|
 |Cutadapt|`cutadapt --version`|[https://cutadapt.readthedocs.io/en/stable/](https://cutadapt.readthedocs.io/en/stable/)|
-|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)|
+|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/)|
 |vsearch|`vsearch --version`|[https://github.com/torognes/vsearch](https://github.com/torognes/vsearch)|
 |R|`R --version` (at command line) | [https://www.r-project.org/](https://www.r-project.org/)|
 |DECIPHER|`packageVersion("DECIPHER")`|[https://bioconductor.org/packages/release/bioc/html/DECIPHER.html](https://bioconductor.org/packages/release/bioc/html/DECIPHER.html)|
@@ -66,7 +66,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # General processing overview with example commands
 
-> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
 
 ---
 
@@ -154,7 +154,7 @@ cutadapt -g AGAGTTTGATCCTGGCTCAG -a GCTGCCTCCCGTAGGAGT \
 ---
 
 ## 3. Quality filtering
-**Uses [bbduk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)**
+**Uses [bbduk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/)**
 
 ```
 bbduk.sh in=sample-1_trimmed.fastq.gz out=sample-1_filtered.fastq.gz \

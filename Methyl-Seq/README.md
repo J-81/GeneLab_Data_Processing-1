@@ -29,7 +29,7 @@
   - Contains instructions for installing and running the GeneLab MSCP workflow
     > Note: The MSCP workflow is currently in development and not yet available 
 
-* [**GLDS_Processing_Scripts**](GLDS_Processing_Scripts)
+* [**GLDS_Processing_Scripts**](../GLDS_Processing_Scripts)
 
   - Contains the exact processing commands and MSCP version used for specific GLDS datasets that have been released and are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
 

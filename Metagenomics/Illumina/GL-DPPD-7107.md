@@ -1,6 +1,6 @@
 # Bioinformatics pipeline for Illumina metagenomics data
 
-> **This document holds an overview and some example commands of how GeneLab processes Illumina metagenomics datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This document holds an overview and some example commands of how GeneLab processes Illumina metagenomics datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -51,7 +51,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 |:------|:-----:|------:|
 |FastQC|`fastqc -v`|[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC|`multiqc -v`|[https://multiqc.info/](https://multiqc.info/)|
-|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)|
+|bbduk|`bbduk.sh --version`|[https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/)|
 |megahit|`megahit -v`|[https://github.com/voutcn/megahit#megahit](https://github.com/voutcn/megahit#megahit)|
 |bit|`bit-version`|[https://github.com/AstrobioMike/bioinf_tools#bioinformatics-tools-bit](https://github.com/AstrobioMike/bioinf_tools#bioinformatics-tools-bit)|
 |bowtie2|`bowtie2 --version`|[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
@@ -72,7 +72,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # General processing overview with example commands
 
-> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
 
 ## Pre-processing
 ### 1. Raw Data QC
@@ -148,7 +148,7 @@ bbduk.sh in=sample-1-R1-raw.fastq.gz in2=sample-1-R2-raw.fastq.gz out1=sample-1-
 
 *	`k` – sets minimum length of kmer match to identify adapter sequences (provided by the “ref” file above)
 
-*	`ftm` – sets a multiple of expected length the sequence should be (handles poor additional bases that are sometimes present, see “Force-Trim Modulo” section on [this page](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/))
+*	`ftm` – sets a multiple of expected length the sequence should be (handles poor additional bases that are sometimes present, see “Force-Trim Modulo” section on [this page](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/))
 
 *	`qtrim` – sets quality-score-based trimming to be applied to left and right sides
 
