@@ -67,7 +67,7 @@ document](../../Pipeline_GL-DPPD-7101_Versions/GL-DPPD-7101-F.md):
 
 ---
 
-### 1. Install Nextflow and Singularity
+### 1. Install Nextflow and Singularity 
 
 #### 1a. Install Nextflow
 
