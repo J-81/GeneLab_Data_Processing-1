@@ -39,7 +39,6 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 
 # Table of contents  
 
-
 - [**Software used**](#software-used)
 - [**General processing overview with example commands**](#general-processing-overview-with-example-commands)
   - [**1. Raw Data QC**](#1-raw-data-qc)
