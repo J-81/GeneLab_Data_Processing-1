@@ -191,7 +191,7 @@ trim_galore --gzip \
   --phred33 \
   --illumina \ # if adapters are not illumina, replace with adapters used
   --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for PE studies, remove this paramater if raw data are SE
+  --paired \ # only for PE studies, remove this parameter if raw data are SE
   sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
 # if SE, replace the last line with only the forward reads (R1) of each sample
 
@@ -359,7 +359,7 @@ STAR --twopassMode Basic \
 - `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
 - `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
+- `--outSAMunmapped` - specifies output of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
 - `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
 - `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
 - `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
@@ -389,8 +389,8 @@ STAR --twopassMode Basic \
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
-- *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
-- *Log.out (main log file containint detailed info about the STAR run)
+- *ReadsPerGene.out.tab (tab delimitated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
+- *Log.out (main log file containing detailed info about the STAR run)
 - *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, % of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
 - *_STARgenome (directory containing the following:)
@@ -419,7 +419,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Log.final.out (log file containing alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
@@ -519,7 +519,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 
 **Input Data:**
 
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, ourput from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
 
 **Output Data:**
 
@@ -789,7 +789,7 @@ multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/
 
 **Input Data:**
 
-- *read_dist.out (files containing the read_distributation standard output, output from [Step 6g](#6g-assess-read-distribution))
+- *read_dist.out (files containing the read_distribution standard output, output from [Step 6g](#6g-assess-read-distribution))
 
 **Output Data:**
 
@@ -992,7 +992,7 @@ dpt-isa-to-runsheet --accession GLDS-### \
 
 - `--accession GLDS-###` - GLDS accession ID (replace ### with the GLDS number being processed), used to retrieve the urls for the ISA archive and raw reads hosted on the GeneLab Repository
 - `--config-type` - Instructs the script to extract the metadata required for `bulkRNAseq` processing from the ISA archive
-- `--config-version` - Specifies the `dp-tools` version to use, a value of `Latest` will specify the most recent version
+- `--config-version` - Specifies the `dp-tools` configuration version to use, a value of `Latest` will specify the most recent version
 - `--isa-archive` - Specifies the *ISA.zip file for the respective GLDS dataset, downloaded in the `dpt-get-isa-archive` command
 
 
@@ -1035,7 +1035,7 @@ library(stringr)
 organism <- "organism_that_samples_were_derived_from"
 
 
-### Define the location of the input data and where the ouput data will be printed to ###
+### Define the location of the input data and where the output data will be printed to ###
 
 runsheet_path="/path/to/directory/containing/runsheet.csv/file" ## This is the runsheet created in Step 9a above
 work_dir="/path/to/working/directory/where/script/is/executed/from" 
@@ -1394,7 +1394,7 @@ reduced_output_table_1 <- cbind(reduced_output_table_1,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the (non-ERCC) DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the (non-ERCC) DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
@@ -1523,7 +1523,7 @@ reduced_output_table_2 <- cbind(reduced_output_table_2,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the ERCC-normalized DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the ERCC-normalized DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
@@ -1742,7 +1742,7 @@ reduced_output_table_1 <- cbind(reduced_output_table_1,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
