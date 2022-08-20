@@ -992,7 +992,7 @@ dpt-isa-to-runsheet --accession GLDS-### \
 
 - `--accession GLDS-###` - GLDS accession ID (replace ### with the GLDS number being processed), used to retrieve the urls for the ISA archive and raw reads hosted on the GeneLab Repository
 - `--config-type` - Instructs the script to extract the metadata required for `bulkRNAseq` processing from the ISA archive
-- `--config-version` - Specifies the `dp-tools` version to use, a value of `Latest` will specify the most recent version
+- `--config-version` - Specifies the `dp-tools` configuration version to use, a value of `Latest` will specify the most recent version
 - `--isa-archive` - Specifies the *ISA.zip file for the respective GLDS dataset, downloaded in the `dpt-get-isa-archive` command
 
 
