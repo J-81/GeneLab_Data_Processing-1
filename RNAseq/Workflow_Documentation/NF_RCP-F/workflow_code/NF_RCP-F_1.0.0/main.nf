@@ -86,7 +86,11 @@ println "Storing any newly generated derived reference files here: ${params.deri
 // Get all params sourced data into channels
 // Set up channel containing glds accession number
 if ( params.gldsAccession ) {ch_glds_accession = Channel.from( params.gldsAccession )} else { exit 1, "Missing Required Parameter: gldsAccession. Example for setting on CLI: --gldsAccession GLDS-194"}
-if ( !params.ensemblVersion ) { exit 1, "Missing Required Parameter: ensemblVersion. Example for setting on CLI: --ensemblVersion 96" }
+
+// Check conditionally required parameter (if using direct fasta, an ensemblVersion must also be supplied)
+if ( params.ref_fasta ) {
+  if ( !params.ensemblVersion ) { exit 1, "Missing Required Parameter: ensemblVersion. Example for setting on CLI: --ensemblVersion 96" }
+}
 
 if ( !params.outputDir ) {  params.outputDir = "$workflow.launchDir" }
 
