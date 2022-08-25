@@ -16,8 +16,7 @@ process RNASEQ_RUNSHEET_FROM_GLDS {
 
   script:
     """
-    dpt-get-isa-archive --accession ${ glds_accession }\
-      --alternate-url
+    dpt-get-isa-archive --accession ${ glds_accession }
 
     dpt-isa-to-runsheet --accession ${ glds_accession } \
       --config-type bulkRNASeq --isa-archive *.zip
@@ -71,26 +70,44 @@ process GENERATE_METASHEET {
     """
 }
 
-process POST_PROCESSING {
+process GENERATE_MD5SUMS {
   // Generates tabular data indicating genelab standard publishing files, md5sum generation, and tool version table formatting
   tag "${ params.gldsAccession }"
   publishDir "${ params.outputDir }/${ params.gldsAccession }/GeneLab",
     mode: params.publish_dir_mode
 
   input:
-    path("runsheet.csv")
-    val(LAST_PROCESS_MARKER) // Unused in task, but used in workflow definition to ensure this process is last regardless of whether V&V is used
-    val(LAST_PROCESS_MARKER_2) // Unused in task, but used in workflow definition to ensure this process follows metasheet generation
+    path(data_dir)
+    path(runsheet)
+
+  output:
+    path("*md5sum*")
+    path("Missing_md5sum_files.txt"), optional: true
+
+  script:
+    """
+    generate_md5sum_files.py  --root-path ${ data_dir } \\
+                              --runsheet-path ${ runsheet }
+    """
+}
+
+process UPDATE_ISA_TABLES {
+  // Generates tabular data indicating genelab standard publishing files, md5sum generation, and tool version table formatting
+  tag "${ params.gldsAccession }"
+  publishDir "${ params.outputDir }/${ params.gldsAccession }/GeneLab",
+    mode: params.publish_dir_mode
+
+  input:
+    path(data_dir)
+    path(runsheet)
 
   output:
     path("updated_curation_tables") // directory containing extended ISA tables
-    path("*md5sum*")
 
   script:
-    root_out_dir = "${ workflow.launchDir}/${ params.outputDir }/${ params.gldsAccession }"
     """
-    generate_md5sum_files.py --root-path ${ root_out_dir } --accession ${ params.gldsAccession }
-    update_curation_table.py --root-path ${ root_out_dir } --accession ${ params.gldsAccession }
+    update_curation_table.py  --root-path ${ data_dir } \\
+                              --runsheet-path ${ runsheet }
     """
 }
 

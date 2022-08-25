@@ -2,15 +2,6 @@
  * Different Gene Expression Analysis Processes
  */
 process DGE_BY_DESEQ2 {
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/04-DESeq2_NormCounts",
-    mode: params.publish_dir_mode,
-    pattern: "norm_counts_output/*", saveAs: { "${file(it).getName()}" }
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/05-DESeq2_DGE",
-    mode: params.publish_dir_mode,
-    pattern: "dge_output/*", saveAs: { "${file(it).getName()}" }
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/05-DESeq2_DGE",
-    mode: params.publish_dir_mode,
-    pattern: "dge_output_ercc/*", saveAs: { "ERCC_NormDGE/${file(it).getName()}" }
 
   input:
     path("runsheet.csv")
@@ -18,7 +9,7 @@ process DGE_BY_DESEQ2 {
     path("Rsem_gene_counts/*")
     val(meta)
     path(annotation_file)
-    path("dge_annotation_R_scripts")
+    path("dge_annotation_R_scripts.zip")
 
   output:
     tuple path("norm_counts_output/Normalized_Counts.csv"),
@@ -31,8 +22,9 @@ process DGE_BY_DESEQ2 {
           path("dge_output/visualization_PCA_table.csv"), emit: dge
 
     tuple path("norm_counts_output/ERCC_Normalized_Counts.csv"),
-          path("norm_counts_output/ERCC_SampleTable.csv"),
-          path("dge_output_ercc/ERCCnorm_contrasts.csv"),
+          path("norm_counts_output/ERCC_SampleTable.csv"), optional: true, emit: norm_counts_ercc
+
+    tuple path("dge_output_ercc/ERCCnorm_contrasts.csv"),
           path("dge_output_ercc/ERCCnorm_differential_expression.csv"),
           path("dge_output_ercc/visualization_output_table_ERCCnorm.csv"),
           path("dge_output_ercc/visualization_PCA_table_ERCCnorm.csv"), optional: true, emit: dge_ercc
@@ -41,6 +33,9 @@ process DGE_BY_DESEQ2 {
 
   script:
     """
+    # Unzip r scripts
+    unzip dge_annotation_R_scripts.zip
+
     Rscript --vanilla dge_annotation_R_scripts/dge_annotation_workflow.R \\
         --runsheet_path runsheet.csv \\
         ${ params.use_dummy_gene_counts ? '--DEBUG_MODE_ADD_DUMMY_COUNTS' : ''} \\

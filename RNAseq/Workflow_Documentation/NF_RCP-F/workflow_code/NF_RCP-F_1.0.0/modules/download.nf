@@ -2,30 +2,27 @@
  * Processes for downloading reference files
  */
 
-process DOWNLOAD_GENOME_ANNOTATIONS {
+process DOWNLOAD_GUNZIP_REFERENCES {
   // Download and decompress genome and annotation files
-  tag "Organism: ${ organism_sci }  Ensembl Version: ${params.ensemblVersion}"
+  tag "Organism: ${ organism_sci }  Ensembl Version: ${ensemblVersion}"
   label 'networkBound'
-  storeDir "${params.referenceStorePath}/ensembl/${params.ensemblVersion}/${ organism_sci }"
+  storeDir "${params.referenceStorePath}/${ref_source}/${ensemblVersion}/${ organism_sci }"
 
   input:
-    val(organism_sci)
-
+    tuple val(organism_sci), val(fasta_url), val(gtf_url)
+    tuple val(ensemblVersion), val(ref_source)
+  
   output:
-    tuple path("*.dna.${ params.ref_target }.fa"), path("*.${ params.ensemblVersion }.gtf")
+    tuple path("*.fa"), path("*.gtf")
 
   script:
-    """
-    retrieve_references.py --ensembl_version ${ params.ensemblVersion } \
-                           --organism        ${ organism_sci} \
-                           --target          ${ params.ref_target }
+  """
+  wget ${fasta_url}
+  gunzip *.gz
 
-
-
-    # decompress files
-    gunzip *.fa.gz || true # this is to accomodate dummy marker file, D.N.E., which results in no decompression needed.
-    gunzip *.gtf.gz
-    """
+  wget ${gtf_url}
+  gunzip *.gz
+  """
 }
 
 process DOWNLOAD_ERCC {
@@ -33,9 +30,13 @@ process DOWNLOAD_ERCC {
   storeDir "${params.referenceStorePath}/ERCC_thermofisher"
 
   input:
+    val(has_ercc)
 
   output:
     tuple path("ERCC92.fa"), path("ERCC92.gtf")
+
+  when:
+    has_ercc
 
   script:
     """

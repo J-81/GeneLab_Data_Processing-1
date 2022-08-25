@@ -4,8 +4,8 @@
 
 process BUILD_STAR {
   // Builds STAR index, this is ercc-spike-in, organism, read length and ensembl version specific
-  tag "Refs:${ genomeFasta },${ genomeGtf }, Ensembl.V:${params.ensemblVersion} MaxReadLength:${ max_read_length }${ params.genomeSubsample ? ' GenomeSubsample: ' + params.genomeSubsample : ''}"
-  storeDir "${ params.derivedStorePath }/STAR_Indices/${ params.ref_source }_release${params.ensemblVersion}/${ meta.organism_sci.capitalize() }"
+  tag "Refs:${ genomeFasta },${ genomeGtf }, Ensembl.V:${ensemblVersion} MaxReadLength:${ max_read_length }${ params.genomeSubsample ? ' GenomeSubsample: ' + params.genomeSubsample : ''}"
+  storeDir "${ params.derivedStorePath }/STAR_Indices/${ ref_source }_release${ensemblVersion}/${ meta.organism_sci.capitalize() }"
 
   label 'maxCPU'
   label 'big_mem'
@@ -14,6 +14,7 @@ process BUILD_STAR {
     tuple path(genomeFasta), path(genomeGtf)
     val(meta)
     val(max_read_length) // Based on fastQC report for all samples
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
 
   output:
     path("${ genomeFasta.baseName }_RL-${ max_read_length.toInteger() }"), emit: build
@@ -60,9 +61,6 @@ process ALIGN_STAR {
   // Aligns reads against STAR index
   // TODO: make '--alignMatesGapMax 1000000' conditional on PE
   tag "Sample: ${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/02-STAR_Alignment",
-    mode: params.publish_dir_mode,
-    pattern: "${ meta.id }/${ meta.id }*"
   label 'maxCPU'
   label 'big_mem'
 
@@ -109,12 +107,13 @@ process ALIGN_STAR {
 
 process BUILD_RSEM {
   // Builds RSEM index, this is ercc-spike-in, organism, and ensembl version specific
-  tag "Refs:${ genomeFasta },${ genomeGtf }, Ensembl Version: ${params.ensemblVersion}${ params.genomeSubsample ? ' GenomeSubsample: ' + params.genomeSubsample : ''}"
-  storeDir "${ params.derivedStorePath }/RSEM_Indices/${ params.ref_source }_release${params.ensemblVersion}/${ meta.organism_sci.capitalize() }"
+  tag "Refs:${ genomeFasta },${ genomeGtf }, Ensembl Version: ${ensemblVersion}${ params.genomeSubsample ? ' GenomeSubsample: ' + params.genomeSubsample : ''}"
+  storeDir "${ params.derivedStorePath }/RSEM_Indices/${ ref_source }_release${ensemblVersion}/${ meta.organism_sci.capitalize() }"
 
   input:
     tuple path(genomeFasta), path(genomeGtf)
     val(meta)
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
 
   output:
     path("${ genomeFasta.baseName }"), emit: build
@@ -136,9 +135,6 @@ process BUILD_RSEM {
 process COUNT_ALIGNED {
   // Generates gene and isoform counts from alignments
   tag "Sample: ${ meta.id }, strandedness: ${ strandedness } "
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/03-RSEM_Counts",
-    mode: params.publish_dir_mode,
-    pattern: "${ meta.id }*"
 
   input:
     tuple val(meta), path("${meta.id}_Aligned.toTranscriptome.out.bam"), path(RSEM_REF)
@@ -146,6 +142,7 @@ process COUNT_ALIGNED {
 
   output:
     tuple val(meta), path("${ meta.id }*"), emit: counts
+    path("${ meta.id }*"), emit: only_counts
     path("${ meta.id }.genes.results"), emit: gene_counts
     path("versions.txt"), emit: version
 
@@ -173,15 +170,13 @@ process COUNT_ALIGNED {
 
 process QUANTIFY_RSEM_GENES {
   // An R script that extracts gene counts by sample to a table
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/03-RSEM_Counts",
-    mode: params.publish_dir_mode
 
   input:
     path("samples.txt")
     path("03-RSEM_Counts/*")
 
   output:
-    tuple path("RSEM_Unnormalized_Counts.csv"), path("RSEM_NumNonZeroGenes.csv")
+    tuple path("RSEM_Unnormalized_Counts.csv"), path("RSEM_NumNonZeroGenes.csv"), emit: publishables
 
   script:
     """
@@ -191,9 +186,6 @@ process QUANTIFY_RSEM_GENES {
 }
 
 process QUANTIFY_STAR_GENES {
-  // An R script that extracts gene counts by sample to a table
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/02-STAR_Alignment",
-    mode: params.publish_dir_mode
 
   input:
     path("samples.txt")
@@ -201,7 +193,7 @@ process QUANTIFY_STAR_GENES {
     val(strandedness)
 
   output:
-    tuple path("STAR_Unnormalized_Counts.csv"), path("STAR_NumNonZeroGenes.csv")
+    tuple path("STAR_Unnormalized_Counts.csv"), path("STAR_NumNonZeroGenes.csv"), emit: publishables
 
   script:
     """
@@ -213,11 +205,12 @@ process QUANTIFY_STAR_GENES {
 process SUBSAMPLE_GENOME {
   // Extracts a user-specified sequence from the larger reference fasta and gtf file
   tag "Sequence:'${ params.genomeSubsample }'"
-  storeDir "${params.derivedStorePath}/subsampled_files/${ params.ref_source }_release${params.ensemblVersion}/${ organism_sci.capitalize() }"
+  storeDir "${params.derivedStorePath}/subsampled_files/${ ref_source }_release${ensemblVersion}/${ organism_sci.capitalize() }"
 
   input:
     tuple path(genome_fasta), path(genome_gtf)
     val(organism_sci)
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
 
   output:
     tuple path("${ genome_fasta.baseName }_sub_${ params.genomeSubsample  }.fa"), \
@@ -237,7 +230,7 @@ process CONCAT_ERCC {
   // Concanates ERCC fasta and gtf to reference fasta and gtf
   errorStrategy 'retry'
   maxRetries 3 // This addresses a very rare unexpected error where the command finishes but output is not produced.
-  storeDir "${params.referenceStorePath}/${ params.ref_source }_release${params.ensemblVersion}/${ organism_sci.capitalize() }"
+  storeDir "${params.referenceStorePath}/${ ref_source }_release${ensemblVersion}/${ organism_sci.capitalize() }"
           
 
   input:
@@ -245,6 +238,8 @@ process CONCAT_ERCC {
     tuple path(ercc_fasta), path(ercc_gtf)
     val(organism_sci)
     val(has_ercc)
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
+
 
   output:
     tuple path("${ genome_fasta.baseName }_and_ERCC92.fa"), \
@@ -262,12 +257,13 @@ process CONCAT_ERCC {
 
 process TO_PRED {
   // Converts reference gtf into pred 
-  storeDir "${ params.derivedStorePath }/Genome_GTF_BED_Files/${ params.ref_source }_release${params.ensemblVersion}/${ organism_sci.capitalize() }"
+  storeDir "${ params.derivedStorePath }/Genome_GTF_BED_Files/${ ref_source }_release${ensemblVersion}/${ organism_sci.capitalize() }"
           
 
   input:
     path(genome_gtf)
     val(organism_sci)
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
 
   output:
     path("${ genome_gtf }.genePred")
@@ -281,12 +277,13 @@ process TO_PRED {
 
 process TO_BED {
   // Converts reference genePred into Bed format
-  storeDir "${ params.derivedStorePath }/Genome_GTF_BED_Files/${ params.ref_source }_release${params.ensemblVersion}/${ organism_sci.capitalize() }"
+  storeDir "${ params.derivedStorePath }/Genome_GTF_BED_Files/${ ref_source }_release${ensemblVersion}/${ organism_sci.capitalize() }"
           
 
   input:
     path(genome_pred)
     val(organism_sci)
+    tuple val(ensemblVersion), val(ref_source) // Used for defining storage location 
 
   output:
     path("${ genome_pred.baseName }.bed")

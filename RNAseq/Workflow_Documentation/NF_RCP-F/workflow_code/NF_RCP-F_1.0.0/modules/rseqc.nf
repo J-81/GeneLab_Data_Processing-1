@@ -21,9 +21,6 @@ process ASSESS_STRANDEDNESS {
 
 process SORT_INDEX_BAM {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }/${ meta.id }",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }*"
   label 'big_mem'
 
   input:
@@ -53,9 +50,6 @@ process SORT_INDEX_BAM {
 
 process INFER_EXPERIMENT {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }_infer_expt.out"
   label 'big_mem'
 
   input:
@@ -79,9 +73,6 @@ process INFER_EXPERIMENT {
 
 process GENEBODY_COVERAGE {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }/${ meta.id }",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }.geneBodyCoverage.*"
   label 'big_mem'
 
   input:
@@ -106,9 +97,6 @@ process GENEBODY_COVERAGE {
 
 process INNER_DISTANCE {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }/${meta. id}",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }.inner_distance*"
   label 'big_mem'
 
   input:
@@ -116,7 +104,7 @@ process INNER_DISTANCE {
 
   output:
     path("${ meta.id }.inner_distance_freq.txt"), emit: log_only
-    path("${ meta.id }.inner_distance*"), emit: all
+    path("${ meta.id }.inner_distance*"), emit: all_output
     tuple val(meta), path("${ meta.id }.inner_distance_freq.txt"), emit: log
     path("versions.txt"), emit: version
 
@@ -136,9 +124,6 @@ process INNER_DISTANCE {
 
 process READ_DISTRIBUTION {
   tag "Sample:${ meta.id }"
-  publishDir "${ params.outputDir }/${ params.gldsAccession }/${ params.PublishTo }",
-     mode: params.publish_dir_mode,
-     pattern: "${ meta.id }_read_dist.out"
   label 'big_mem'
 
   input:

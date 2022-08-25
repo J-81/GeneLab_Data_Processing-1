@@ -4,7 +4,7 @@
 
 ---
 
-**Date:** July XX, 2022  
+**Date:** August 18, 2022  
 **Revision:** F  
 **Document Number:** GL-DPPD-7101-F  
 
@@ -113,7 +113,8 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
-|dp_tools|XXX|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|dp_tools|1.1.0|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|singularity|3.9|[https://sylabs.io/](https://sylabs.io/)|
 
 ---
 
@@ -190,7 +191,7 @@ trim_galore --gzip \
   --phred33 \
   --illumina \ # if adapters are not illumina, replace with adapters used
   --output_dir /path/to/TrimGalore/output/directory \
-  --paired \ # only for PE studies, remove this paramater if raw data are SE
+  --paired \ # only for PE studies, remove this parameter if raw data are SE
   sample1_R1_raw.fastq.gz sample1_R2_raw.fastq.gz sample2_R1_raw.fastq.gz sample2_R2_raw.fastq.gz
 # if SE, replace the last line with only the forward reads (R1) of each sample
 
@@ -358,7 +359,7 @@ STAR --twopassMode Basic \
 - `--twopassMode` – specifies 2-pass mapping mode; the `Basic` option instructs STAR to perform the 1st pass mapping, then automatically extract junctions, insert them into the genome index, and re-map all reads in the 2nd mapping pass
 - `--limitBAMsortRAM` - maximum RAM available (in bytes) to sort the bam files, the example above indicates 65GB
 - `--genomeDir` - specifies the path to the directory where the STAR reference is stored
-- `--outSAMunmapped` - specifies ouput of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
+- `--outSAMunmapped` - specifies output of unmapped reads in the sam format; the `Within` option instructs STAR to output the unmapped reads within the main sam file
 - `--outFilterType` - specifies the type of filtering; the `BySJout` option instructs STAR to keep only those reads that contain junctions that passed filtering in the SJ.out.tab output file
 - `--outSAMattributes` - list of desired sam attributes in the order desired for the output sam file; sam attribute descriptions can be found [here](https://samtools.github.io/hts-specs/SAMtags.pdf)
 - `--outFilterMultimapNmax` – specifies the maximum number of loci the read is allowed to map to; all alignments will be output only if the read maps to no more loci than this value
@@ -388,8 +389,8 @@ STAR --twopassMode Basic \
 - *Aligned.sortedByCoord.out.bam (sorted mapping to genome)
 - *Aligned.toTranscriptome.out.bam\# (sorted mapping to transcriptome)
 - *Log.final.out\# (log file containing alignment info/stats such as reads mapped, etc)
-- *ReadsPerGene.out.tab (tab deliminated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
-- *Log.out (main log file containint detailed info about the STAR run)
+- *ReadsPerGene.out.tab (tab delimitated file containing STAR read counts per gene with 4 columns that correspond to different strandedness options: column 1 = gene ID, column 2 = counts for unstranded RNAseq, column 3 = counts for 1st read strand aligned with RNA, column 4 = counts for 2nd read strand aligned with RNA)
+- *Log.out (main log file containing detailed info about the STAR run)
 - *Log.progress.out (minute-by-minute report containing job progress statistics, such as the number of processed reads, % of mapped reads etc.)
 - *SJ.out.tab\# (high confidence collapsed splice junctions in tab-delimited format)
 - *_STARgenome (directory containing the following:)
@@ -418,7 +419,7 @@ multiqc --interactive -n align_multiqc -o /path/to/aligned_multiqc/output/direct
 
 **Input Data:**
 
-- *Log.final.out (log file conting alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
+- *Log.final.out (log file containing alignment info/stats such as reads mapped, etc., output from [Step 4a](#4a-align-reads-to-reference-genome-with-star))
 
 **Output Data:**
 
@@ -518,7 +519,7 @@ samtools index -@ NumberOfThreads /path/to/*Aligned.sortedByCoord_sorted.out.bam
 
 **Input Data:**
 
-- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, ourput from [Step 4d](#4d-sort-aligned-reads))
+- *Aligned.sortedByCoord_sorted.out.bam (sorted mapping to genome file, output from [Step 4d](#4d-sort-aligned-reads))
 
 **Output Data:**
 
@@ -788,7 +789,7 @@ multiqc --interactive -n read_dist_multiqc -o /path/to/read_dist_multiqc/output/
 
 **Input Data:**
 
-- *read_dist.out (files containing the read_distributation standard output, output from [Step 6g](#6g-assess-read-distribution))
+- *read_dist.out (files containing the read_distribution standard output, output from [Step 6g](#6g-assess-read-distribution))
 
 **Output Data:**
 
@@ -974,25 +975,36 @@ sessionInfo()
 > Note: Rather than running the command below to create the runsheet needed for processing, the runsheet may also be created manually by following the [file specification](../Workflow_Documentation/NF_RCP-F/examples/runsheet/README.md).
 
 ```bash
+### Download the *ISA.zip file from the GeneLab Repository ###
+
+dpt-get-isa-archive \
+ --accession GLDS-###
+
+### Parse the metadata from the *ISA.zip file to create a sample runsheet ###
+
 dpt-isa-to-runsheet --accession GLDS-### \
  --config-type bulkRNASeq \
- --isa-archive /path/to/*ISA.zip
+ --config-version Latest \
+ --isa-archive *ISA.zip
 ```
 
 **Parameter Definitions:**
 
-- `--accession GLDS-###` - GLDS accession ID (replace ### with the GLDS number being processed), used to retrieve the urls for raw reads hosted on the GeneLab Repository
-- `--config-type` - Instructs the script to extract the metadata required for bulk RNAseq processing from the ISA archive
-- `--isa-archive` - Specifies the path to the \*ISA.zip file for the respective GLDS dataset 
+- `--accession GLDS-###` - GLDS accession ID (replace ### with the GLDS number being processed), used to retrieve the urls for the ISA archive and raw reads hosted on the GeneLab Repository
+- `--config-type` - Instructs the script to extract the metadata required for `bulkRNAseq` processing from the ISA archive
+- `--config-version` - Specifies the `dp-tools` configuration version to use, a value of `Latest` will specify the most recent version
+- `--isa-archive` - Specifies the *ISA.zip file for the respective GLDS dataset, downloaded in the `dpt-get-isa-archive` command
 
 
 **Input Data:**
 
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
+- No input data required but the GLDS accession ID needs to be indicated, which is used to download the respective ISA archive 
 
 **Output Data:**
 
-- {GLDS-Accession-ID}_bulkRNASeq_v{version}.csv\# (table containing metadata required for processing, version denotes the dp_tools schema used to specify the metadata to extract from the ISA archive)
+- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the *ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'Study Files' -> 'metadata')
+
+- {GLDS-Accession-ID}_bulkRNASeq_v{version}_runsheet.csv\# (table containing metadata required for processing, version denotes the dp_tools schema used to specify the metadata to extract from the ISA archive)
 
 <br>
 
@@ -1018,13 +1030,12 @@ library(tidyverse)
 library(stringr)
 
 
-### Define which organism is used in the study - this should be consistent with the name in the *organisms.csv file, which matches the abbreviations used in the Panther database for each organism ###
-## Organism options include: HUMAN|MOUSE|RAT|ZEBRAFISH|FLY|WORM|YEAST|ARABIDOPSIS|ECOLI|BACSU
+### Define which organism is used in the study - this should be consistent with the name in the "name" column of the GL-DPPD-7110_annotations.csv file, which matches the abbreviations used in the Panther database for each organism ###
 
 organism <- "organism_that_samples_were_derived_from"
 
 
-### Define the location of the input data and where the ouput data will be printed to ###
+### Define the location of the input data and where the output data will be printed to ###
 
 runsheet_path="/path/to/directory/containing/runsheet.csv/file" ## This is the runsheet created in Step 9a above
 work_dir="/path/to/working/directory/where/script/is/executed/from" 
@@ -1034,10 +1045,9 @@ DGE_output="/path/to/DGE/output/directory"
 DGE_output_ERCC="/path/to/ERCC-normalized/DGE/output/directory" ## Only needed for datasets with ERCC spike-in
 
 
-### Pull in the GeneLab annotation table (GL-DPPD-7110) organisms.csv file ###
+### Pull in the GeneLab annotation table (GL-DPPD-7110_annotations.csv) file ###
 
-###### TODO: CHANGE THIS TO OFFICIAL NASA GITHUB
-org_table_link <- "https://raw.githubusercontent.com/asaravia-butler/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_organisms.csv"
+org_table_link <- "https://raw.githubusercontent.com/nasa/GeneLab_Data_Processing/master/GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv"
 
 org_table <- read.table(org_table_link, sep = ",", header = TRUE)
 
@@ -1260,6 +1270,7 @@ dds_1 <- dds[-c(ercc_rows),] ## remove ERCCs from full counts table
 
 dds_2 <- dds[,colSums(counts(ercc_dds_gpB)) > 0] ## samples that do not contain ERCC group B counts are removed
 sampleTable_sub <- data.frame(condition=factor(group_sub)) ## create a new sampleTable only with samples that contain ERCC group B counts
+rownames(sampleTable_sub) <- rownames(study_sub)
 dds_2$condition <- sampleTable_sub$condition ## reassign the dds_2 condition to the subset condition containing only samples with ERCC group B counts
 summary(dds_2)
 dim(dds_2)
@@ -1383,7 +1394,7 @@ reduced_output_table_1 <- cbind(reduced_output_table_1,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the (non-ERCC) DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the (non-ERCC) DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
@@ -1434,17 +1445,17 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 ### Combine annotations table and the (non-ERCC) DGE table ###
 
-output_table_1 <- merge(annot, output_table_1, by=0, all=FALSE)
+output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_1 <- merge(annot, reduced_output_table_1, by=0, all=FALSE)
+reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
@@ -1512,7 +1523,7 @@ reduced_output_table_2 <- cbind(reduced_output_table_2,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the ERCC-normalized DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the ERCC-normalized DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
@@ -1558,17 +1569,17 @@ PCA_raw_ERCCnorm <- prcomp(t(exp_raw_ERCCnorm), scale = FALSE)
 
 ### Combine annotations table and the ERCC-normalized DGE table ###
 
-output_table_2 <- merge(annot, output_table_2, by=0, all=FALSE)
+output_table_2 <- merge(annot, output_table_2, by='row.names', all.y=TRUE)
 output_table_2 <- output_table_2 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_2 <- merge(annot, reduced_output_table_2, by=0, all=FALSE)
+reduced_output_table_2 <- merge(annot, reduced_output_table_2, by='row.names', all.y=TRUE)
 reduced_output_table_2 <- reduced_output_table_2 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 ```
@@ -1731,7 +1742,7 @@ reduced_output_table_1 <- cbind(reduced_output_table_1,group_stdev)
 rm(group_stdev,group_means,tcounts)
 
 
-### Add columns needed to generate GeneLab visulaization plots to the DGE table ###
+### Add columns needed to generate GeneLab visualization plots to the DGE table ###
 
 ## Add column to indicate the sign (positive/negative) of log2fc for each pairwise comparison ##
 
@@ -1782,17 +1793,17 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 ### Combine annotations table and the DGE table ###
 
-output_table_1 <- merge(annot, output_table_1, by=0, all=FALSE)
+output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 
-reduced_output_table_1 <- merge(annot, reduced_output_table_1, by=0, all=FALSE)
+reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rename(
-    ENSEMBL = Row.names
+  rownames_to_column(
+    var = "ENSEMBL"
   )
 
 ```
@@ -1843,7 +1854,7 @@ sessionInfo()
 - [GL-DPPD-7110_annotations.csv](../../GeneLab_Reference_Annotations/Pipeline_GL-DPPD-7110_Versions/GL-DPPD-7110/GL-DPPD-7110_annotations.csv) (csv file containing link to GeneLab annotations) 
 - *genes.results (RSEM counts per gene, output from [Step 8a](#8a-count-aligned-reads-with-rsem))
 
-
+<a id=ERCCspikeOut></a>
 **Output Data for Datasets with ERCC Spike-In:**
 
 Output data without considering ERCC spike-in genes:
@@ -1898,7 +1909,6 @@ Output data with considering ERCC spike-in genes:
 import pandas as pd
 pd.set_option('mode.chained_assignment', None) # suppress chained indexing warnings
 import numpy as np
-from urllib.request import urlopen, quote, urlretrieve
 from json import loads
 from re import search
 import zipfile
@@ -1907,71 +1917,41 @@ from scipy.stats import linregress
 import matplotlib.pyplot as plt
 
 
-### Use GeneLab API to locate metadata
-
-GENELAB_ROOT = "https://genelab-data.ndc.nasa.gov"
-GLDS_URL_PREFIX = GENELAB_ROOT + "/genelab/data/study/data/"
-FILELISTINGS_URL_PREFIX = GENELAB_ROOT + "/genelab/data/study/filelistings/"
-ISA_ZIP_REGEX = r'.*_metadata_.*[_-]ISA\.zip$'
-
-def read_json(url):
-    with urlopen(url) as response:
-        return loads(response.read().decode())
-
-def get_isa(accession):
-    glds_json = read_json(GLDS_URL_PREFIX + accession)
-    try:
-        _id = glds_json[0]["_id"]
-    except (AssertionError, TypeError, KeyError, IndexError):
-        raise ValueError("Malformed JSON?")
-    isa_entries = [
-        entry for entry in read_json(FILELISTINGS_URL_PREFIX + _id)
-        if search(ISA_ZIP_REGEX, entry["file_name"])
-    ]
-    if len(isa_entries) == 0:
-        raise ValueError("Unexpected: no ISAs found")
-    elif len(isa_entries) > 1:
-        raise ValueError("Unexpected: multiple files match the ISA regex")
-    else:
-        entry = isa_entries[0]
-        version = entry["version"]
-        url = GENELAB_ROOT + entry["remote_url"] + "?version={}".format(version)
-        alt_url = (
-            GENELAB_ROOT + "/genelab/static/media/dataset/" +
-            quote(entry["file_name"]) + "?version={}".format(version)
-        )
-        return entry["file_name"], version, url, alt_url
-
-
 ### Get and parse data and metadata
 
 # Get and unzip ISA.zip to extract metadata.
 
 accession = 'GLDS-NNN' # Replace Ns with GLDS number
-isaurl = get_isa(accession)[3]
-filehandle, _ = urlretrieve(isaurl)
-zip_file_object = zipfile.ZipFile(filehandle, 'r')
-zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
+isaPath = 'path/to/GLDS-NNN-ISA.zip' # Replace with path to ISA archive file
+zip_file_object = zipfile.ZipFile(isaPath, "r")
+list_of_ISA_files = zip_file_object.namelist() # Print contents of zip file. Pick relevant one from list
 
 # There are datasets that have multiple assays (including microarray), so the RNAseq ISA files from the above output must be selected. 
 # Txt files outputted above are indexed as 0, 1, 2, etc. Fill in the indexed number corresponding to the sample (s_\*txt) and assay files for RNAseq (a_\*_(RNA-Seq).txt) in the code block below.
 
 # Extract metadata from the sample file (s_\*txt)
-sample_file = zip_file_object.namelist()[1] # replace [1] with index corresponding to the (s_\*txt) file
+
+sample_file = list_of_ISA_files[1] # replace [1] with index corresponding to the (s_\*txt) file
 file = zip_file_object.open(sample_file)
 sample_table = pd.read_csv(zip_file_object.open(sample_file), sep='\t')
 
+
 # Extract metadata from the assay (a_\*_(RNA-Seq).txt) file
-assay_file = zip_file_object.namelist()[0] # replace [0] with index corresponding to the (a_\*_(RNA-Seq).txt) file
+
+assay_file = list_of_ISA_files[0] # replace [0] with index corresponding to the (a_\*_(RNA-Seq).txt) file
 file = zip_file_object.open(assay_file)
 assay_table = pd.read_csv(zip_file_object.open(assay_file), sep='\t')
 
+
 # Check the sample table
-pd.set_option('max_columns', None)
+
+pd.set_option('display.max_columns', None)
 print(sample_table.head(n=3))
 
+
 # Check the assay table
-pd.set_option('max_columns', None)
+
+pd.set_option('display.max_columns', None)
 assay_table.head(n=3)
 
 
@@ -2479,8 +2459,8 @@ ERCCcounts.to_csv('ERCC_analysis/ERCCcounts.csv')
 
 **Input Data:**
 
-- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, used to define sample groups - the \*ISA.zip file is located in the [GLDS repository](https://genelab-data.ndc.nasa.gov/genelab/projects) under 'STUDY FILES' -> 'Study Metadata Files')
-- RSEM_Unnormalized_Counts.csv (RSEM counts table, output from [Step 9a](#9a-for-datasets-with-ercc-spike-in))
+- *ISA.zip (compressed ISA directory containing Investigation, Study, and Assay (ISA) metadata files for the respective GLDS dataset, output from [Step 9a](#9a-create-sample-runsheet))
+- RSEM_Unnormalized_Counts.csv (RSEM raw counts table, output from [Step 9](#ERCCspikeOut))
 
 **Output Data:**
 

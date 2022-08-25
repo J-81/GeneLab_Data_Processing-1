@@ -60,8 +60,8 @@ workflow strandedness{
  
      ch_rseqc_logs = Channel.empty()
      ch_rseqc_logs | mix(INFER_EXPERIMENT.out.log_only,
-                         GENEBODY_COVERAGE.out.log_only,
-                         INNER_DISTANCE.out.log_only,
+                         GENEBODY_COVERAGE.out.all_output,
+                         INNER_DISTANCE.out.all_output,
                          READ_DISTRIBUTION.out.log_only)
                    | collect
                    | set{ ch_rseqc_logs }
@@ -75,4 +75,8 @@ workflow strandedness{
      infer_expt_mqc = INFER_EXPERIMENT_MULTIQC.out.data
      mqc_reports = ch_rseqc_mqc_reports
      bam_bed = SORT_INDEX_BAM.out.bam_only_files
+     genebody_coverage_multiqc = Channel.empty() | mix(GENEBODY_COVERAGE_MULTIQC.out.zipped_report, GENEBODY_COVERAGE_MULTIQC.out.unzipped_report) | collect
+     infer_experiment_multiqc = Channel.empty() | mix(INFER_EXPERIMENT_MULTIQC.out.zipped_report, INFER_EXPERIMENT_MULTIQC.out.unzipped_report) | collect
+     inner_distance_multiqc = Channel.empty() | mix(INNER_DISTANCE_MULTIQC.out.zipped_report, INNER_DISTANCE_MULTIQC.out.unzipped_report) | collect | ifEmpty({ file("NO_FILES.placeholder") }) // Ensures this channel is populated as a placeholder for single end studies
+     read_distribution_multiqc = Channel.empty() | mix(READ_DISTRIBUTION_MULTIQC.out.zipped_report, READ_DISTRIBUTION_MULTIQC.out.unzipped_report) | collect
 }
