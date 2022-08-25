@@ -119,7 +119,8 @@ if config["data_type"] == "PE":
                 "envs/R.yaml"
             input:
                 expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R1_suffix"], ID = sample_ID_list),
-                expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R2_suffix"], ID = sample_ID_list)
+                expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R2_suffix"], ID = sample_ID_list),
+                config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv"
             output:
                 expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"], ID = sample_ID_list),
                 expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R2_suffix"], ID = sample_ID_list),
@@ -408,7 +409,8 @@ if config["data_type"] == "SE":
             conda:
                 "envs/R.yaml"
             input:
-                expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R1_suffix"], ID = sample_ID_list)
+                expand(config["trimmed_reads_dir"] + "{ID}" + config["primer_trimmed_R1_suffix"], ID = sample_ID_list),
+                config["trimmed_reads_dir"] + config["output_prefix"] + "trimmed-read-counts.tsv"
             output:
                 expand(config["filtered_reads_dir"] + "{ID}" + config["filtered_R1_suffix"], ID = sample_ID_list),
                 config["final_outputs_dir"] + config["output_prefix"] + "taxonomy.tsv",

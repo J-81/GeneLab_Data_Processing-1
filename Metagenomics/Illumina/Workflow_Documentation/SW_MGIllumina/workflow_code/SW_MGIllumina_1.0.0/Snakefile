@@ -542,7 +542,7 @@ rule checkm_on_bins:
 
             mkdir -p {params.tmp_working_dir}
 
-            if [ {params.reduced_tree} == True ]; then
+            if [ "{params.reduced_tree}" == True ]; then
 
                 checkm lineage_wf -f {output} --tab_table -t {resources.cpus} --reduced_tree --pplacer_threads {params.num_threads} -x fasta {params.bins_dir} {params.tmp_output_dir} --tmpdir {params.tmp_working_dir} > {log} 2>&1
 
