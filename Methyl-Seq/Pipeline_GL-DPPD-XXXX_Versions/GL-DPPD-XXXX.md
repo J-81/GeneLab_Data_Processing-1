@@ -56,8 +56,8 @@ Jonathan Galazka (GeneLab Project Scientist)
 |Program|Version|Relevant Links|
 |:------|:-----:|------:|
 |FastQC| 0.11.9 |[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
-|MultiQC| 1.10.1 |[https://multiqc.info/](https://multiqc.info/)|
-|TrimGalore!| 0.6.6 |[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
+|MultiQC| 1.12 |[https://multiqc.info/](https://multiqc.info/)|
+|TrimGalore!| 0.6.7 |[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
 |Bismark| 0.23.0 |[https://github.com/FelixKrueger/Bismark](https://github.com/FelixKrueger/Bismark)|
 |bowtie2| 2.4.2 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
 |samtools| 1.11 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
