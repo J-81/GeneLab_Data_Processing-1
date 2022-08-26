@@ -86,6 +86,6 @@ A quick example can be run with the files included in the [workflow_code](workfl
 ---
 
 ## Reference database info
-Reference database information is available on [this page](reference-database-info.md).
+Reference database information is available on the [reference database info page](reference-database-info.md).
 
 ---
