@@ -17,7 +17,7 @@ We recommend installing a Miniconda, Python3 version appropriate for your system
 Once conda is installed on your system, you can install the genelab-utils conda package in a new environment with the following command:
 
 ```bash
-conda create -n genelab-utils -c conda-forge -c bioconda -c defaults -c astrobiomike genelab-utils
+conda create -n genelab-utils -c conda-forge -c bioconda -c defaults -c astrobiomike 'genelab-utils>=1.1.02'
 ```
 
 The environment then needs to be activated:
@@ -30,10 +30,10 @@ conda activate genelab-utils
 All files required for utilizing the GeneLab workflow for processing Illumina amplicon sequencing data are in the [workflow_code](workflow_code) directory. To get a copy of the latest SW_AmpIllumina-A version on to your system, run the following command:
 
 ```bash
-GL-get-Illumina-amplicon-wf
+GL-get-workflow Amplicon-Illumina
 ```
 
-This downloaded the workflow into a directory called `Illumina-amplicon-workflow/`.
+This downloaded the workflow into a directory called `SW_AmpIllumina-*/`, with the workflow version number at the end.
 
 
 

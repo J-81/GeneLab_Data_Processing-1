@@ -20,7 +20,7 @@ We recommend installing a Miniconda, Python3 version appropriate for your system
 Once conda is installed on your system, you can install the genelab-utils conda package in a new environment with the following command:
 
 ```bash
-conda create -n genelab-utils -c conda-forge -c bioconda -c defaults -c astrobiomike genelab-utils
+conda create -n genelab-utils -c conda-forge -c bioconda -c defaults -c astrobiomike 'genelab-utils>=1.1.02'
 ```
 
 The environment then needs to be activated:
@@ -33,10 +33,10 @@ conda activate genelab-utils
 All files required for utilizing the GeneLab workflow for processing Illumina metagenomics sequencing data are in the [workflow_code](workflow_code) directory. To get a copy of the latest SW_MGIllumina version on to your system, run the following command:
 
 ```bash
-GL-get-Illumina-metagenomics-wf
+GL-get-workflow MG-Illumina
 ```
 
-This downloaded the workflow into a directory called `Illumina-metagenomics-workflow/`.
+This downloaded the workflow into a directory called `SW_MGIllumina_*/`, with the workflow version number at the end.
 
 ### 3. Modify the variables in the config.yaml file
 Once you've downlonaded the workflow template, you can modify the variables in your downloaded version of the [config.yaml](workflow_code/SW_MGIllumina_1.0.0/config.yaml) file as needed in order to match your dataset and system setup. For example, you will have to provide a text file containing a single-column list of unique sample identifiers (see an example of how to set this up below). You will also need to indicate the paths to your input data (raw reads) and the root directory for where the reference databases should be stored (they will be setup automatically). Additionally, if necessary, you'll need to modify each variable in the config.yaml file to be consistent with the study you want to process and the machine you're using. 
