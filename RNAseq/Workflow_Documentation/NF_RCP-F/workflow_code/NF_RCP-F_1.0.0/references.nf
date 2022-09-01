@@ -81,9 +81,9 @@ workflow references{
       // SUBSAMPLING STEP : USED FOR DEBUG/TEST RUNS
       if ( params.genomeSubsample ) {
         SUBSAMPLE_GENOME( genome_annotations_pre_subsample, organism_sci, ch_ref_source_version )
-        SUBSAMPLE_GENOME.out.build | set { genome_annotations_pre_ercc }
+        SUBSAMPLE_GENOME.out.build | flatten | toList | set { genome_annotations_pre_ercc }
       } else {
-        genome_annotations_pre_subsample | set { genome_annotations_pre_ercc }
+        genome_annotations_pre_subsample | flatten | toList | set { genome_annotations_pre_ercc }
       }
 
       // ERCC STEP : ADD ERCC Fasta and GTF to genome files

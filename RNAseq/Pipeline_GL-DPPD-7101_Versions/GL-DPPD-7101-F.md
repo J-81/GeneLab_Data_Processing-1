@@ -113,7 +113,7 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
-|dp_tools|1.1.0|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|dp_tools|1.1.1|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
 |singularity|3.9|[https://sylabs.io/](https://sylabs.io/)|
 
 ---
@@ -1447,15 +1447,15 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 
 reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 
@@ -1571,15 +1571,15 @@ PCA_raw_ERCCnorm <- prcomp(t(exp_raw_ERCCnorm), scale = FALSE)
 
 output_table_2 <- merge(annot, output_table_2, by='row.names', all.y=TRUE)
 output_table_2 <- output_table_2 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 
 reduced_output_table_2 <- merge(annot, reduced_output_table_2, by='row.names', all.y=TRUE)
 reduced_output_table_2 <- reduced_output_table_2 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 ```
@@ -1795,15 +1795,15 @@ annot <- read.table(annotations_link, sep = "\t", header = TRUE, quote = "", com
 
 output_table_1 <- merge(annot, output_table_1, by='row.names', all.y=TRUE)
 output_table_1 <- output_table_1 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 
 reduced_output_table_1 <- merge(annot, reduced_output_table_1, by='row.names', all.y=TRUE)
 reduced_output_table_1 <- reduced_output_table_1 %>% 
-  rownames_to_column(
-    var = "ENSEMBL"
+  rename(
+    ENSEMBL = Row.names ## Change ENSEMBL to TAIR for plant studies ##
   )
 
 ```

@@ -1,6 +1,6 @@
 # Bioinformatics pipeline for Illumina metagenomics data
 
-> **This document holds an overview and some example commands of how GeneLab processes Illumina metagenomics datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This document holds an overview and some example commands of how GeneLab processes Illumina metagenomics datasets. Exact processing commands for specific datasets that have been released is available in this repository [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and is also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
 
 ---
 
@@ -72,7 +72,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # General processing overview with example commands
 
-> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets is available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
 
 ## Pre-processing
 ### 1. Raw Data QC
@@ -877,7 +877,7 @@ gtdbtk classify_wf --genome_dir MAGs/ -x fa --out_dir gtdbtk-output-dir
 ### 15. Generating MAG-level functional summary overview
 
 #### 15a. Getting KO annotations per MAG
-This utilizes the helper script [`parse-MAG-annots.py`](workflow-template/scripts/parse-MAG-annots.py).
+This utilizes the helper script [`parse-MAG-annots.py`](../Workflow_Documentation/SW_MGIllumina/workflow_code/SW_MGIllumina_1.0.0/scripts/parse-MAG-annots.py).
 
 ```bash
 for file in $( ls MAGs/*.fasta )

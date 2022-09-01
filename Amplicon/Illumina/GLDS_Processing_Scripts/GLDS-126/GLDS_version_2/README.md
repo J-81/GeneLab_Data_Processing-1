@@ -1,5 +1,5 @@
 # GeneLab processing commands for GLDS-126
-This dataset was processed with [GL-DPPD-7104-A](../../GL-DPPD-7104-A.md).
+This dataset was processed with [GL-DPPD-7104-A](../../../Pipeline_GL-DPPD-7104_Versions/GL-DPPD-7104-A.md).
 
 The raw and processed data are available from: [https://genelab-data.ndc.nasa.gov/genelab/accession/GLDS-126/](https://genelab-data.ndc.nasa.gov/genelab/accession/GLDS-126/)
 
