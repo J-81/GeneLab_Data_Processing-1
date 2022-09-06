@@ -58,9 +58,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 |FastQC| 0.11.9 |[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC| 1.12 |[https://multiqc.info/](https://multiqc.info/)|
 |TrimGalore!| 0.6.7 |[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
-|Bismark| 0.23.0 |[https://github.com/FelixKrueger/Bismark](https://github.com/FelixKrueger/Bismark)|
-|bowtie2| 2.4.2 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
-|samtools| 1.11 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
+|Bismark| 0.23.1 |[https://github.com/FelixKrueger/Bismark](https://github.com/FelixKrueger/Bismark)|
+|bowtie2| 2.4.4 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
+|samtools| 1.13 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
 |qualimap| 2.2.2d |[http://qualimap.conesalab.org/](http://qualimap.conesalab.org/)|
 |methylKit|1.20.0|[https://bioconductor.org/packages/release/bioc/html/methylKit.html](https://bioconductor.org/packages/release/bioc/html/methylKit.html)|
 
@@ -522,7 +522,7 @@ qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam \
 * `-bam` - where to specify the input bam file
 * `-outdir` - where to specify the output directory
 * `--collect-overlap-pairs` - includes statistics of overlapping paired-end reads (if data were paired-end, no effect if single-end)
-* `--java-mem-size=6G` - where to specify the amount of memory to use (here 6G)
+* `--java-mem-size=6G` - where to specify the amount of memory to use (here 6G; see [qualimap FAQ here](http://qualimap.conesalab.org/doc_html/faq.html?highlight=java-mem-size))
 * `-nt` - where to specify the number of threads to use
 
 **Input data:**
