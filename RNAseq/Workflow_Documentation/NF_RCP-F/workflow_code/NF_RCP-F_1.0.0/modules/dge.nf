@@ -24,7 +24,7 @@ process DGE_BY_DESEQ2 {
     tuple path("norm_counts_output/ERCC_Normalized_Counts.csv"), optional: true, emit: norm_counts_ercc
 
     tuple path("dge_output_ercc/ERCCnorm_contrasts.csv"),
-          path("dge_output_ercc/ERCC_SampleTable.csv"),
+          path("dge_output_ercc/ERCCnorm_SampleTable.csv"),
           path("dge_output_ercc/ERCCnorm_differential_expression.csv"),
           path("dge_output_ercc/visualization_output_table_ERCCnorm.csv"),
           path("dge_output_ercc/visualization_PCA_table_ERCCnorm.csv"), optional: true, emit: dge_ercc
