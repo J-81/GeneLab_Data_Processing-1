@@ -98,7 +98,7 @@ if (dim(study) >= 2){
     group<-study[,1]
 }
 group_names <- paste0("(",group,")",sep = "") # human readable group names
-#group <- make.names(group) # group naming compatible with R models
+group <- make.names(group) # group naming compatible with R models
 names(group) <- group_names
 #DT::datatable(as.data.frame(group), caption = "TBA")
 ```
@@ -235,7 +235,7 @@ if (dim(study_sub) >= 2){
     group_sub<-study_sub[,1]
 }
 group_names <- paste0("(",group_sub,")",sep = "") # human readable group names
-#group_sub <- make.names(group_sub) # group naming compatible with R models
+group_sub <- make.names(group_sub) # group naming compatible with R models
 names(group_sub) <- group_names
 rm(group_names)
 print(sprintf("DEBUG: %s Printing: '%s' below", Sys.time(), 'group_sub'))
