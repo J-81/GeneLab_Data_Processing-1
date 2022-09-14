@@ -310,11 +310,6 @@ write.csv(
     normCounts,
     file =  paste0(params$normalized_counts_output_prefix, "Normalized_Counts.csv")
     )
-write.csv(
-    sampleTable,
-    file =  paste0(params$normalized_counts_output_prefix, "SampleTable.csv")
-)
-
 ```
 
 ```{r prep-counts-for-dge}
@@ -388,6 +383,10 @@ write.csv(output_table_1,
           row.names = FALSE,
           paste0(params$dge_output_prefix, "differential_expression_no_annotations.csv")
          )
+write.csv(
+    sampleTable,
+    file =  paste0(params$dge_output_prefix, "SampleTable.csv")
+)
 # DT::datatable(head(output_table_1, n = 30),
 #   caption = "First 30 rows of differential gene expression table",
 #   extensions = "FixedColumns",
