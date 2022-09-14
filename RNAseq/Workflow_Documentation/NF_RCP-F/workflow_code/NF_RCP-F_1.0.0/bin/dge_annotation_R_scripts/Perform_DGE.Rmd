@@ -98,15 +98,13 @@ if (dim(study) >= 2){
     group<-study[,1]
 }
 group_names <- paste0("(",group,")",sep = "") # human readable group names
-#group <- make.names(group) # group naming compatible with R models, DEFER make.names UNTIL CONTRASTS to prevent misordering due to make.names adding 'X' to cases with leading integers like '1G'
-names(group) <- group_names
+group <- sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", group))) # group naming compatible with R models, this maintains the default behaviour of make.names with the exception that 'X' is never prepended to group namesnames(group) <- group_names
 #DT::datatable(as.data.frame(group), caption = "TBA")
 ```
 
 ```{r group_df-to-contrasts_df}
 ##### Format contrasts table, defining pairwise comparisons for all groups #####
-number_comparisons <- length(levels(factor(make.names(group))))
-contrasts <- matrix(make.names(combn(levels(factor(group)),2)), 2, number_comparisons) # generate matrix of pairwise group combinations for comparison
+contrasts <- combn(levels(factor(group)),2) # generate matrix of pairwise group combinations for comparison
 contrast.names <- combn(levels(factor(names(group))),2)
 contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) # format combinations for output table files names
 contrasts <- cbind(contrasts,contrasts[c(2,1),])
@@ -165,7 +163,7 @@ print(txi.rsem, quote = TRUE)
 
 ```{r create-sample-table}
 ## Create data frame defining which group each sample belongs to
-sampleTable <- data.frame(condition=factor(make.names(group)))
+sampleTable <- data.frame(condition=factor(group))
 rownames(sampleTable) <- colnames(txi.rsem$counts)
 #DT::datatable(sampleTable, caption = "TBA")
 ```
@@ -236,15 +234,14 @@ if (dim(study_sub) >= 2){
     group_sub<-study_sub[,1]
 }
 group_names <- paste0("(",group_sub,")",sep = "") # human readable group names
-#group_sub <- make.names(group_sub) # group naming compatible with R models
+group_sub <- sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", group_sub))) # group naming compatible with R models, this maintains the default behaviour of make.names with the exception that 'X' is never prepended to group names
 names(group_sub) <- group_names
 rm(group_names)
 print(sprintf("DEBUG: %s Printing: '%s' below", Sys.time(), 'group_sub'))
 print(group_sub, quote = TRUE)
 
 ## New contrasts object that only reflects the groups in the subset group object
-number_comparisons <- length(levels(factor(make.names(group_sub))))
-contrasts_sub <- matrix(make.names(combn(levels(factor(group_sub)),2)), 2, number_comparisons) # generate matrix of pairwise group combinations for comparison
+contrasts_sub <- combn(levels(factor(group_sub)),2) # generate matrix of pairwise group combinations for comparison
 contrasts_sub.names <- combn(levels(factor(names(group_sub))),2)
 contrasts_sub.names <- c(paste(contrasts_sub.names[1,],contrasts_sub.names[2,],sep = "v"),paste(contrasts_sub.names[2,],contrasts_sub.names[1,],sep = "v")) # format combinations for output table files names
 contrasts_sub <- cbind(contrasts_sub,contrasts_sub[c(2,1),])
@@ -275,7 +272,7 @@ ercc_dds <- ercc_dds[, colSums(counts(ercc_dds)) > 0]
 ## First remove samples that do not contain ERCC counts
 ## Note: All samples should contain ERCC spike-in and thus ERCC counts, if some samples do not contain ERCC counts, those samples should be removed and not used for downstream analysis
 dds_1 <- dds[, colSums(counts(ercc_dds_gpB)) >= NON_DETECTION_THRESHOLD]
-sampleTable <- data.frame(condition = factor(make.names(group_sub))) # create a new sampleTable with only the kept samples
+sampleTable <- data.frame(condition = factor(group_sub)) # create a new sampleTable with only the kept samples
 rownames(sampleTable) <- rownames(study_sub)
 dds_1$condition <- sampleTable$condition # reassign the condition to the subset condition to keep the groups and levels consistent with the "keep" samples
 summary(dds_1)
