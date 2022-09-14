@@ -98,14 +98,16 @@ if (dim(study) >= 2){
     group<-study[,1]
 }
 group_names <- paste0("(",group,")",sep = "") # human readable group names
-group <- make.names(group) # group naming compatible with R models
+#group <- make.names(group) # group naming compatible with R models, DEFER make.names UNTIL CONTRASTS to prevent misordering due to make.names adding 'X' to cases with leading integers like '1G'
 names(group) <- group_names
 #DT::datatable(as.data.frame(group), caption = "TBA")
 ```
 
 ```{r group_df-to-contrasts_df}
 ##### Format contrasts table, defining pairwise comparisons for all groups #####
-contrasts <- combn(levels(factor(group)),2) # generate matrix of pairwise group combinations for comparison
+number_comparisons <- length(levels(factor(make.names(group))))
+contrasts <- matrix(make.names(combn(levels(factor(group)),2)), 2, number_comparisons) # generate matrix of pairwise group combinations for comparison
+contrasts <- combn(levels(factor(make.names(group))),2) # generate matrix of pairwise group combinations for comparison
 contrast.names <- combn(levels(factor(names(group))),2)
 contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) # format combinations for output table files names
 contrasts <- cbind(contrasts,contrasts[c(2,1),])
@@ -164,7 +166,7 @@ print(txi.rsem, quote = TRUE)
 
 ```{r create-sample-table}
 ## Create data frame defining which group each sample belongs to
-sampleTable <- data.frame(condition=factor(group))
+sampleTable <- data.frame(condition=factor(make.names(group)))
 rownames(sampleTable) <- colnames(txi.rsem$counts)
 #DT::datatable(sampleTable, caption = "TBA")
 ```
@@ -235,14 +237,15 @@ if (dim(study_sub) >= 2){
     group_sub<-study_sub[,1]
 }
 group_names <- paste0("(",group_sub,")",sep = "") # human readable group names
-group_sub <- make.names(group_sub) # group naming compatible with R models
+#group_sub <- make.names(group_sub) # group naming compatible with R models
 names(group_sub) <- group_names
 rm(group_names)
 print(sprintf("DEBUG: %s Printing: '%s' below", Sys.time(), 'group_sub'))
 print(group_sub, quote = TRUE)
 
 ## New contrasts object that only reflects the groups in the subset group object
-contrasts_sub <- combn(levels(factor(group_sub)),2) # generate matrix of pairwise group combinations for comparison
+number_comparisons <- length(levels(factor(make.names(group_sub))))
+contrasts_sub <- matrix(make.names(combn(levels(factor(group_sub)),2)), 2, number_comparisons) # generate matrix of pairwise group combinations for comparison
 contrasts_sub.names <- combn(levels(factor(names(group_sub))),2)
 contrasts_sub.names <- c(paste(contrasts_sub.names[1,],contrasts_sub.names[2,],sep = "v"),paste(contrasts_sub.names[2,],contrasts_sub.names[1,],sep = "v")) # format combinations for output table files names
 contrasts_sub <- cbind(contrasts_sub,contrasts_sub[c(2,1),])
@@ -273,7 +276,7 @@ ercc_dds <- ercc_dds[, colSums(counts(ercc_dds)) > 0]
 ## First remove samples that do not contain ERCC counts
 ## Note: All samples should contain ERCC spike-in and thus ERCC counts, if some samples do not contain ERCC counts, those samples should be removed and not used for downstream analysis
 dds_1 <- dds[, colSums(counts(ercc_dds_gpB)) >= NON_DETECTION_THRESHOLD]
-sampleTable <- data.frame(condition = factor(group_sub)) # create a new sampleTable with only the kept samples
+sampleTable <- data.frame(condition = factor(make.names(group_sub))) # create a new sampleTable with only the kept samples
 rownames(sampleTable) <- rownames(study_sub)
 dds_1$condition <- sampleTable$condition # reassign the condition to the subset condition to keep the groups and levels consistent with the "keep" samples
 summary(dds_1)
@@ -317,7 +320,7 @@ write.csv(
 
 ```
 
-```{r}
+```{r prep-counts-for-dge}
 ## Add 1 to all counts to avoid issues with log transformation
 print(sprintf("DEBUG: %s Printing head of: '%s' below", Sys.time(), 'normCounts'))
 print(head(normCounts), quote = TRUE)
@@ -331,7 +334,7 @@ print(head(normCounts), quote = TRUE)
 output_table_1 <- tibble::rownames_to_column(normCounts, var = params$primary_keytype)
 ```
 
-```{r}
+```{r run-deseq2-LRT}
 ##### Generate F statistic p-value (similar to ANOVA p-value) using DESeq2 likelihood ratio test (LRT) design #####
 
 print(sprintf("DEBUG: %s: Generating Likelihood Ratio Test Based Statistics", Sys.time()))
@@ -341,7 +344,7 @@ res_1_lrt <- results(dds_1_lrt)
 output_table_1$LRT.p.value <- res_1_lrt@listData$padj
 ```
 
-```{r}
+```{r wald-test-iteration}
 ## Iterate through Wald Tests to generate pairwise comparisons of all groups
 for (i in 1:dim(contrasts)[2]){
   res_1 <- results(dds_1, contrast=c("condition",contrasts[1,i],contrasts[2,i]))
