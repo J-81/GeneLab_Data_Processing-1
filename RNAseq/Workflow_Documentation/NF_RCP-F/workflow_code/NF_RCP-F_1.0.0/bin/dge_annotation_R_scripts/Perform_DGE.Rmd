@@ -107,7 +107,6 @@ names(group) <- group_names
 ##### Format contrasts table, defining pairwise comparisons for all groups #####
 number_comparisons <- length(levels(factor(make.names(group))))
 contrasts <- matrix(make.names(combn(levels(factor(group)),2)), 2, number_comparisons) # generate matrix of pairwise group combinations for comparison
-contrasts <- combn(levels(factor(make.names(group))),2) # generate matrix of pairwise group combinations for comparison
 contrast.names <- combn(levels(factor(names(group))),2)
 contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) # format combinations for output table files names
 contrasts <- cbind(contrasts,contrasts[c(2,1),])
