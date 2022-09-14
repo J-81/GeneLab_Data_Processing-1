@@ -99,6 +99,7 @@ if (dim(study) >= 2){
 }
 group_names <- paste0("(",group,")",sep = "") # human readable group names
 group <- sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", group))) # group naming compatible with R models, this maintains the default behaviour of make.names with the exception that 'X' is never prepended to group namesnames(group) <- group_names
+names(group) <- group_names
 #DT::datatable(as.data.frame(group), caption = "TBA")
 ```
 
