@@ -2182,7 +2182,7 @@ mix2_conc_dict = dict(zip(ercc_table['ERCC ID'], ercc_table['concentration in Mi
 
 # Check assay_table header to identify the 'Sample Name' column and the column title indicating the 'Spike-in Mix Nmber' if it's indicated in the metadata.
 
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 print(assay_table.head(n=3))
 
 # Get samples that use mix 1 and mix 2
@@ -2559,8 +2559,7 @@ print(deseq2out.head())
 # Get files containing ERCC gene concentrations and metadata
 
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t', index_col='ERCC ID')
+ercc_table = pd.read_csv(ercc_url, '\t', index_col='ERCC ID')
 print(ercc_table.head(n=3))
 
 
