@@ -1978,8 +1978,7 @@ print(ercc_counts.head())
 # Get files containing ERCC gene concentrations and metadata
 
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t')
+ercc_table = pd.read_csv(ercc_url, '\t')
 print(ercc_table.head(n=3))
 
 
@@ -2431,7 +2430,7 @@ stats.filter(items = ['Samples', 'R']).to_csv('ERCC_analysis/ERCC_rsq_GLDS-NNN_m
 
 combined = sample_table.merge(assay_table, on='Sample Name')
 combined = combined.set_index(combined['Sample Name'])
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 print(combined)
 
 # Create metadata table containing samples and their respective ERCC spike-in Mix number
