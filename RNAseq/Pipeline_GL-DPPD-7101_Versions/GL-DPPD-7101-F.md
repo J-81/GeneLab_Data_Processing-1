@@ -113,7 +113,14 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
+|stringr|1.4.1|[https://github.com/gagolews/stringi](https://github.com/gagolews/stringi)|
 |dp_tools|1.1.1|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|pandas|1.5.0|[https://github.com/pandas-dev/pandas](https://github.com/pandas-dev/pandas)|
+|seaborn|0.12.0|[https://seaborn.pydata.org/](https://seaborn.pydata.org/)|
+|matplotlib|3.6.0|[https://matplotlib.org/stable](https://matplotlib.org/stable)|
+|jupyter notebook|6.4.12|[https://jupyter-notebook.readthedocs.io/](https://jupyter-notebook.readthedocs.io/)|
+|numpy|1.23.3|[https://numpy.org/](https://numpy.org/)|
+|scipy|1.9.1|[https://scipy.org/](https://scipy.org/)|
 |singularity|3.9|[https://sylabs.io/](https://sylabs.io/)|
 
 ---
