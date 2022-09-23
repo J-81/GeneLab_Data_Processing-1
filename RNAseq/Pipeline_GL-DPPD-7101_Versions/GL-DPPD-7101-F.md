@@ -113,7 +113,14 @@ The DESeq2 Normalization and DGE step, [step 9](#9-normalize-read-counts-perform
 |DESeq2|1.34|[https://bioconductor.org/packages/release/bioc/html/DESeq2.html](https://bioconductor.org/packages/release/bioc/html/DESeq2.html)|
 |tximport|1.22|[https://bioconductor.org/packages/release/bioc/html/tximport.html](https://bioconductor.org/packages/release/bioc/html/tximport.html)|
 |tidyverse|1.3.1|[https://www.tidyverse.org](https://www.tidyverse.org)|
+|stringr|1.4.1|[https://github.com/gagolews/stringi](https://github.com/gagolews/stringi)|
 |dp_tools|1.1.1|[https://github.com/J-81/dp_tools](https://github.com/J-81/dp_tools)|
+|pandas|1.5.0|[https://github.com/pandas-dev/pandas](https://github.com/pandas-dev/pandas)|
+|seaborn|0.12.0|[https://seaborn.pydata.org/](https://seaborn.pydata.org/)|
+|matplotlib|3.6.0|[https://matplotlib.org/stable](https://matplotlib.org/stable)|
+|jupyter notebook|6.4.12|[https://jupyter-notebook.readthedocs.io/](https://jupyter-notebook.readthedocs.io/)|
+|numpy|1.23.3|[https://numpy.org/](https://numpy.org/)|
+|scipy|1.9.1|[https://scipy.org/](https://scipy.org/)|
 |singularity|3.9|[https://sylabs.io/](https://sylabs.io/)|
 
 ---
@@ -1100,7 +1107,7 @@ if (dim(study) >= 2){
 	group<-study[,1]
 }
 group_names <- paste0("(",group,")",sep = "") ## human readable group names
-group <- make.names(group) ## group naming compatible with R models
+group <- sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", group))) # group naming compatible with R models, this maintains the default behaviour of make.names with the exception that 'X' is never prepended to group names
 names(group) <- group_names
 rm(group_names)
 
@@ -1232,7 +1239,7 @@ if (dim(study_sub) >= 2){
   group_sub<-study_sub[,1]
 }
 group_names <- paste0("(",group_sub,")",sep = "") # human readable group names
-group_sub <- make.names(group_sub) # group naming compatible with R models
+group_sub <- sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", group_sub))) # group naming compatible with R models, this maintains the default behaviour of make.names with the exception that 'X' is never prepended to group names
 names(group_sub) <- group_names
 rm(group_names)
 
@@ -1978,8 +1985,7 @@ print(ercc_counts.head())
 # Get files containing ERCC gene concentrations and metadata
 
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t')
+ercc_table = pd.read_csv(ercc_url, '\t')
 print(ercc_table.head(n=3))
 
 
@@ -2183,7 +2189,7 @@ mix2_conc_dict = dict(zip(ercc_table['ERCC ID'], ercc_table['concentration in Mi
 
 # Check assay_table header to identify the 'Sample Name' column and the column title indicating the 'Spike-in Mix Nmber' if it's indicated in the metadata.
 
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 print(assay_table.head(n=3))
 
 # Get samples that use mix 1 and mix 2
@@ -2431,7 +2437,7 @@ stats.filter(items = ['Samples', 'R']).to_csv('ERCC_analysis/ERCC_rsq_GLDS-NNN_m
 
 combined = sample_table.merge(assay_table, on='Sample Name')
 combined = combined.set_index(combined['Sample Name'])
-pd.set_option('max_columns', None)
+pd.set_option('display.max_columns', None)
 print(combined)
 
 # Create metadata table containing samples and their respective ERCC spike-in Mix number
@@ -2560,8 +2566,7 @@ print(deseq2out.head())
 # Get files containing ERCC gene concentrations and metadata
 
 ercc_url = 'https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_095046.txt'
-filehandle, _ = urlretrieve(ercc_url)
-ercc_table = pd.read_csv(filehandle, '\t', index_col='ERCC ID')
+ercc_table = pd.read_csv(ercc_url, '\t', index_col='ERCC ID')
 print(ercc_table.head(n=3))
 
 
