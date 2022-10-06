@@ -612,7 +612,7 @@ awk ' $3 == "transcript" ' Mus_musculus.GRCm38.101.gtf | cut -f 9 | tr -s ";" "\
 
 ## 12. Differential methylation analysis
 
-> **TEMPORARY NOTE**
+> **TEMPORARY NOTE**  
 > Right now we're using methykit for this. There's a comparison paper of that and some other tools [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8345583/).
 > After looking through that, I think methylkit is still the way to go as it performs as well as or better than the rest for identifying differentially methylated cytosines and differentially methylated regions (DSS did poorly on regions), and it has helper functionality for things like adding feature information.
 
@@ -757,7 +757,7 @@ write.table(perc.meth, "percent-methylated.tsv", sep = "\t",
 
 \* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group_1_vs_Group_2-\*
 
-> **TEMPORARY NOTE**
+> **TEMPORARY NOTE**  
 > This section isn't completely up-to-date. There will also included an overview figure of what percent of identified methylated C's are in specific features (like promoter, exon, intron). And will include similar files as above but for differentially methylated regions (blocks of 1,000 bp windows).
 
 ---
