@@ -143,7 +143,7 @@ mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 ### If RRBS with MspI digestion
-Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end). 
+Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end; see `trim_galore --help` menu [e.g., here](https://github.com/FelixKrueger/TrimGalore/blob/072ecf9a1f80f9eb41c8116c32284492f481cbbb/trim_galore#L3315)). 
 
 **Single-end example**  
 
