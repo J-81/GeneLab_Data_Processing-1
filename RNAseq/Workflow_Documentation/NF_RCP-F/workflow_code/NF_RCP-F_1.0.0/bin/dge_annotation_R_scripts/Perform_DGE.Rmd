@@ -105,8 +105,8 @@ names(group) <- group_names
 
 ```{r group_df-to-contrasts_df}
 ##### Format contrasts table, defining pairwise comparisons for all groups #####
-contrasts <- combn(levels(factor(group)),2) # generate matrix of pairwise group combinations for comparison
-contrast.names <- combn(levels(factor(names(group))),2)
+contrast.names <- combn(levels(factor(names(group))),2) # generate matrix of pairwise group combinations for comparison
+contrasts <- apply(contrast.names, MARGIN=2, function(col) sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", stringr::str_sub(col, 2, -2)))))
 contrast.names <- c(paste(contrast.names[1,],contrast.names[2,],sep = "v"),paste(contrast.names[2,],contrast.names[1,],sep = "v")) # format combinations for output table files names
 contrasts <- cbind(contrasts,contrasts[c(2,1),])
 colnames(contrasts) <- contrast.names
@@ -242,8 +242,8 @@ print(sprintf("DEBUG: %s Printing: '%s' below", Sys.time(), 'group_sub'))
 print(group_sub, quote = TRUE)
 
 ## New contrasts object that only reflects the groups in the subset group object
-contrasts_sub <- combn(levels(factor(group_sub)),2) # generate matrix of pairwise group combinations for comparison
-contrasts_sub.names <- combn(levels(factor(names(group_sub))),2)
+contrasts_sub.names <- combn(levels(factor(names(group_sub))),2) # generate matrix of pairwise group combinations for comparison
+contrasts_sub <- apply(contrasts_sub.names, MARGIN=2, function(col) sub("^BLOCKER_", "",  make.names(paste0("BLOCKER_", stringr::str_sub(col, 2, -2))))) # limited make.names call for each group (also removes leading parentheses)
 contrasts_sub.names <- c(paste(contrasts_sub.names[1,],contrasts_sub.names[2,],sep = "v"),paste(contrasts_sub.names[2,],contrasts_sub.names[1,],sep = "v")) # format combinations for output table files names
 contrasts_sub <- cbind(contrasts_sub,contrasts_sub[c(2,1),])
 colnames(contrasts_sub) <- contrasts_sub.names
