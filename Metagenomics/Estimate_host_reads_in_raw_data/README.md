@@ -14,11 +14,6 @@
 
   - Contains instructions for installing and running the GeneLab MGEstHostReads workflow
 
-* [**GLDS_Processing_Scripts**](GLDS_Processing_Scripts)
-
-  - Contains the MGEstHostReads version used for specific GLDS datasets that have been released and are available in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects)
-
-
 ---
 
 **Developed and maintained by:**  
