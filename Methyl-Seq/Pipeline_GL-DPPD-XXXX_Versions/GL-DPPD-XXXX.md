@@ -1,6 +1,6 @@
 # Bioinformatics pipeline for bisulfite sequencing (methylseq) data
 
-> **This document holds an overview and some example commands of how GeneLab processes bisulfite sequencing (methylseq) datasets. Exact processing commands for specific datasets that have been released are available in this repository [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory and are also provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**  
+> **This document holds an overview and some example commands of how GeneLab processes bisulfite sequencing (methylseq) datasets. Exact processing commands for specific datasets that have been released are provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).**
 
 ---
 
@@ -38,11 +38,11 @@ Jonathan Galazka (GeneLab Project Scientist)
   - [4. Alignment](#4-alignment)
     - [4a. Generate reference](#4a-generate-reference)
     - [4b. Align](#4b-align)
-  - [5. Deduplicate (skip if data are RRBS)](#5-deduplicate-skip-if-data-are-rrbs)
-  - [6. Extract methylation calls](#6-extract-methylation-calls)
-  - [7. Generate individual sample report](#7-generate-individual-sample-report)
-  - [8. Generate combined summary report](#8-generate-combined-summary-report)
-  - [9. Alignment QC](#9-alignment-qc)
+  - [5. Alignment QC](#5-alignment-qc)
+  - [6. Deduplicate (skip if data are RRBS)](#6-deduplicate-skip-if-data-are-rrbs)
+  - [7. Extract methylation calls](#7-extract-methylation-calls)
+  - [8. Generate individual sample report](#8-generate-individual-sample-report)
+  - [9. Generate combined summary report](#9-generate-combined-summary-report)
   - [10. Generate MultiQC project report](#10-generate-multiqc-project-report)
   - [11. Generate reference genome annotation information](#11-generate-reference-genome-annotation-information)
     - [11a. GTF to BED conversion](#11a-gtf-to-bed-conversion)
@@ -58,9 +58,9 @@ Jonathan Galazka (GeneLab Project Scientist)
 |FastQC| 0.11.9 |[https://www.bioinformatics.babraham.ac.uk/projects/fastqc/](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)|
 |MultiQC| 1.12 |[https://multiqc.info/](https://multiqc.info/)|
 |TrimGalore!| 0.6.7 |[https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)|
-|Bismark| 0.23.0 |[https://github.com/FelixKrueger/Bismark](https://github.com/FelixKrueger/Bismark)|
-|bowtie2| 2.4.2 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
-|samtools| 1.11 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
+|Bismark| 0.23.1 |[https://github.com/FelixKrueger/Bismark](https://github.com/FelixKrueger/Bismark)|
+|bowtie2| 2.4.4 |[https://github.com/BenLangmead/bowtie2#overview](https://github.com/BenLangmead/bowtie2#overview)|
+|samtools| 1.13 |[https://github.com/samtools/samtools#samtools](https://github.com/samtools/samtools#samtools)|
 |qualimap| 2.2.2d |[http://qualimap.conesalab.org/](http://qualimap.conesalab.org/)|
 |methylKit|1.20.0|[https://bioconductor.org/packages/release/bioc/html/methylKit.html](https://bioconductor.org/packages/release/bioc/html/methylKit.html)|
 
@@ -68,7 +68,7 @@ Jonathan Galazka (GeneLab Project Scientist)
 
 # General processing overview with example commands
 
-> Exact processing commands for specific datasets are available in the [GLDS_Processing_Scripts](../GLDS_Processing_Scripts) sub-directory of this repository, as well as being provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).  
+> Exact processing commands for specific datasets that have been released are provided with their processed data in the [GeneLab Data Systems (GLDS) repository](https://genelab-data.ndc.nasa.gov/genelab/projects).** 
 
 ## 1. Raw Data QC
 
@@ -143,7 +143,7 @@ mv sample-1_R2_raw_val_2.fq.gz sample-1_R2_trimmed.fastq.gz
 ```
 
 ### If RRBS with MspI digestion
-Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end). 
+Note that if the library preparation was non-directional, the `--non_directional` flag needs to be added to this command (whether single-end or paired-end; see `trim_galore --help` menu [e.g., here](https://github.com/FelixKrueger/TrimGalore/blob/072ecf9a1f80f9eb41c8116c32284492f481cbbb/trim_galore#L3315)). 
 
 **Single-end example**  
 
@@ -370,7 +370,47 @@ bismark --bam -p 4 --genome bismark_reference_genome/ \
 
 ---
 
-## 5. Deduplicate (skip if data are RRBS)
+## 5. Alignment QC
+
+```bash
+# sorting bam file
+samtools sort -@ 4 -o sample-1_trimmed_bismark_bt2.sorted.bam \
+         sample-1_trimmed_bismark_bt2.bam
+
+qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam \
+         -outdir sample-1_trimmed_bismark_bt2_qualimap \
+         --collect-overlap-pairs --java-mem-size=6G -nt 4
+```
+
+**Parameter Definitions for `samtools`:**
+
+* `sort` - specifies the sub-program of `samtools`
+* `-@` - where to specify the number of threads to use
+* `-o` - specifies the output file name
+* the positional argument is the input bam file 
+
+**Parameter Definitions for `qualimap`:**
+
+* `bamqc` - specifies the sub-program of `qualimap`
+* `-bam` - where to specify the input bam file
+* `-outdir` - where to specify the output directory
+* `--collect-overlap-pairs` - includes statistics of overlapping paired-end reads (if data were paired-end, no effect if single-end)
+* `--java-mem-size=6G` - where to specify the amount of memory to use (here 6G; see [qualimap FAQ here](http://qualimap.conesalab.org/doc_html/faq.html?highlight=java-mem-size))
+* `-nt` - where to specify the number of threads to use
+
+**Input data:**
+
+* sample-1_trimmed_bismark_bt2.bam - bam file produced above
+
+**Output data:**
+
+* `sample-1_trimmed_bismark_bt2_qualimap/` - subdirectory of multiple alignment QC output files presented in an html file (see [qualimap documentation](http://qualimap.conesalab.org/doc_html/analysis.html#output))
+
+<br>
+
+---
+
+## 6. Deduplicate (skip if data are RRBS)
 > **NOTE**  
 > This step should **not** be done if the data are RRBS (reduced representation bisulfite sequencing; see [bismark documentation](https://github.com/FelixKrueger/Bismark/tree/master/Docs)).
 
@@ -396,7 +436,7 @@ deduplicate_bismark sample-1_trimmed_bismark_bt2.bam
 
 ---
 
-## 6. Extract methylation calls
+## 7. Extract methylation calls
 
 
 **Single-end example**  
@@ -443,7 +483,7 @@ bismark_methylation_extractor --bedGraph --gzip --comprehensive --ignore_r2 2 --
 
 ---
 
-## 7. Generate individual sample report
+## 8. Generate individual sample report
 
 
 ```bash
@@ -475,7 +515,7 @@ bismark2report --alignment_report sample-1_trimmed_bismark_bt2_SE_report.txt \
 
 ---
 
-## 8. Generate combined summary report
+## 9. Generate combined summary report
 
 ```bash
 bismark2summary 
@@ -489,52 +529,6 @@ bismark2summary
 
 * bismark_summary_report.txt - summary table of general information on all samples
 * bismark_summary_report.html - html summary of general information on all samples
-
-
-<br>
-
----
-
-## 9. Alignment QC
-
-```bash
-# sorting bam file
-samtools sort -@ 4 -o sample-1_trimmed_bismark_bt2.sorted.bam \
-         sample-1_trimmed_bismark_bt2.bam
-    # note, input should be the deduplicated version produced 
-    # in step 5 above if not working with RRBS data
-
-qualimap bamqc -bam sample-1_trimmed_bismark_bt2.sorted.bam \
-         -outdir sample-1_trimmed_bismark_bt2_qualimap \
-         --collect-overlap-pairs --java-mem-size=6G -nt 4
-```
-
-**Parameter Definitions for `samtools`:**
-
-* `sort` - specifies the sub-program of `samtools`
-* `-@` - where to specify the number of threads to use
-* `-o` - specifies the output file name
-* the positional argument is the input bam file 
-
-**Parameter Definitions for `qualimap`:**
-
-* `bamqc` - specifies the sub-program of `qualimap`
-* `-bam` - where to specify the input bam file
-* `-outdir` - where to specify the output directory
-* `--collect-overlap-pairs` - includes statistics of overlapping paired-end reads (if data were paired-end, no effect if single-end)
-* `--java-mem-size=6G` - where to specify the amount of memory to use (here 6G)
-* `-nt` - where to specify the number of threads to use
-
-**Input data:**
-
-* sample-1_trimmed_bismark_bt2.bam - bam file produced above (in step 4 if data are RRBS, or step 5 if not)
-
-> **NOTE**  
-> If data are **not** RRBS, the input bam file should be the deduplicated one produced by step 5 above. 
-
-**Output data:**
-
-* `sample-1_trimmed_bismark_bt2_qualimap/` - subdirectory of multiple alignment QC output files presented in an html file (see [qualimap documentation](http://qualimap.conesalab.org/doc_html/analysis.html#output))
 
 
 <br>
@@ -617,6 +611,10 @@ awk ' $3 == "transcript" ' Mus_musculus.GRCm38.101.gtf | cut -f 9 | tr -s ";" "\
 ---
 
 ## 12. Differential methylation analysis
+
+> **TEMPORARY NOTE**  
+> Right now we're using methykit for this. There's a comparison paper of that and some other tools [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8345583/).
+> After looking through that, I think methylkit is still the way to go as it performs as well as or better than the rest for identifying differentially methylated cytosines and differentially methylated regions (DSS did poorly on regions), and it has helper functionality for things like adding feature information.
 
 Example data for the R code below can be downloaded and unpacked with the following:
 
@@ -758,6 +756,9 @@ write.table(perc.meth, "percent-methylated.tsv", sep = "\t",
 
 
 \* all of these files, except "percent-methylated.tsv", will be prefixed with contrasted groups, e.g. Group_1_vs_Group_2-\*
+
+> **TEMPORARY NOTE**  
+> This section isn't completely up-to-date. There will also included an overview figure of what percent of identified methylated C's are in specific features (like promoter, exon, intron). And will include similar files as above but for differentially methylated regions (blocks of 1,000 bp windows).
 
 ---
 ---
