@@ -37,12 +37,12 @@ process STAGE_RAW_READS {
   script:
     if ( meta.paired_end ) {
       """
-      cp -L 1.gz ${meta.id}_R1_raw.fastq.gz
-      cp -L 2.gz ${meta.id}_R2_raw.fastq.gz
+      cp -P 1.gz ${meta.id}_R1_raw.fastq.gz
+      cp -P 2.gz ${meta.id}_R2_raw.fastq.gz
       """
     } else {
       """
-      cp -L 1.gz  ${meta.id}_raw.fastq.gz
+      cp -P 1.gz  ${meta.id}_raw.fastq.gz
       """
     }
 }
@@ -133,12 +133,14 @@ process SOFTWARE_VERSIONS {
 // Original Function Credit: Dr. Harshil Patel
 // Function to get list of [ meta, [ fastq_1_path, fastq_2_path ] ]
 def get_runsheet_paths(LinkedHashMap row) {
+    // 'Short names' as per: http://www.pantherdb.org/panther/summaryStats.jsp
     def ORGANISMS = ["mus_musculus":"MOUSE",
                      "danio_rerio":"ZEBRAFISH",
                      "rattus_norvegicus":"RAT",
                      "homo_sapiens":"HUMAN",
                      "drosophila_melanogaster":"FLY",
                      "caenorhabditis_elegans":"WORM",
+                     "brachypodium_distachyon":"BRADI",
                      "arabidopsis_thaliana":"ARABIDOPSIS"]
 
     def PRIMARY_KEYS = ["mus_musculus":"ENSEMBL",
@@ -147,6 +149,7 @@ def get_runsheet_paths(LinkedHashMap row) {
                         "homo_sapiens":"ENSEMBL",
                         "drosophila_melanogaster":"ENSEMBL",
                         "caenorhabditis_elegans":"ENSEMBL",
+                        "brachypodium_distachyon":"ENSEMBL",
                         "arabidopsis_thaliana":"TAIR"]
 
     def meta = [:]
