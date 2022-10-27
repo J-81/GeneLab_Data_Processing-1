@@ -37,12 +37,12 @@ process STAGE_RAW_READS {
   script:
     if ( meta.paired_end ) {
       """
-      cp -L 1.gz ${meta.id}_R1_raw.fastq.gz
-      cp -L 2.gz ${meta.id}_R2_raw.fastq.gz
+      cp -P 1.gz ${meta.id}_R1_raw.fastq.gz
+      cp -P 2.gz ${meta.id}_R2_raw.fastq.gz
       """
     } else {
       """
-      cp -L 1.gz  ${meta.id}_raw.fastq.gz
+      cp -P 1.gz  ${meta.id}_raw.fastq.gz
       """
     }
 }
